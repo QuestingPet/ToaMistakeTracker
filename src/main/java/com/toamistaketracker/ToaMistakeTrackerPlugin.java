@@ -2,30 +2,25 @@ package com.toamistaketracker;
 
 import com.google.inject.Provides;
 import com.toamistaketracker.detector.MistakeDetectorManager;
+import com.toamistaketracker.events.InRaidChanged;
+import com.toamistaketracker.events.RaidEntered;
+import com.toamistaketracker.overlay.DebugOverlay;
+import com.toamistaketracker.overlay.DebugOverlayPanel;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.Actor;
-import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
-import net.runelite.api.GameState;
-import net.runelite.api.Player;
-import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
-import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.ui.overlay.OverlayManager;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @PluginDescriptor(
@@ -53,28 +48,31 @@ public class ToaMistakeTrackerPlugin extends Plugin {
     @Inject
     private RaidState raidState;
 
+    @Inject
+    private OverlayManager overlayManager;
+
+    @Inject
+    private DebugOverlay debugOverlay;
+
+    @Inject
+    private DebugOverlayPanel debugOverlayPanel;
+
     @Override
     protected void startUp() throws Exception {
+        overlayManager.add(debugOverlay);
+        overlayManager.add(debugOverlayPanel);
+
         clientThread.invoke(() -> {
             raidState.startUp();
-            mistakeDetectorManager.startup();
         });
     }
 
     @Override
     protected void shutDown() throws Exception {
+        overlayManager.remove(debugOverlay);
+        overlayManager.remove(debugOverlayPanel);
+
         raidState.shutDown();
-        mistakeDetectorManager.shutdown();
-    }
-
-    private void checkRaidState() {
-        if (client.getGameState() != GameState.LOGGED_IN) return;
-
-        Widget widget = client.getWidget(WidgetInfo.TOA_RAID_LAYER);
-        if (widget == null) return;
-
-
-
     }
 
     // This should run *after* all detectors have handled the GameTick.
@@ -83,10 +81,6 @@ public class ToaMistakeTrackerPlugin extends Plugin {
         debugOverheadTicks();
 
         if (!raidState.isInRaid()) return;
-
-//        if (!allRaidersLoaded) {
-//            tryLoadRaiders();
-//        }
 
         // Try detecting all possible mistakes for this GameTick
         detectAll();
@@ -139,10 +133,19 @@ public class ToaMistakeTrackerPlugin extends Plugin {
     }
 
     @Subscribe
-    public void onGameStateChanged(GameStateChanged gameStateChanged) {
-        if (gameStateChanged.getGameState() == GameState.LOGGED_IN) {
-            client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "Example says " + config.greeting(), null);
+    public void onInRaidChanged(InRaidChanged e) {
+        if (e.isInRaid()) {
+            log.debug("Starting detectors");
+            mistakeDetectorManager.startup();
+        } else {
+            log.debug("Shutting down detectors");
+            mistakeDetectorManager.shutdown();
         }
+    }
+
+    @Subscribe
+    public void onRaidEntered(RaidEntered e) {
+        // TODO: Reset panel and state for current raid
     }
 
     @Provides

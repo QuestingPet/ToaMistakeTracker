@@ -1,13 +1,11 @@
 package com.toamistaketracker.detector;
 
+import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.RaidState;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
-import com.toamistaketracker.ToaMistakeTrackerPlugin;
-import lombok.Getter;
 import lombok.NonNull;
 import net.runelite.api.Client;
-import net.runelite.client.callback.ClientThread;
 import net.runelite.client.eventbus.EventBus;
 
 import javax.inject.Inject;
@@ -19,13 +17,7 @@ import java.util.List;
 public abstract class BaseMistakeDetector {
 
     @Inject
-    protected ToaMistakeTrackerPlugin plugin;
-
-    @Inject
     protected Client client;
-
-    @Inject
-    protected ClientThread clientThread;
 
     @Inject
     protected EventBus eventBus;
@@ -33,35 +25,34 @@ public abstract class BaseMistakeDetector {
     @Inject
     protected RaidState raidState;
 
-    @Getter
-    public boolean detectingMistakes;
-
-    protected BaseMistakeDetector() {
-        detectingMistakes = false;
-    }
-
     /**
      * Used to tell a detector to start listening for events.
      */
     public void startup() {
+        cleanup();
         eventBus.register(this);
-        clientThread.invokeLater(this::computeDetectingMistakes);
     }
 
     /**
      * Shutdown and cleanup state. This is always called when the plugin is shutdown, or when a detector is finished.
      */
     public void shutdown() {
-        detectingMistakes = false;
         eventBus.unregister(this);
+        cleanup();
     }
 
     /**
-     * Compute if the detector should start detecting mistakes. This is always called from the client thread on startup.
-     * This allows for detectors to startup right away if the plugin is turned on mid-raid, for example, and they missed
-     * their normal startup trigger.
+     * Cleanup all relevant state in the detector. This is called during startup to reset state, and shutdown to cleanup
      */
-    protected abstract void computeDetectingMistakes();
+    public abstract void cleanup();
+
+    /**
+     * Determines whether or not this detector is currently detecting mistakes. Commonly this is by checking the current
+     * {@link RaidRoom} in the {@link RaidState}
+     *
+     * @return True if the detector is detecting mistakes, else false
+     */
+    public abstract boolean isDetectingMistakes();
 
     /**
      * Detects mistakes for the given raider.
@@ -73,9 +64,10 @@ public abstract class BaseMistakeDetector {
     public abstract List<ToaMistake> detectMistakes(@NonNull Raider raider);
 
     /**
-     * This optional method allows detectors to handle some logic after all detectMistakes methods have been invoked
-     * for this {@link net.runelite.api.events.GameTick}.
+     * This method allows detectors to handle some logic after all detectMistakes methods have been invoked
+     * for this {@link net.runelite.api.events.GameTick}. Commonly, this is to cleanup state from after this tick.
      */
     public void afterDetect() {
+        cleanup();
     }
 }

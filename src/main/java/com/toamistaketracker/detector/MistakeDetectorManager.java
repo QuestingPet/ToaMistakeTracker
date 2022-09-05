@@ -61,14 +61,11 @@ public class MistakeDetectorManager {
     }
 
     public List<ToaMistake> detectMistakes(@NonNull Raider raider) {
+        if (!started) return List.of();
+
         List<ToaMistake> mistakes = new ArrayList<>();
-
-        if (!started) {
-            return mistakes;
-        }
-
         for (BaseMistakeDetector mistakeDetector : mistakeDetectors) {
-            if (mistakeDetector.isDetectingMistakes()) {
+            if (mistakeDetector.isDetectingMistakes() && !raider.isDead()) {
                 mistakes.addAll(mistakeDetector.detectMistakes(raider));
             }
         }

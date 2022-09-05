@@ -1,30 +1,40 @@
 package com.toamistaketracker;
 
+import com.toamistaketracker.events.InRaidChanged;
+import com.toamistaketracker.events.RaidEntered;
+import com.toamistaketracker.events.RaidRoomChanged;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Actor;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
+import net.runelite.api.Player;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
-import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.util.Text;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Set;
+
+import static com.toamistaketracker.RaidRoom.RAID_LOBBY_INSIDE;
+import static com.toamistaketracker.RaidRoom.RAID_LOBBY_OUTSIDE;
 
 @Slf4j
 @Singleton
 @RequiredArgsConstructor(onConstructor_ = @Inject)
 public class RaidState {
+
+    private static final int TOA_RAIDERS_VARC_START = 1099;
+    private static final int MAX_RAIDERS = 8;
 
     private final Client client;
     private final EventBus eventBus;
@@ -39,58 +49,132 @@ public class RaidState {
     private int prevRegion;
 
     public void startUp() {
-        inRaid = false;
-        raiders = new HashMap<>();
-        prevRegion = -1;
+        clearState();
         eventBus.register(this);
     }
 
     public void shutDown() {
-        raiders.clear();
+        clearState();
         eventBus.unregister(this);
+    }
+
+    private void clearState() {
+        inRaid = false;
+        currentRoom = null;
+        raiders = new HashMap<>();
+        prevRegion = -1;
     }
 
     @Subscribe(priority = 5)
     public void onGameTick(GameTick e) {
         if (client.getGameState() != GameState.LOGGED_IN) return;
 
-        Widget widget = client.getWidget(WidgetInfo.TOA_RAID_LAYER);
-        inRaid = widget != null && !widget.isHidden();
+        int newRegion = getRegion();
+        if (newRegion == -1) return;
+
+        log.debug("Current region: {}", newRegion);
+
+        if (prevRegion != newRegion) {
+            regionChanged(newRegion);
+        }
+        prevRegion = newRegion;
+
+//        Widget widget = client.getWidget(WidgetInfo.TOA_RAID_LAYER);
+//        log.debug("Widget is null: {}", widget == null);
+//        log.debug("Widget is hidden: {}", widget != null && widget.isHidden());
+//        boolean newInRaid = widget != null && !widget.isHidden();
+        boolean newInRaid = currentRoom != null && currentRoom != RAID_LOBBY_OUTSIDE;
+        if (newInRaid != inRaid) {
+            log.debug("In Raid changed: {}", newInRaid);
+            eventBus.post(new InRaidChanged(newInRaid));
+        }
+
+        // TODO: ALWAYS COMPUTE THE REGION. WHERE DO WE GO IN TRANSITIONS?!?!?
+        inRaid = newInRaid;
 
         if (!inRaid) {
             log.debug("Not in raid");
-            currentRoom = null;
-            prevRegion = -1;
+            clearState();
             return;
         }
 
         log.debug("In raid");
 
         if (raiders.isEmpty()) {
-            // TODO: When reset? Probably from lobby -> inRaid:true
-            log.debug("Setting raiders");
-            // Raiders seem to be VarClientStr 1099 start. Need to test with more people. And on DC
-            raiders = client.getPlayers().stream()
-                    .filter(p -> Objects.equals(p.getName(), "Questing Pet"))
-                    .collect(Collectors.toMap(Actor::getName, Raider::new));
+            tryLoadRaiders();
         }
+    }
 
+    @Subscribe
+    public void onGameStateChanged(GameStateChanged event) {
+        if (event.getGameState() == GameState.LOADING) {
+            // If there are still raiders, they can't be dead anymore after loading.
+            for (Raider raider : raiders.values()) {
+                raider.setDead(false);
+            }
+        }
+    }
+
+    public boolean isRaider(Actor actor) {
+        return raiders.containsKey(actor.getName());
+    }
+
+    private int getRegion() {
         LocalPoint localPoint = client.getLocalPlayer().getLocalLocation();
-        final int region;
         if (localPoint == null) {
-            region = -1;
+            return -1;
         } else {
-            region = WorldPoint.fromLocalInstance(client, localPoint).getRegionID();
+            return WorldPoint.fromLocalInstance(client, localPoint).getRegionID();
+        }
+    }
+
+    private void regionChanged(int newRegion) {
+        log.debug("Region changed");
+        currentRoom = RaidRoom.forRegionId(newRegion);
+        if (currentRoom == null) {
+            return;
         }
 
-        if (prevRegion != region) {
-            currentRoom = RaidRoom.forRegionId(region);
-            log.debug("New room: {}", currentRoom);
-            if (currentRoom != null) {
-                eventBus.post(new RaidRoomChanged(currentRoom));
+        log.debug("New room: {}", currentRoom);
+        RaidRoom prevRoom = RaidRoom.forRegionId(prevRegion);
+        if (prevRoom == RAID_LOBBY_OUTSIDE && currentRoom == RAID_LOBBY_INSIDE) {
+            newRaid();
+        } else {
+            log.debug("Raid room changed: {}", currentRoom);
+            eventBus.post(RaidRoomChanged.builder().newRaidRoom(currentRoom).prevRaidRoom(prevRoom).build());
+        }
+
+        // TODO: RaidFinished?
+    }
+
+    private void newRaid() {
+        log.debug("New raid");
+        tryLoadRaiders();
+        eventBus.post(new RaidEntered());
+    }
+
+    private void tryLoadRaiders() {
+        log.debug("Setting raiders");
+        raiders.clear();
+
+        // TODO: Raiders seem to be VarClientStr 1099 start. Need to test with more people. And on DC
+        Set<String> raiderNames = new HashSet<>(MAX_RAIDERS);
+        for (int i = 0; i < MAX_RAIDERS; i++) {
+            String name = client.getVarcStrValue(TOA_RAIDERS_VARC_START + i);
+            if (name != null && !name.isEmpty()) {
+                raiderNames.add(Text.sanitize(name));
             }
         }
 
-        prevRegion = region;
+        for (Player player : client.getPlayers()) {
+            if (player != null &&
+                    player.getName() != null &&
+                    !raiders.containsKey(player.getName()) &&
+                    raiderNames.contains(player.getName())) {
+                raiders.put(player.getName(), new Raider(player));
+            }
+        }
+
+        log.debug("Loaded raiders: {}", raiders.keySet());
     }
 }
