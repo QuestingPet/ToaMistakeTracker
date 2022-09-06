@@ -1,5 +1,7 @@
 package com.toamistaketracker.detector;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,23 +10,36 @@ import java.util.Map;
  */
 public class AppliedHitsplatsTracker {
 
-    private final Map<String, Integer> appliedHitsplats = new HashMap<>(); // name -> # of hitsplats applied this tick
+    private final Map<String, Integer> appliedHitsplats; // name -> # of hitsplats applied this tick
+
+    public AppliedHitsplatsTracker() {
+        appliedHitsplats = new HashMap<>();
+    }
 
     /**
-     * Since multiple players could be on this tile, confirm there's a corresponding hitsplat applied to that raider
+     * Since multiple players could be on this tile, confirm there's a corresponding hitsplat applied to that raider.
+     * This will pop a corresponding hitsplat for the player, if there are any and return true, otherwise false
      *
      * @param name The name of the raider
      * @return True if there was a hitsplat applied to the specified raider on this tick, else false
      */
-    public boolean hasHitsplatApplied(String name) {
-        return appliedHitsplats.containsKey(name) && appliedHitsplats.get(name) > 0;
+    public boolean popHitsplatApplied(String name) {
+        boolean hasHitsplat = appliedHitsplats.containsKey(name) && appliedHitsplats.get(name) > 0;
+        if (hasHitsplat) {
+            removeHitsplatForRaider(name);
+        }
+        return hasHitsplat;
     }
 
     public void addHitsplatForRaider(String name) {
         appliedHitsplats.compute(name, this::increment);
     }
 
-    public void removeHitsplatForRaider(String name) {
+    public void addAllHitsplats(AppliedHitsplatsTracker other) {
+        this.appliedHitsplats.putAll(other.appliedHitsplats);
+    }
+
+    private void removeHitsplatForRaider(String name) {
         appliedHitsplats.compute(name, this::decrement);
     }
 

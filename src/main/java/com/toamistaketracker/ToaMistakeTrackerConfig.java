@@ -8,12 +8,24 @@ import net.runelite.client.config.ConfigItem;
 public interface ToaMistakeTrackerConfig extends Config
 {
 	@ConfigItem(
-		keyName = "greeting",
-		name = "Welcome Greeting",
-		description = "The message to show to the user when they login"
+			keyName = "showMistakesInChat",
+			name = "Show Mistakes In Chat",
+			description = "When a player makes a mistake in ToA, whether or not to log the mistake message to your " +
+					"public chat.",
+			position = 1
 	)
-	default String greeting()
-	{
-		return "Hello";
+	default boolean showMistakesInChat() {
+		return true;
+	}
+
+	@ConfigItem(
+			keyName = "showMistakesOnOverheadText",
+			name = "Show Mistakes On Overhead Text",
+			description = "When a player makes a mistake in ToA, whether or not to show the mistake message above " +
+					"their head as overhead text.",
+			position = 2
+	)
+	default boolean showMistakesOnOverheadText() {
+		return true;
 	}
 }

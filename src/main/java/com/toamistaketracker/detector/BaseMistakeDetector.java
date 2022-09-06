@@ -5,7 +5,10 @@ import com.toamistaketracker.RaidState;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
 import lombok.NonNull;
+import net.runelite.api.Actor;
 import net.runelite.api.Client;
+import net.runelite.api.GraphicsObject;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.eventbus.EventBus;
 
 import javax.inject.Inject;
@@ -69,5 +72,13 @@ public abstract class BaseMistakeDetector {
      */
     public void afterDetect() {
         cleanup();
+    }
+
+    protected WorldPoint getWorldPoint(Actor actor) {
+        return WorldPoint.fromLocal(client, actor.getLocalLocation());
+    }
+
+    protected WorldPoint getWorldPoint(GraphicsObject graphicsObject) {
+        return WorldPoint.fromLocal(client, graphicsObject.getLocation());
     }
 }

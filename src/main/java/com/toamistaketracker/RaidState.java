@@ -14,6 +14,7 @@ import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
+import net.runelite.api.events.ScriptPostFired;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.util.Text;
@@ -33,6 +34,7 @@ import static com.toamistaketracker.RaidRoom.RAID_LOBBY_OUTSIDE;
 @RequiredArgsConstructor(onConstructor_ = @Inject)
 public class RaidState {
 
+    private static final int TOA_HUD_INIT_STATUS_NAMES_SCRIPT_ID = 6585;
     private static final int TOA_RAIDERS_VARC_START = 1099;
     private static final int MAX_RAIDERS = 8;
 
@@ -44,7 +46,8 @@ public class RaidState {
     @Getter
     private RaidRoom currentRoom;
     @Getter
-    private Map<String, Raider> raiders; // name -> raider
+    private final Map<String, Raider> raiders = new HashMap<>(); // name -> raider
+    // script 6576 check then
 
     private int prevRegion;
 
@@ -61,7 +64,7 @@ public class RaidState {
     private void clearState() {
         inRaid = false;
         currentRoom = null;
-        raiders = new HashMap<>();
+        raiders.clear();
         prevRegion = -1;
     }
 
@@ -72,7 +75,7 @@ public class RaidState {
         int newRegion = getRegion();
         if (newRegion == -1) return;
 
-        log.debug("Current region: {}", newRegion);
+//        log.debug("Current region: {}", newRegion);
 
         if (prevRegion != newRegion) {
             regionChanged(newRegion);
@@ -89,17 +92,14 @@ public class RaidState {
             eventBus.post(new InRaidChanged(newInRaid));
         }
 
-        // TODO: ALWAYS COMPUTE THE REGION. WHERE DO WE GO IN TRANSITIONS?!?!?
         inRaid = newInRaid;
 
         if (!inRaid) {
-            log.debug("Not in raid");
-            clearState();
+            raiders.clear();
             return;
         }
 
-        log.debug("In raid");
-
+        // If we still haven't loaded any raiders, keep trying (plugin might have been turned on mid-raid, after script)
         if (raiders.isEmpty()) {
             tryLoadRaiders();
         }
@@ -112,6 +112,13 @@ public class RaidState {
             for (Raider raider : raiders.values()) {
                 raider.setDead(false);
             }
+        }
+    }
+
+    @Subscribe
+    public void onScriptPostFired(ScriptPostFired event) {
+        if (event.getScriptId() == TOA_HUD_INIT_STATUS_NAMES_SCRIPT_ID) {
+            tryLoadRaiders();
         }
     }
 
@@ -149,18 +156,20 @@ public class RaidState {
 
     private void newRaid() {
         log.debug("New raid");
-        tryLoadRaiders();
+        // We can't load the raiders yet, as they're not set in the varcs until a few ticks later. The toa hud init
+        // script will take care of it for us
         eventBus.post(new RaidEntered());
     }
 
     private void tryLoadRaiders() {
+        // TODO: Handle turning plugin on mid-raid
         log.debug("Setting raiders");
         raiders.clear();
 
-        // TODO: Raiders seem to be VarClientStr 1099 start. Need to test with more people. And on DC
         Set<String> raiderNames = new HashSet<>(MAX_RAIDERS);
         for (int i = 0; i < MAX_RAIDERS; i++) {
             String name = client.getVarcStrValue(TOA_RAIDERS_VARC_START + i);
+            log.debug("VARC {} - {}", TOA_RAIDERS_VARC_START + i, name);
             if (name != null && !name.isEmpty()) {
                 raiderNames.add(Text.sanitize(name));
             }
@@ -175,6 +184,7 @@ public class RaidState {
             }
         }
 
+        log.debug("Loaded raiderNames: {}", raiderNames);
         log.debug("Loaded raiders: {}", raiders.keySet());
     }
 }

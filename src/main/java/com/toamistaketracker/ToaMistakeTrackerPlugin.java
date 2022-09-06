@@ -8,7 +8,10 @@ import com.toamistaketracker.overlay.DebugOverlay;
 import com.toamistaketracker.overlay.DebugOverlayPanel;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
+import net.runelite.api.Constants;
+import net.runelite.api.Player;
 import net.runelite.api.events.GameTick;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
@@ -29,6 +32,10 @@ import java.util.Objects;
 public class ToaMistakeTrackerPlugin extends Plugin {
 
     static final String CONFIG_GROUP = "toaMistakeTracker";
+
+    private static final int OVERHEAD_TEXT_TICK_TIMEOUT = 5;
+    private static final int CYCLES_PER_GAME_TICK = Constants.GAME_TICK_LENGTH / Constants.CLIENT_TICK_LENGTH;
+    private static final int CYCLES_FOR_OVERHEAD_TEXT = OVERHEAD_TEXT_TICK_TIMEOUT * CYCLES_PER_GAME_TICK;
 
     @Inject
     private Client client;
@@ -108,8 +115,8 @@ public class ToaMistakeTrackerPlugin extends Plugin {
                     raider.setDead(true);
                 }
 
-//                addMistakeForPlayer(raider.getName(), mistake);
-//                addChatMessageForPlayerMistake(raider.getPlayer(), mistake);
+//                addMistakeToOverlayPanel(raider, mistake);
+                addChatMessageForMistake(raider, mistake);
             }
         }
 
@@ -123,6 +130,27 @@ public class ToaMistakeTrackerPlugin extends Plugin {
 
     private void afterDetectAll() {
         mistakeDetectorManager.afterDetect();
+    }
+
+    private void addChatMessageForMistake(Raider raider, ToaMistake mistake) {
+        final String overheadText = mistake.getChatMessage();
+        if (overheadText.isEmpty()) {
+            // This is the case for the universal DEATH mistake, for example.
+            return;
+        }
+
+        Player player = raider.getPlayer();
+
+        // Add to overhead text if config is enabled
+        if (config.showMistakesOnOverheadText()) {
+            player.setOverheadText(overheadText);
+            player.setOverheadCycle(CYCLES_FOR_OVERHEAD_TEXT);
+        }
+
+        // Add to chat box if config is enabled
+        if (config.showMistakesInChat()) {
+            client.addChatMessage(ChatMessageType.PUBLICCHAT, player.getName(), mistake.getChatMessage(), null);
+        }
     }
 
     private void debugOverheadTicks() {

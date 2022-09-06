@@ -6,9 +6,11 @@ import lombok.NonNull;
 public enum ToaMistake {
     // All death chat messages will be handled by the corresponding specific DEATH enum
     DEATH("Death", "death.png", ""),
-    HET_PUZZLE_LIGHT("Light", "", "Light hit me"),
-    HET_PUZZLE_DARK_ORB("Dark Orb", "", "Dark hit me"),
-    AKKHA_QUADRANT_SPECIAL("Akkha quad spec", "", "akkha quad spec hit me"),
+    HET_PUZZLE_LIGHT("Light", "", "Ah! It burns!"),
+    HET_PUZZLE_DARK_ORB("Dark Orb", "", "I can't dodge!"),
+    AKKHA_SPECIAL_QUADRANT_BOMB("Akkha quad spec", "", "I'm too slow!"),
+    AKKHA_SPECIAL_ELEMENTAL_ORBS("Akkha spec elemental orbs", "", "Weeeee!"),
+    AKKHA_UNSTABLE_ORB("Akkha unstable orb", "", "Akkha unstable orb"),
     ;
 
     @Getter

@@ -64,16 +64,12 @@ public class DebugOverlay extends Overlay {
             }
         }
 
-        for (WorldPoint worldPoint : hetPuzzleDetector.getOrbHitTiles()) {
-            renderTile(graphics, toLocalPoint(worldPoint), Color.BLACK);
-        }
-
-        for (WorldPoint worldPoint : hetPuzzleDetector.getLightHitTiles()) {
-            renderTile(graphics, toLocalPoint(worldPoint), Color.WHITE);
-        }
-
-        for (WorldPoint worldPoint : akkhaDetector.getQuadrantSpecialTiles()) {
+        for (WorldPoint worldPoint : akkhaDetector.getUnstableOrbHitTilesDebug()) {
             renderTile(graphics, toLocalPoint(worldPoint), Color.RED);
+        }
+
+        for (WorldPoint worldPoint : akkhaDetector.getUnstableOrbHitTiles2Debug()) {
+            renderTile(graphics, toLocalPoint(worldPoint), Color.GREEN);
         }
 
         return null;
