@@ -64,14 +64,6 @@ public class DebugOverlay extends Overlay {
             }
         }
 
-        for (WorldPoint worldPoint : akkhaDetector.getUnstableOrbHitTilesDebug()) {
-            renderTile(graphics, toLocalPoint(worldPoint), Color.RED);
-        }
-
-        for (WorldPoint worldPoint : akkhaDetector.getUnstableOrbHitTiles2Debug()) {
-            renderTile(graphics, toLocalPoint(worldPoint), Color.GREEN);
-        }
-
         return null;
     }
 
