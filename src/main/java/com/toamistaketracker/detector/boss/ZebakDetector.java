@@ -22,6 +22,18 @@ import static com.toamistaketracker.RaidRoom.ZEBAK;
 @Singleton
 public class ZebakDetector extends BaseMistakeDetector {
 
+    private static final int CHOMP_ANIMATION_ID = 9620;
+    private static final int CHOMP_HIT_DELAY_IN_TICKS = 2;
+
+    // chomp detect if you're in melee distance after the 2 tick delay? Not sure of a better way. Can he chomp multiple ppl? I think so
+    // acid can just check for poison hitsplat tbh. Nvm cuz of natural poison tick.
+    // wave check to see if your previous location is same as wave's WORLD(?) location TODO: What about in water?
+    // acid is 45570,1,2,3,4,5,6 game object
+    // wave is 11738 (Wave)
+    // earthquake is 2184 graphics object
+    // Blood Cloud can check for heal hitsplat and *all* raiders on that tile that tick
+
+
     public ZebakDetector() {
     }
 
