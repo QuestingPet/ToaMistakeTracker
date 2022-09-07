@@ -1,5 +1,6 @@
 package com.toamistaketracker.detector.puzzle;
 
+import com.google.common.base.MoreObjects;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
 import com.toamistaketracker.detector.BaseMistakeDetector;
@@ -114,6 +115,7 @@ public class CrondisPuzzleDetector extends BaseMistakeDetector {
     @Getter
     private Set<WorldPoint> palmTreeTiles;
 
+    private final Set<String> raidersAnimatingWater;
     private final Set<String> raidersWithWater;
     private final Set<String> raidersLostWater;
     private final Set<String> raidersWatering;
@@ -123,6 +125,7 @@ public class CrondisPuzzleDetector extends BaseMistakeDetector {
         waterFallTiles = new HashSet<>();
         palmTreeTiles = new HashSet<>();
 
+        raidersAnimatingWater = new HashSet<>();
         raidersWithWater = new HashSet<>();
         raidersLostWater = new HashSet<>();
         raidersWatering = new HashSet<>();
@@ -133,6 +136,7 @@ public class CrondisPuzzleDetector extends BaseMistakeDetector {
         waterFallTiles.clear();
         palmTreeTiles.clear();
 
+        raidersAnimatingWater.clear();
         raidersWithWater.clear();
         raidersLostWater.clear();
         raidersWatering.clear();
@@ -154,6 +158,11 @@ public class CrondisPuzzleDetector extends BaseMistakeDetector {
 
     @Override
     public List<ToaMistake> detectMistakes(@NonNull Raider raider) {
+        // This needs to be done here, as the player's location hasn't been updated yet during HitsplatApplied-time.
+        if (raidersAnimatingWater.contains(raider.getName())) {
+            computeRaiderWatering(raider);
+        }
+
         List<ToaMistake> mistakes = new ArrayList<>();
 
         log.debug("Current Raider: {}", raider.getName());
@@ -176,8 +185,20 @@ public class CrondisPuzzleDetector extends BaseMistakeDetector {
         return mistakes;
     }
 
+    private void computeRaiderWatering(Raider raider) {
+        if (waterFallTiles.contains(raider.getCurrentWorldLocation())) {
+            log.debug("{} filling water", raider.getName());
+            raidersWithWater.add(raider.getName());
+            raidersLostWater.remove(raider.getName());
+        } else if (palmTreeTiles.contains(raider.getCurrentWorldLocation())) {
+            log.debug("{} watering", raider.getName());
+            raidersWatering.add(raider.getName());
+        }
+    }
+
     @Override
     public void afterDetect() {
+        raidersAnimatingWater.clear();
         raidersWatering.clear();
         lowWaterHitsplats = 0;
     }
@@ -208,14 +229,7 @@ public class CrondisPuzzleDetector extends BaseMistakeDetector {
             return;
         }
 
-        if (waterFallTiles.contains(event.getActor().getWorldLocation())) {
-            log.debug("{} filling water", event.getActor().getName());
-            raidersWithWater.add(event.getActor().getName());
-            raidersLostWater.remove(event.getActor().getName());
-        } else if (palmTreeTiles.contains(event.getActor().getWorldLocation())) {
-            log.debug("{} watering", event.getActor().getName());
-            raidersWatering.add(event.getActor().getName());
-        }
+        raidersAnimatingWater.add(event.getActor().getName());
     }
 
     private boolean isDamageHitsplat(int hitsplatType) {
