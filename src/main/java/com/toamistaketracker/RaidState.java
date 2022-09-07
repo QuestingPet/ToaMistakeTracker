@@ -99,7 +99,9 @@ public class RaidState {
             return;
         }
 
-        // If we still haven't loaded any raiders, keep trying (plugin might have been turned on mid-raid, after script)
+        // If we still haven't loaded any raiders, keep trying. This can happen if the plugin is turned on mid-raid,
+        // after the script can run. Or if the script runs but the relevant players aren't actually in the raid
+        // yet for the client to retrieve.
         if (raiders.isEmpty()) {
             tryLoadRaiders();
         }
@@ -170,7 +172,7 @@ public class RaidState {
     }
 
     private void tryLoadRaiders() {
-        // TODO: Handle turning plugin on mid-raid
+        // TODO: Test log out.
         log.debug("Setting raiders");
         raiders.clear();
 
@@ -194,5 +196,10 @@ public class RaidState {
 
         log.debug("Loaded raiderNames: {}", raiderNames);
         log.debug("Loaded raiders: {}", raiders.keySet());
+
+        if (raiders.size() < raiderNames.size()) {
+            log.debug("Not enough raiders loaded. Will try again later...");
+            raiders.clear();
+        }
     }
 }
