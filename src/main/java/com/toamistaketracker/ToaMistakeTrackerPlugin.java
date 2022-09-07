@@ -80,12 +80,13 @@ public class ToaMistakeTrackerPlugin extends Plugin {
         overlayManager.remove(debugOverlayPanel);
 
         raidState.shutDown();
+        mistakeDetectorManager.shutdown();
     }
 
     // This should run *after* all detectors have handled the GameTick.
     @Subscribe(priority = -1)
     public void onGameTick(GameTick event) {
-        debugOverheadTicks();
+//        debugOverheadTicks();
 
         if (!raidState.isInRaid()) return;
 

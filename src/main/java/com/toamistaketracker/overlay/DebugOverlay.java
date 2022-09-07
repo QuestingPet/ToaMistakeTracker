@@ -3,6 +3,7 @@ package com.toamistaketracker.overlay;
 import com.toamistaketracker.RaidState;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.detector.boss.AkkhaDetector;
+import com.toamistaketracker.detector.puzzle.CrondisPuzzleDetector;
 import com.toamistaketracker.detector.puzzle.HetPuzzleDetector;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
@@ -33,6 +34,7 @@ public class DebugOverlay extends Overlay {
     private final RaidState raidState;
 
     private final HetPuzzleDetector hetPuzzleDetector;
+    private final CrondisPuzzleDetector crondisPuzzleDetector;
     private final AkkhaDetector akkhaDetector;
 
     @Inject
@@ -40,6 +42,7 @@ public class DebugOverlay extends Overlay {
                         Client client,
                         RaidState raidState,
                         HetPuzzleDetector hetPuzzleDetector,
+                        CrondisPuzzleDetector crondisPuzzleDetector,
                         AkkhaDetector akkhaDetector) {
         setPosition(OverlayPosition.DYNAMIC);
         setLayer(OverlayLayer.ABOVE_SCENE);
@@ -50,6 +53,7 @@ public class DebugOverlay extends Overlay {
         this.raidState = raidState;
 
         this.hetPuzzleDetector = hetPuzzleDetector;
+        this.crondisPuzzleDetector = crondisPuzzleDetector;
         this.akkhaDetector = akkhaDetector;
     }
 
@@ -62,6 +66,14 @@ public class DebugOverlay extends Overlay {
                 LocalPoint localPoint = toLocalPoint(raider.getPreviousWorldLocationForOverlay());
                 renderTile(graphics, localPoint, Color.MAGENTA);
             }
+        }
+
+        for (WorldPoint worldPoint : crondisPuzzleDetector.getWaterFallTiles()) {
+            renderTile(graphics, toLocalPoint(worldPoint), Color.RED);
+        }
+
+        for (WorldPoint worldPoint : crondisPuzzleDetector.getPalmTreeTiles()) {
+            renderTile(graphics, toLocalPoint(worldPoint), Color.GREEN);
         }
 
         return null;

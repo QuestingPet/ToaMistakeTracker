@@ -4,7 +4,14 @@ import com.google.common.annotations.VisibleForTesting;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
 import com.toamistaketracker.detector.boss.AkkhaDetector;
+import com.toamistaketracker.detector.boss.BabaDetector;
+import com.toamistaketracker.detector.boss.KephriDetector;
+import com.toamistaketracker.detector.boss.WardensDetector;
+import com.toamistaketracker.detector.boss.ZebakDetector;
+import com.toamistaketracker.detector.puzzle.ApmekenPuzzleDetector;
+import com.toamistaketracker.detector.puzzle.CrondisPuzzleDetector;
 import com.toamistaketracker.detector.puzzle.HetPuzzleDetector;
+import com.toamistaketracker.detector.puzzle.ScabarasPuzzleDetector;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -36,12 +43,26 @@ public class MistakeDetectorManager {
     private boolean started;
 
     @Inject
-    public MistakeDetectorManager(AkkhaDetector akkhaDetector,
-                                  HetPuzzleDetector hetPuzzleDetector) {
+    public MistakeDetectorManager(HetPuzzleDetector hetPuzzleDetector,
+                                  CrondisPuzzleDetector crondisPuzzleDetector,
+                                  ScabarasPuzzleDetector scabarasPuzzleDetector,
+                                  ApmekenPuzzleDetector apmekenPuzzleDetector,
+                                  AkkhaDetector akkhaDetector,
+                                  ZebakDetector zebakDetector,
+                                  KephriDetector kephriDetector,
+                                  BabaDetector babaDetector,
+                                  WardensDetector wardensDetector) {
         // Order matters -- death should be last
         this.mistakeDetectors = new ArrayList<>(Arrays.asList(
+                hetPuzzleDetector,
+                crondisPuzzleDetector,
+                scabarasPuzzleDetector,
+                apmekenPuzzleDetector,
                 akkhaDetector,
-                hetPuzzleDetector));
+                zebakDetector,
+                kephriDetector,
+                babaDetector,
+                wardensDetector));
         this.started = false;
     }
 

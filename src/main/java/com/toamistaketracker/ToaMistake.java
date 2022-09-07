@@ -11,6 +11,7 @@ public enum ToaMistake {
     AKKHA_SPECIAL_QUADRANT_BOMB("Akkha quad spec", "", "I'm too slow!"),
     AKKHA_SPECIAL_ELEMENTAL_ORBS("Akkha spec elemental orbs", "", "Weeeee!"),
     AKKHA_UNSTABLE_ORB("Akkha unstable orb", "", "Akkha unstable orb"),
+    CRONDIS_PUZZLE_LOW_WATER("Path of Crondis Low Watering", "", "I lost some water!"),
     ;
 
     @Getter

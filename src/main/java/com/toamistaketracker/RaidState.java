@@ -57,8 +57,8 @@ public class RaidState {
     }
 
     public void shutDown() {
-        clearState();
         eventBus.unregister(this);
+        clearState();
     }
 
     private void clearState() {
@@ -86,13 +86,13 @@ public class RaidState {
 //        log.debug("Widget is null: {}", widget == null);
 //        log.debug("Widget is hidden: {}", widget != null && widget.isHidden());
 //        boolean newInRaid = widget != null && !widget.isHidden();
-        boolean newInRaid = currentRoom != null && currentRoom != RAID_LOBBY_OUTSIDE;
-        if (newInRaid != inRaid) {
-            log.debug("In Raid changed: {}", newInRaid);
-            eventBus.post(new InRaidChanged(newInRaid));
-        }
-
-        inRaid = newInRaid;
+//        boolean newInRaid = currentRoom != null && currentRoom != RAID_LOBBY_OUTSIDE;
+//        if (newInRaid != inRaid) {
+//            log.debug("In Raid changed: {}", newInRaid);
+//            eventBus.post(new InRaidChanged(newInRaid));
+//        }
+//
+//        inRaid = newInRaid;
 
         if (!inRaid) {
             raiders.clear();
@@ -143,6 +143,14 @@ public class RaidState {
         }
 
         log.debug("New room: {}", currentRoom);
+
+        boolean newInRaid = currentRoom != RAID_LOBBY_OUTSIDE;
+        if (newInRaid != inRaid) {
+            log.debug("In Raid changed: {}", newInRaid);
+            eventBus.post(new InRaidChanged(newInRaid));
+        }
+        inRaid = newInRaid;
+
         RaidRoom prevRoom = RaidRoom.forRegionId(prevRegion);
         if (prevRoom == RAID_LOBBY_OUTSIDE && currentRoom == RAID_LOBBY_INSIDE) {
             newRaid();

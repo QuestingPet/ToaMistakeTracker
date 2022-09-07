@@ -34,4 +34,8 @@ public enum RaidRoom {
 
         return null;
     }
+
+    public int getRegionId() {
+        return regionIds[0];
+    }
 }
