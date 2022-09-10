@@ -1,6 +1,5 @@
 package com.toamistaketracker.detector.puzzle;
 
-import com.google.common.base.MoreObjects;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
 import com.toamistaketracker.detector.BaseMistakeDetector;

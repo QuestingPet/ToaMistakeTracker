@@ -2,7 +2,9 @@ package com.toamistaketracker.overlay;
 
 import com.toamistaketracker.RaidState;
 import com.toamistaketracker.Raider;
+import com.toamistaketracker.ToaMistakeTrackerConfig;
 import com.toamistaketracker.detector.boss.AkkhaDetector;
+import com.toamistaketracker.detector.boss.ZebakDetector;
 import com.toamistaketracker.detector.puzzle.CrondisPuzzleDetector;
 import com.toamistaketracker.detector.puzzle.HetPuzzleDetector;
 import lombok.extern.slf4j.Slf4j;
@@ -32,22 +34,27 @@ public class DebugOverlay extends Overlay {
     private final boolean developerMode;
     private final Client client;
     private final RaidState raidState;
+    private final ToaMistakeTrackerConfig config;
 
     private final HetPuzzleDetector hetPuzzleDetector;
     private final CrondisPuzzleDetector crondisPuzzleDetector;
     private final AkkhaDetector akkhaDetector;
+    private final ZebakDetector zebakDetector;
 
     @Inject
     public DebugOverlay(@Named("developerMode") boolean developerMode,
                         Client client,
                         RaidState raidState,
+                        ToaMistakeTrackerConfig config,
                         HetPuzzleDetector hetPuzzleDetector,
                         CrondisPuzzleDetector crondisPuzzleDetector,
-                        AkkhaDetector akkhaDetector) {
+                        AkkhaDetector akkhaDetector,
+                        ZebakDetector zebakDetector) {
         setPosition(OverlayPosition.DYNAMIC);
         setLayer(OverlayLayer.ABOVE_SCENE);
         setPriority(OverlayPriority.MED);
 
+        this.config = config;
         this.developerMode = developerMode;
         this.client = client;
         this.raidState = raidState;
@@ -55,18 +62,13 @@ public class DebugOverlay extends Overlay {
         this.hetPuzzleDetector = hetPuzzleDetector;
         this.crondisPuzzleDetector = crondisPuzzleDetector;
         this.akkhaDetector = akkhaDetector;
+        this.zebakDetector = zebakDetector;
     }
 
     @Override
     public Dimension render(Graphics2D graphics) {
         if (!developerMode) return null;
-
-        for (Raider raider : raidState.getRaiders().values()) {
-            if (raider.getPreviousWorldLocationForOverlay() != null) {
-                LocalPoint localPoint = toLocalPoint(raider.getPreviousWorldLocationForOverlay());
-                renderTile(graphics, localPoint, Color.MAGENTA);
-            }
-        }
+        if (!config.debugMode()) return null;
 
         for (WorldPoint worldPoint : crondisPuzzleDetector.getWaterFallTiles()) {
             renderTile(graphics, toLocalPoint(worldPoint), Color.RED);
@@ -74,6 +76,13 @@ public class DebugOverlay extends Overlay {
 
         for (WorldPoint worldPoint : crondisPuzzleDetector.getPalmTreeTiles()) {
             renderTile(graphics, toLocalPoint(worldPoint), Color.GREEN);
+        }
+
+        for (Raider raider : raidState.getRaiders().values()) {
+            if (raider.getPreviousWorldLocationForOverlay() != null) {
+                LocalPoint localPoint = toLocalPoint(raider.getPreviousWorldLocationForOverlay());
+                renderTile(graphics, localPoint, Color.MAGENTA);
+            }
         }
 
         return null;

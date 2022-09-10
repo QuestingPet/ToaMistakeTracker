@@ -1,6 +1,7 @@
 package com.toamistaketracker.overlay;
 
 import com.toamistaketracker.RaidState;
+import com.toamistaketracker.ToaMistakeTrackerConfig;
 import com.toamistaketracker.ToaMistakeTrackerPlugin;
 import com.toamistaketracker.detector.BaseMistakeDetector;
 import com.toamistaketracker.detector.MistakeDetectorManager;
@@ -31,6 +32,7 @@ public class DebugOverlayPanel extends OverlayPanel {
 
     private final Client client;
     private final RaidState raidState;
+    private final ToaMistakeTrackerConfig config;
 
     private final MistakeDetectorManager mistakeDetectorManager;
 
@@ -39,6 +41,7 @@ public class DebugOverlayPanel extends OverlayPanel {
     @Inject
     public DebugOverlayPanel(Client client, ToaMistakeTrackerPlugin plugin,
                              RaidState raidState,
+                             ToaMistakeTrackerConfig config,
                              MistakeDetectorManager mistakeDetectorManager,
                              @Named("developerMode") boolean developerMode) {
         super(plugin);
@@ -47,6 +50,7 @@ public class DebugOverlayPanel extends OverlayPanel {
 
         this.client = client;
         this.raidState = raidState;
+        this.config = config;
         this.mistakeDetectorManager = mistakeDetectorManager;
         this.developerMode = developerMode;
 
@@ -57,6 +61,11 @@ public class DebugOverlayPanel extends OverlayPanel {
     @Override
     public Dimension render(Graphics2D graphics) {
         if (!developerMode) return null;
+        if (!config.debugMode()) return null;
+
+        panelComponent.getChildren().add(TitleComponent.builder()
+                .text("Game Tick: " + client.getTickCount())
+                .build());
 
         if (raidState.isInRaid()) {
             panelComponent.getChildren().add(TitleComponent.builder()
@@ -71,13 +80,15 @@ public class DebugOverlayPanel extends OverlayPanel {
         }
 
         panelComponent.getChildren().add(TitleComponent.builder()
-                .text("Raiders: " + raidState.getRaiders().keySet())
+                .text("Raiders:")
                 .color(raidState.getRaiders().isEmpty() ? Color.RED : Color.GREEN)
                 .build());
 
-        panelComponent.getChildren().add(TitleComponent.builder()
-                .text("Game Tick: " + client.getTickCount())
-                .build());
+        raidState.getRaiders().keySet().forEach(name -> {
+            panelComponent.getChildren().add(LineComponent.builder()
+                    .left(name)
+                    .build());
+        });
 
         // Add all mistake detectors
         renderMistakeDetector(mistakeDetectorManager.getClass().getSimpleName(),

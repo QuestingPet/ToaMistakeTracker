@@ -143,14 +143,15 @@ public class ToaMistakeTrackerPlugin extends Plugin {
         Player player = raider.getPlayer();
 
         // Add to overhead text if config is enabled
+
         if (config.showMistakesOnOverheadText()) {
-            player.setOverheadText(overheadText);
+            player.setOverheadText(client.getTickCount() + " " + overheadText);
             player.setOverheadCycle(CYCLES_FOR_OVERHEAD_TEXT);
         }
 
         // Add to chat box if config is enabled
         if (config.showMistakesInChat()) {
-            client.addChatMessage(ChatMessageType.PUBLICCHAT, player.getName(), mistake.getChatMessage(), null);
+            client.addChatMessage(ChatMessageType.PUBLICCHAT, player.getName(), client.getTickCount() + " " + mistake.getChatMessage(), null);
         }
     }
 

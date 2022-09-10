@@ -12,17 +12,16 @@ import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.toamistaketracker.RaidRoom.KEPHRI;
-import static com.toamistaketracker.RaidRoom.SCABARAS_PUZZLE;
+import static com.toamistaketracker.RaidRoom.SCARABAS_PUZZLE;
 
 /**
  *
  */
 @Slf4j
 @Singleton
-public class ScabarasPuzzleDetector extends BaseMistakeDetector {
+public class ScarabasPuzzleDetector extends BaseMistakeDetector {
 
-    public ScabarasPuzzleDetector() {
+    public ScarabasPuzzleDetector() {
     }
 
     @Override
@@ -31,12 +30,12 @@ public class ScabarasPuzzleDetector extends BaseMistakeDetector {
 
     @Override
     public boolean isDetectingMistakes() {
-        return raidState.getCurrentRoom() == SCABARAS_PUZZLE;
+        return raidState.getCurrentRoom() == SCARABAS_PUZZLE;
     }
 
     @Subscribe
     public void onRaidRoomChanged(RaidRoomChanged event) {
-        if (event.getPrevRaidRoom() == SCABARAS_PUZZLE) {
+        if (event.getPrevRaidRoom() == SCARABAS_PUZZLE) {
             shutdown();
         }
     }

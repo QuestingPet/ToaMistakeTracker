@@ -8,10 +8,11 @@ import com.toamistaketracker.detector.boss.BabaDetector;
 import com.toamistaketracker.detector.boss.KephriDetector;
 import com.toamistaketracker.detector.boss.WardensDetector;
 import com.toamistaketracker.detector.boss.ZebakDetector;
+import com.toamistaketracker.detector.death.DeathDetector;
 import com.toamistaketracker.detector.puzzle.ApmekenPuzzleDetector;
 import com.toamistaketracker.detector.puzzle.CrondisPuzzleDetector;
 import com.toamistaketracker.detector.puzzle.HetPuzzleDetector;
-import com.toamistaketracker.detector.puzzle.ScabarasPuzzleDetector;
+import com.toamistaketracker.detector.puzzle.ScarabasPuzzleDetector;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -30,12 +31,13 @@ import java.util.List;
  * The manager may call the startup() or shutdown() method on a detector at any time.
  * <p>
  * When the manager is on (started = true), then all other detectors are subscribed to the EventBus and
- * listening for events on when to turn themselves on/off. This will only be true while the player is in Tob.
+ * listening for events on when to turn themselves on/off. This will only be true while the player is in Toa.
  */
 @Slf4j
 @Singleton
 public class MistakeDetectorManager {
 
+    @Getter
     private final List<BaseMistakeDetector> mistakeDetectors;
 
     @Getter
@@ -45,30 +47,34 @@ public class MistakeDetectorManager {
     @Inject
     public MistakeDetectorManager(HetPuzzleDetector hetPuzzleDetector,
                                   CrondisPuzzleDetector crondisPuzzleDetector,
-                                  ScabarasPuzzleDetector scabarasPuzzleDetector,
+                                  ScarabasPuzzleDetector scarabasPuzzleDetector,
                                   ApmekenPuzzleDetector apmekenPuzzleDetector,
                                   AkkhaDetector akkhaDetector,
                                   ZebakDetector zebakDetector,
                                   KephriDetector kephriDetector,
                                   BabaDetector babaDetector,
-                                  WardensDetector wardensDetector) {
-        // Order matters -- death should be last
-        this.mistakeDetectors = new ArrayList<>(Arrays.asList(
+                                  WardensDetector wardensDetector,
+                                  DeathDetector deathDetector) {
+        // Order matters, since it's last write wins for which mistake gets put on overhead text. Death should be last.
+        this.mistakeDetectors = List.of(
                 hetPuzzleDetector,
                 crondisPuzzleDetector,
-                scabarasPuzzleDetector,
+                scarabasPuzzleDetector,
                 apmekenPuzzleDetector,
                 akkhaDetector,
                 zebakDetector,
                 kephriDetector,
                 babaDetector,
-                wardensDetector));
+                wardensDetector,
+                deathDetector
+        );
         this.started = false;
     }
 
     public void startup() {
         started = true;
         for (BaseMistakeDetector mistakeDetector : mistakeDetectors) {
+            // TODO: Don't startup ones that are not active? Could have the manager listen to the eventbus to start them
             mistakeDetector.startup();
         }
     }
@@ -102,9 +108,5 @@ public class MistakeDetectorManager {
                 mistakeDetector.afterDetect();
             }
         }
-    }
-
-    public List<BaseMistakeDetector> getMistakeDetectors() {
-        return Collections.unmodifiableList(mistakeDetectors);
     }
 }

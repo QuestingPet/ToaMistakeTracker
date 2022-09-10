@@ -12,7 +12,7 @@ public enum RaidRoom {
     RAID_LOBBY_INSIDE(new int[]{14160}),
     HET_PUZZLE(new int[]{14674}),
     CRONDIS_PUZZLE(new int[]{15698}),
-    SCABARAS_PUZZLE(new int[]{14162}),
+    SCARABAS_PUZZLE(new int[]{14162}),
     APMEKEN_PUZZLE(new int[]{15186}),
     AKKHA(new int[]{14676}),
     ZEBAK(new int[]{15700}),

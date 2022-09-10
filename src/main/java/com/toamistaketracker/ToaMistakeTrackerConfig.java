@@ -1,5 +1,6 @@
 package com.toamistaketracker;
 
+import net.runelite.api.annotations.VisibleForDevtools;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
@@ -27,5 +28,16 @@ public interface ToaMistakeTrackerConfig extends Config
 	)
 	default boolean showMistakesOnOverheadText() {
 		return true;
+	}
+
+	@VisibleForDevtools
+	@ConfigItem(
+			keyName = "debugMode",
+			name = "Debug Mode",
+			description = "Debug mode for rendering tiles",
+			position = 3
+	)
+	default boolean debugMode() {
+		return false;
 	}
 }
