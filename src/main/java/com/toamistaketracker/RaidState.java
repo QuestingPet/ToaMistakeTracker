@@ -112,6 +112,7 @@ public class RaidState {
         if (event.getGameState() == GameState.LOADING) {
             // If there are still raiders, they can't be dead anymore after loading.
             for (Raider raider : raiders.values()) {
+                log.debug("{} setDead(false): {}", client.getTickCount(), raider.getName());
                 raider.setDead(false);
             }
         }

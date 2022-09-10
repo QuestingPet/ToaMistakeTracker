@@ -1,5 +1,6 @@
 package com.toamistaketracker.detector.boss;
 
+import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
 import com.toamistaketracker.detector.BaseMistakeDetector;
@@ -12,7 +13,6 @@ import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.toamistaketracker.RaidRoom.KEPHRI;
 import static com.toamistaketracker.RaidRoom.WARDENS;
 
 /**
@@ -30,15 +30,8 @@ public class WardensDetector extends BaseMistakeDetector {
     }
 
     @Override
-    public boolean isDetectingMistakes() {
-        return raidState.getCurrentRoom() == WARDENS;
-    }
-
-    @Subscribe
-    public void onRaidRoomChanged(RaidRoomChanged event) {
-        if (event.getPrevRaidRoom() == WARDENS) {
-            shutdown();
-        }
+    public RaidRoom getRaidRoom() {
+        return WARDENS;
     }
 
     @Override

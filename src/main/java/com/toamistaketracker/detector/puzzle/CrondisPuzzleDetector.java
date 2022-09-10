@@ -1,9 +1,9 @@
 package com.toamistaketracker.detector.puzzle;
 
+import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
 import com.toamistaketracker.detector.BaseMistakeDetector;
-import com.toamistaketracker.events.RaidRoomChanged;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -131,6 +131,12 @@ public class CrondisPuzzleDetector extends BaseMistakeDetector {
     }
 
     @Override
+    public void startup() {
+        super.startup();
+        computeTiles();
+    }
+
+    @Override
     public void cleanup() {
         waterFallTiles.clear();
         palmTreeTiles.clear();
@@ -142,17 +148,8 @@ public class CrondisPuzzleDetector extends BaseMistakeDetector {
     }
 
     @Override
-    public boolean isDetectingMistakes() {
-        return raidState.getCurrentRoom() == CRONDIS_PUZZLE;
-    }
-
-    @Subscribe
-    public void onRaidRoomChanged(RaidRoomChanged event) {
-        if (event.getPrevRaidRoom() == CRONDIS_PUZZLE) {
-            shutdown();
-        } else if (event.getNewRaidRoom() == CRONDIS_PUZZLE) {
-            computeTiles();
-        }
+    public RaidRoom getRaidRoom() {
+        return CRONDIS_PUZZLE;
     }
 
     @Override
@@ -182,17 +179,6 @@ public class CrondisPuzzleDetector extends BaseMistakeDetector {
         }
 
         return mistakes;
-    }
-
-    private void computeRaiderWatering(Raider raider) {
-        if (waterFallTiles.contains(raider.getCurrentWorldLocation())) {
-            log.debug("{} filling water", raider.getName());
-            raidersWithWater.add(raider.getName());
-            raidersLostWater.remove(raider.getName());
-        } else if (palmTreeTiles.contains(raider.getCurrentWorldLocation())) {
-            log.debug("{} watering", raider.getName());
-            raidersWatering.add(raider.getName());
-        }
     }
 
     @Override
@@ -255,5 +241,16 @@ public class CrondisPuzzleDetector extends BaseMistakeDetector {
         palmTreeTiles = PALM_TREE_REGION_TILES.stream()
                 .map(wp -> WorldPoint.fromScene(client, wp.getRegionX() + dx, wp.getRegionY() + dy, wp.getPlane()))
                 .collect(Collectors.toSet());
+    }
+
+    private void computeRaiderWatering(Raider raider) {
+        if (waterFallTiles.contains(raider.getCurrentWorldLocation())) {
+            log.debug("{} filling water", raider.getName());
+            raidersWithWater.add(raider.getName());
+            raidersLostWater.remove(raider.getName());
+        } else if (palmTreeTiles.contains(raider.getCurrentWorldLocation())) {
+            log.debug("{} watering", raider.getName());
+            raidersWatering.add(raider.getName());
+        }
     }
 }

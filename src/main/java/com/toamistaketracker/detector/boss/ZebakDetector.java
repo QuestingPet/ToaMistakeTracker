@@ -1,9 +1,9 @@
 package com.toamistaketracker.detector.boss;
 
+import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
 import com.toamistaketracker.detector.BaseMistakeDetector;
-import com.toamistaketracker.events.RaidRoomChanged;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.HitsplatID;
@@ -105,15 +105,8 @@ public class ZebakDetector extends BaseMistakeDetector {
     }
 
     @Override
-    public boolean isDetectingMistakes() {
-        return raidState.getCurrentRoom() == ZEBAK;
-    }
-
-    @Subscribe
-    public void onRaidRoomChanged(RaidRoomChanged event) {
-        if (event.getPrevRaidRoom() == ZEBAK) {
-            shutdown();
-        }
+    public RaidRoom getRaidRoom() {
+        return ZEBAK;
     }
 
     @Override

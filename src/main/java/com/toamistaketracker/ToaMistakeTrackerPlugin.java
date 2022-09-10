@@ -23,7 +23,6 @@ import net.runelite.client.ui.overlay.OverlayManager;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @PluginDescriptor(
@@ -86,8 +85,6 @@ public class ToaMistakeTrackerPlugin extends Plugin {
     // This should run *after* all detectors have handled the GameTick.
     @Subscribe(priority = -1)
     public void onGameTick(GameTick event) {
-//        debugOverheadTicks();
-
         if (!raidState.isInRaid()) return;
 
         // Try detecting all possible mistakes for this GameTick
@@ -108,7 +105,7 @@ public class ToaMistakeTrackerPlugin extends Plugin {
     private void detect(@NonNull Raider raider) {
         List<ToaMistake> mistakes = mistakeDetectorManager.detectMistakes(raider);
         if (!mistakes.isEmpty()) {
-            log.debug("" + client.getTickCount() + " Found mistakes for " + raider.getName() + " - " + mistakes);
+            log.debug(client.getTickCount() + " Found mistakes for " + raider.getName() + " - " + mistakes);
 
             for (ToaMistake mistake : mistakes) {
                 // Handle special logic for deaths
@@ -116,7 +113,7 @@ public class ToaMistakeTrackerPlugin extends Plugin {
                     raider.setDead(true);
                 }
 
-//                addMistakeToOverlayPanel(raider, mistake);
+//                addMistakeToOverlayPanel(raider, mistake); TODO: Send over RaidState too to check room for death
                 addChatMessageForMistake(raider, mistake);
             }
         }
@@ -134,32 +131,24 @@ public class ToaMistakeTrackerPlugin extends Plugin {
     }
 
     private void addChatMessageForMistake(Raider raider, ToaMistake mistake) {
-        final String overheadText = mistake.getChatMessage();
-        if (overheadText.isEmpty()) {
-            // This is the case for the universal DEATH mistake, for example.
-            return;
+        String msg = mistake.getChatMessage();
+        if (msg.isEmpty()) return;
+
+        if (config.debugMode()) {
+            msg = client.getTickCount() + " " + msg;
         }
 
-        Player player = raider.getPlayer();
-
         // Add to overhead text if config is enabled
-
+        final Player player = raider.getPlayer();
         if (config.showMistakesOnOverheadText()) {
-            player.setOverheadText(client.getTickCount() + " " + overheadText);
+            player.setOverheadText(msg);
             player.setOverheadCycle(CYCLES_FOR_OVERHEAD_TEXT);
         }
 
         // Add to chat box if config is enabled
         if (config.showMistakesInChat()) {
-            client.addChatMessage(ChatMessageType.PUBLICCHAT, player.getName(), client.getTickCount() + " " + mistake.getChatMessage(), null);
+            client.addChatMessage(ChatMessageType.PUBLICCHAT, player.getName(), msg, null);
         }
-    }
-
-    private void debugOverheadTicks() {
-        client.getPlayers().stream()
-                .filter(p -> Objects.equals(p.getName(), "Questing Pet"))
-                .findFirst()
-                .ifPresent(p -> p.setOverheadText("" + client.getTickCount()));
     }
 
     @Subscribe
@@ -174,7 +163,7 @@ public class ToaMistakeTrackerPlugin extends Plugin {
     }
 
     @Subscribe
-    public void onRaidEntered(RaidEntered e) {
+    public void onRaidEntered(RaidEntered event) {
         // TODO: Reset panel and state for current raid
     }
 

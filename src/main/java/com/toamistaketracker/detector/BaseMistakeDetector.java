@@ -50,12 +50,11 @@ public abstract class BaseMistakeDetector {
     public abstract void cleanup();
 
     /**
-     * Determines whether or not this detector is currently detecting mistakes. Commonly this is by checking the current
-     * {@link RaidRoom} in the {@link RaidState}
+     * Retrieve the raid room that this detector should startup in. A null value means *all* rooms
      *
-     * @return True if the detector is detecting mistakes, else false
+     * @return The raid room that the detector should startup in, or null for *all* rooms
      */
-    public abstract boolean isDetectingMistakes();
+    public abstract RaidRoom getRaidRoom();
 
     /**
      * Detects mistakes for the given raider.
@@ -72,6 +71,20 @@ public abstract class BaseMistakeDetector {
      */
     public void afterDetect() {
         cleanup();
+    }
+
+    /**
+     * Determines whether or not this detector is currently detecting mistakes. Commonly this is by checking the current
+     * {@link RaidRoom} in the {@link RaidState}
+     *
+     * @return True if the detector is detecting mistakes, else false
+     */
+    public boolean isDetectingMistakes() {
+        if (getRaidRoom() == null) { // null means *all* rooms
+            return raidState.isInRaid();
+        }
+
+        return raidState.getCurrentRoom() == getRaidRoom();
     }
 
     protected WorldPoint getWorldPoint(Actor actor) {

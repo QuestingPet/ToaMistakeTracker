@@ -1,5 +1,6 @@
 package com.toamistaketracker.detector.boss;
 
+import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
 import com.toamistaketracker.detector.AppliedHitsplatsTracker;
@@ -78,15 +79,8 @@ public class AkkhaDetector extends BaseMistakeDetector {
     }
 
     @Override
-    public boolean isDetectingMistakes() {
-        return raidState.getCurrentRoom() == AKKHA;
-    }
-
-    @Subscribe
-    public void onRaidRoomChanged(RaidRoomChanged event) {
-        if (event.getPrevRaidRoom() == AKKHA) {
-            shutdown();
-        }
+    public RaidRoom getRaidRoom() {
+        return AKKHA;
     }
 
     @Override

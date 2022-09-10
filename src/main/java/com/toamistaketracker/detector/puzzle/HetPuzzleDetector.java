@@ -1,11 +1,11 @@
 package com.toamistaketracker.detector.puzzle;
 
+import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
 import com.toamistaketracker.detector.AppliedHitsplatsTracker;
 import com.toamistaketracker.detector.BaseMistakeDetector;
 import com.toamistaketracker.detector.DelayedMistakeTracker;
-import com.toamistaketracker.events.RaidRoomChanged;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.coords.WorldPoint;
@@ -65,15 +65,8 @@ public class HetPuzzleDetector extends BaseMistakeDetector {
     }
 
     @Override
-    public boolean isDetectingMistakes() {
-        return raidState.getCurrentRoom() == HET_PUZZLE;
-    }
-
-    @Subscribe
-    public void onRaidRoomChanged(RaidRoomChanged event) {
-        if (event.getPrevRaidRoom() == HET_PUZZLE) {
-            shutdown();
-        }
+    public RaidRoom getRaidRoom() {
+        return HET_PUZZLE;
     }
 
     @Override
