@@ -7,10 +7,14 @@ import lombok.Setter;
 import net.runelite.api.Player;
 import net.runelite.api.coords.WorldPoint;
 
+import java.util.Set;
+
 /**
  * Encapsulating class for a {@link Player} and other relevant metadata in a raid.
  */
 public class Raider {
+
+    private static Set<Integer> GHOST_POSE_IDS = Set.of(5538, 5539);
 
     @Getter
     @NonNull
@@ -24,7 +28,6 @@ public class Raider {
     @Setter(AccessLevel.PACKAGE)
     private WorldPoint previousWorldLocationForOverlay;
 
-    @Getter
     @Setter(AccessLevel.PACKAGE)
     private boolean isDead;
 
@@ -38,5 +41,10 @@ public class Raider {
 
     public WorldPoint getCurrentWorldLocation() {
         return player.getWorldLocation();
+    }
+
+    public boolean isDead() {
+        // If the plugin is turned off and on, or just as a safety net, also check to see if we're a ghost
+        return isDead || GHOST_POSE_IDS.contains(player.getPoseAnimation());
     }
 }

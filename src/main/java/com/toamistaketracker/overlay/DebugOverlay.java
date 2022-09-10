@@ -5,6 +5,7 @@ import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistakeTrackerConfig;
 import com.toamistaketracker.detector.boss.AkkhaDetector;
 import com.toamistaketracker.detector.boss.ZebakDetector;
+import com.toamistaketracker.detector.puzzle.ApmekenPuzzleDetector;
 import com.toamistaketracker.detector.puzzle.CrondisPuzzleDetector;
 import com.toamistaketracker.detector.puzzle.HetPuzzleDetector;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,7 @@ public class DebugOverlay extends Overlay {
 
     private final HetPuzzleDetector hetPuzzleDetector;
     private final CrondisPuzzleDetector crondisPuzzleDetector;
+    private ApmekenPuzzleDetector apmekenPuzzleDetector;
     private final AkkhaDetector akkhaDetector;
     private final ZebakDetector zebakDetector;
 
@@ -48,6 +50,7 @@ public class DebugOverlay extends Overlay {
                         ToaMistakeTrackerConfig config,
                         HetPuzzleDetector hetPuzzleDetector,
                         CrondisPuzzleDetector crondisPuzzleDetector,
+                        ApmekenPuzzleDetector apmekenPuzzleDetector,
                         AkkhaDetector akkhaDetector,
                         ZebakDetector zebakDetector) {
         setPosition(OverlayPosition.DYNAMIC);
@@ -61,6 +64,7 @@ public class DebugOverlay extends Overlay {
 
         this.hetPuzzleDetector = hetPuzzleDetector;
         this.crondisPuzzleDetector = crondisPuzzleDetector;
+        this.apmekenPuzzleDetector = apmekenPuzzleDetector;
         this.akkhaDetector = akkhaDetector;
         this.zebakDetector = zebakDetector;
     }
@@ -76,6 +80,10 @@ public class DebugOverlay extends Overlay {
 
         for (WorldPoint worldPoint : crondisPuzzleDetector.getPalmTreeTiles()) {
             renderTile(graphics, toLocalPoint(worldPoint), Color.GREEN);
+        }
+
+        for (WorldPoint worldPoint : apmekenPuzzleDetector.getVolatileHitTiles()) {
+            renderTile(graphics, toLocalPoint(worldPoint), Color.RED);
         }
 
         for (Raider raider : raidState.getRaiders().values()) {

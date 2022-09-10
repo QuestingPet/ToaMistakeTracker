@@ -5,7 +5,6 @@ import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
 import com.toamistaketracker.detector.AppliedHitsplatsTracker;
 import com.toamistaketracker.detector.BaseMistakeDetector;
-import com.toamistaketracker.events.RaidRoomChanged;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Actor;

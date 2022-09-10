@@ -15,6 +15,12 @@ public enum ToaMistake {
     ZEBAK_BLOOD_HEAL("Zebak blood heal", "", "I'm on a blood cloud!"),
     ZEBAK_EARTHQUAKE("Zebak earthquake", "", "I'm moving!"),
     ZEBAK_WAVE("Zebak wave", "", "I'm surfing!"),
+    KEPHRI("","",""),
+    APMEKEN_PUZZLE_VENT("Apmeken vent", "", "I'm fuming!"),
+    APMEKEN_PUZZLE_PILLAR("Apmeken pillar", "", "The sky is falling!"),
+    APMEKEN_PUZZLE_CORRUPTION("Apmeken corruption", "", "I've been corrupted!"),
+    APMEKEN_PUZZLE_VENOM("Apmeken venom", "", "It's venomous!"),
+    APMEKEN_PUZZLE_VOLATILE("Apmeken volatile", "", "I'm exploding!"),
     ;
 
     @Getter
