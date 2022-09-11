@@ -17,8 +17,10 @@ import com.toamistaketracker.detector.puzzle.ScabarasPuzzleDetector;
 import com.toamistaketracker.events.RaidRoomChanged;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
+import net.runelite.api.Client;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
@@ -44,6 +46,7 @@ public class MistakeDetectorManager {
 
     private static final String WIPE_GAME_MESSAGE = "Your party failed to complete the challenge";
 
+    private final Client client;
     private final EventBus eventBus;
     private final RaidState raidstate;
 
@@ -55,7 +58,8 @@ public class MistakeDetectorManager {
     private boolean started;
 
     @Inject
-    public MistakeDetectorManager(EventBus eventBus,
+    public MistakeDetectorManager(Client client,
+                                  EventBus eventBus,
                                   RaidState raidState,
                                   HetPuzzleDetector hetPuzzleDetector,
                                   CrondisPuzzleDetector crondisPuzzleDetector,
@@ -68,7 +72,7 @@ public class MistakeDetectorManager {
                                   WardensDetector wardensDetector,
                                   DeathDetector deathDetector) {
         // Order matters, since it's last write wins for which mistake gets put on overhead text. Death should be last.
-        this.mistakeDetectors = List.of(
+        this.mistakeDetectors = new ArrayList<>(List.of(
                 hetPuzzleDetector,
                 crondisPuzzleDetector,
                 scabarasPuzzleDetector,
@@ -79,8 +83,9 @@ public class MistakeDetectorManager {
                 babaDetector,
                 wardensDetector,
                 deathDetector
-        );
+        ));
 
+        this.client = client;
         this.eventBus = eventBus;
         this.raidstate = raidState;
         this.started = false;
@@ -151,6 +156,20 @@ public class MistakeDetectorManager {
                         d.shutdown();
                         d.startup();
                     });
+        }
+    }
+
+    // TODO: remove -- for debugging with hotswap
+    @SneakyThrows
+    public void reset() {
+        for (int i = 0; i < mistakeDetectors.size(); i++) {
+            BaseMistakeDetector detector = mistakeDetectors.get(i);
+            detector.shutdown();
+            BaseMistakeDetector newInstance = detector.getClass().getDeclaredConstructor().newInstance();
+            newInstance.setClient(client);
+            newInstance.setEventBus(eventBus);
+            newInstance.setRaidState(raidstate);
+            mistakeDetectors.set(i, newInstance);
         }
     }
 }

@@ -1,10 +1,13 @@
 package com.toamistaketracker.overlay;
 
+import com.google.inject.Injector;
 import com.toamistaketracker.RaidState;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistakeTrackerConfig;
 import com.toamistaketracker.detector.boss.AkkhaDetector;
 import com.toamistaketracker.detector.boss.BabaDetector;
+import com.toamistaketracker.detector.boss.KephriDetector;
+import com.toamistaketracker.detector.boss.WardensDetector;
 import com.toamistaketracker.detector.boss.ZebakDetector;
 import com.toamistaketracker.detector.puzzle.ApmekenPuzzleDetector;
 import com.toamistaketracker.detector.puzzle.CrondisPuzzleDetector;
@@ -26,6 +29,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * This is for testing with a visual aid
@@ -44,18 +49,23 @@ public class DebugOverlay extends Overlay {
     private final AkkhaDetector akkhaDetector;
     private final ZebakDetector zebakDetector;
     private final BabaDetector babaDetector;
+    private final KephriDetector kephriDetector;
+    private final WardensDetector wardensDetector;
 
     @Inject
     public DebugOverlay(@Named("developerMode") boolean developerMode,
                         Client client,
                         RaidState raidState,
                         ToaMistakeTrackerConfig config,
+                        Injector injector,
                         HetPuzzleDetector hetPuzzleDetector,
                         CrondisPuzzleDetector crondisPuzzleDetector,
                         ApmekenPuzzleDetector apmekenPuzzleDetector,
                         AkkhaDetector akkhaDetector,
                         ZebakDetector zebakDetector,
-                        BabaDetector babaDetector) {
+                        BabaDetector babaDetector,
+                        KephriDetector kephriDetector,
+                        WardensDetector wardensDetector) {
         setPosition(OverlayPosition.DYNAMIC);
         setLayer(OverlayLayer.ABOVE_SCENE);
         setPriority(OverlayPriority.MED);
@@ -71,6 +81,8 @@ public class DebugOverlay extends Overlay {
         this.akkhaDetector = akkhaDetector;
         this.zebakDetector = zebakDetector;
         this.babaDetector = babaDetector;
+        this.kephriDetector = kephriDetector;
+        this.wardensDetector = wardensDetector;
     }
 
     @Override
@@ -96,6 +108,11 @@ public class DebugOverlay extends Overlay {
 
         for (WorldPoint worldPoint : babaDetector.getGapTiles()) {
             renderTile(graphics, toLocalPoint(worldPoint), Color.GREEN);
+        }
+
+        for (WorldPoint worldPoint : kephriDetector.getBombShadowTiles().values().stream().flatMap(Set::stream)
+                .collect(Collectors.toList())) {
+            renderTile(graphics, toLocalPoint(worldPoint), Color.RED);
         }
 
         for (Raider raider : raidState.getRaiders().values()) {

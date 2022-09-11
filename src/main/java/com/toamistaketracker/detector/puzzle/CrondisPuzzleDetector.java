@@ -170,8 +170,8 @@ public class CrondisPuzzleDetector extends BaseMistakeDetector {
             log.debug("{} watered", raider.getName());
 
             if (lowWaterHitsplats > 0 && raidersLostWater.contains(raider.getName())) {
-                lowWaterHitsplats -= 1;
                 mistakes.add(CRONDIS_PUZZLE_LOW_WATER);
+                lowWaterHitsplats -= 1;
             }
 
             raidersWithWater.remove(raider.getName());

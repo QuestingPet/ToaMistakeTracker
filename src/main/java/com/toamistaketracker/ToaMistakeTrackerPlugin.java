@@ -2,6 +2,7 @@ package com.toamistaketracker;
 
 import com.google.inject.Provides;
 import com.toamistaketracker.detector.MistakeDetectorManager;
+import com.toamistaketracker.detector.death.DeathDetector;
 import com.toamistaketracker.events.InRaidChanged;
 import com.toamistaketracker.events.RaidEntered;
 import com.toamistaketracker.overlay.DebugOverlay;
@@ -17,6 +18,7 @@ import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
@@ -165,6 +167,16 @@ public class ToaMistakeTrackerPlugin extends Plugin {
     @Subscribe
     public void onRaidEntered(RaidEntered event) {
         // TODO: Reset panel and state for current raid
+    }
+
+    @Subscribe
+    public void onConfigChanged(ConfigChanged event) {
+        if (!CONFIG_GROUP.equals(event.getGroup())) return;
+
+        // TODO: remove -- used for debugging with hotswap
+        if ("resetDetectors".equals(event.getKey())) {
+            mistakeDetectorManager.reset();
+        }
     }
 
     @Provides

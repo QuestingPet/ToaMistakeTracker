@@ -149,23 +149,7 @@ public class ApmekenPuzzleDetector extends BaseMistakeDetector {
         if (event.getGraphicsObject().getId() != VOLATILE_GRAPHICS_ID) return;
 
         // Hits in 3x3 around center, so compute and add all
-        Set<WorldPoint> newHitTiles = computeVolatileHitTiles(getWorldPoint(event.getGraphicsObject()));
+        Set<WorldPoint> newHitTiles = compute3By3TilesFromCenter(getWorldPoint(event.getGraphicsObject()));
         volatileHitTiles.addAll(newHitTiles);
-    }
-
-    /**
-     * When a volatile explodes, it deals damage in a 3x3 area. This method computes that 3x3 area given a center point.
-     *
-     * @param center The center point of the explosion
-     * @return The set of WorldPoints around and including the center
-     */
-    private Set<WorldPoint> computeVolatileHitTiles(WorldPoint center) {
-        WorldPoint west = center.dx(-1);
-        WorldPoint east = center.dx(1);
-
-        return Set.of(
-                west, center, east,
-                west.dy(-1), center.dy(-1), east.dy(-1),
-                west.dy(1), center.dy(1), east.dy(1));
     }
 }

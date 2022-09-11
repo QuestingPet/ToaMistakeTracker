@@ -5,6 +5,7 @@ import com.toamistaketracker.RaidState;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
 import lombok.NonNull;
+import lombok.Setter;
 import net.runelite.api.Actor;
 import net.runelite.api.Client;
 import net.runelite.api.GraphicsObject;
@@ -13,6 +14,7 @@ import net.runelite.client.eventbus.EventBus;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Interface for detecting mistakes during The Tombs of Amascut
@@ -20,12 +22,15 @@ import java.util.List;
 public abstract class BaseMistakeDetector {
 
     @Inject
+    @Setter
     protected Client client;
 
     @Inject
+    @Setter
     protected EventBus eventBus;
 
     @Inject
+    @Setter
     protected RaidState raidState;
 
     /**
@@ -95,5 +100,21 @@ public abstract class BaseMistakeDetector {
 
     protected WorldPoint getWorldPoint(GraphicsObject graphicsObject) {
         return WorldPoint.fromLocal(client, graphicsObject.getLocation());
+    }
+
+    /**
+     * This method computes the WorldPoints in a 3x3 area given a center point.
+     *
+     * @param center The center point of the 3x3 area
+     * @return The set of WorldPoints around and including the center
+     */
+    protected Set<WorldPoint> compute3By3TilesFromCenter(WorldPoint center) {
+        WorldPoint west = center.dx(-1);
+        WorldPoint east = center.dx(1);
+
+        return Set.of(
+                west, center, east,
+                west.dy(-1), center.dy(-1), east.dy(-1),
+                west.dy(1), center.dy(1), east.dy(1));
     }
 }

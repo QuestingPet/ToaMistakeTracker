@@ -40,4 +40,15 @@ public interface ToaMistakeTrackerConfig extends Config
 	default boolean debugMode() {
 		return false;
 	}
+
+	@VisibleForDevtools
+	@ConfigItem(
+			keyName = "resetDetectors",
+			name = "Reset Detectors",
+			description = "Reset detectors",
+			position = 4
+	)
+	default boolean resetDetectors() {
+		return false;
+	}
 }

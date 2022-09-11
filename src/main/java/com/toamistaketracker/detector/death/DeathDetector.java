@@ -12,8 +12,10 @@ import net.runelite.client.eventbus.Subscribe;
 
 import javax.inject.Singleton;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static com.toamistaketracker.ToaMistake.DEATH;
@@ -29,6 +31,7 @@ public class DeathDetector extends BaseMistakeDetector {
 
     public DeathDetector() {
         raiderDeaths = new HashSet<>();
+        log.debug("LOL RECALL");
     }
 
     @Override
@@ -41,9 +44,15 @@ public class DeathDetector extends BaseMistakeDetector {
         return null; // null means *all* rooms
     }
 
+    private static final String test5 = "test5";
     @Override
     public List<ToaMistake> detectMistakes(@NonNull Raider raider) {
         List<ToaMistake> mistakes = new ArrayList<>();
+//
+//        if (test == null) {
+//            test = Map.of("hello", "bye");
+//        }
+        log.debug(test5);
 
         if (raiderDeaths.contains(raider.getName())) {
             mistakes.add(DEATH);
