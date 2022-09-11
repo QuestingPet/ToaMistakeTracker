@@ -18,8 +18,11 @@ import com.toamistaketracker.events.RaidRoomChanged;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.ChatMessageType;
+import net.runelite.api.events.ChatMessage;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.util.Text;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -38,6 +41,8 @@ import java.util.List;
 @Slf4j
 @Singleton
 public class MistakeDetectorManager {
+
+    private static final String WIPE_GAME_MESSAGE = "Your party failed to complete the challenge";
 
     private final EventBus eventBus;
     private final RaidState raidstate;
@@ -130,5 +135,22 @@ public class MistakeDetectorManager {
                 detector.shutdown();
             }
         });
+    }
+
+    @Subscribe
+    public void onChatMessage(ChatMessage event) {
+        if (event.getType() != ChatMessageType.GAMEMESSAGE) return;
+
+        String message = Text.removeTags(event.getMessage());
+        if (message != null && message.startsWith(WIPE_GAME_MESSAGE)) {
+            // If the team has wiped, all active detectors should reset state just in case.
+            log.debug("Team wiped -- Resetting all active detectors");
+            mistakeDetectors.stream()
+                    .filter(BaseMistakeDetector::isDetectingMistakes)
+                    .forEach(d ->{
+                        d.shutdown();
+                        d.startup();
+                    });
+        }
     }
 }

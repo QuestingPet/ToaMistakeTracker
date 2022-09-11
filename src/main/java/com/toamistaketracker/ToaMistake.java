@@ -21,6 +21,11 @@ public enum ToaMistake {
     APMEKEN_PUZZLE_CORRUPTION("Apmeken corruption", "", "I've been corrupted!"),
     APMEKEN_PUZZLE_VENOM("Apmeken venom", "", "It's venomous!"),
     APMEKEN_PUZZLE_VOLATILE("Apmeken volatile", "", "I'm exploding!"),
+    BABA_SLAM("Ba-Ba slam", "", "Ahh there's not even an animation!"),
+    BABA_FALLING_BOULDER ("Ba-Ba falling boulder", "", "I got rocked!"),
+    BABA_ROLLING_BOULDER ("Ba-Ba rolling boulder", "", "They see me rollin!"),
+    BABA_GAP("Ba-Ba gap", "", "I'm going down!"),
+    BABA_BANANA("Ba-Ba banana", "", "I'm slipping!"),
     ;
 
     @Getter

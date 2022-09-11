@@ -4,6 +4,7 @@ import com.toamistaketracker.RaidState;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistakeTrackerConfig;
 import com.toamistaketracker.detector.boss.AkkhaDetector;
+import com.toamistaketracker.detector.boss.BabaDetector;
 import com.toamistaketracker.detector.boss.ZebakDetector;
 import com.toamistaketracker.detector.puzzle.ApmekenPuzzleDetector;
 import com.toamistaketracker.detector.puzzle.CrondisPuzzleDetector;
@@ -39,9 +40,10 @@ public class DebugOverlay extends Overlay {
 
     private final HetPuzzleDetector hetPuzzleDetector;
     private final CrondisPuzzleDetector crondisPuzzleDetector;
-    private ApmekenPuzzleDetector apmekenPuzzleDetector;
+    private final ApmekenPuzzleDetector apmekenPuzzleDetector;
     private final AkkhaDetector akkhaDetector;
     private final ZebakDetector zebakDetector;
+    private final BabaDetector babaDetector;
 
     @Inject
     public DebugOverlay(@Named("developerMode") boolean developerMode,
@@ -52,7 +54,8 @@ public class DebugOverlay extends Overlay {
                         CrondisPuzzleDetector crondisPuzzleDetector,
                         ApmekenPuzzleDetector apmekenPuzzleDetector,
                         AkkhaDetector akkhaDetector,
-                        ZebakDetector zebakDetector) {
+                        ZebakDetector zebakDetector,
+                        BabaDetector babaDetector) {
         setPosition(OverlayPosition.DYNAMIC);
         setLayer(OverlayLayer.ABOVE_SCENE);
         setPriority(OverlayPriority.MED);
@@ -67,6 +70,7 @@ public class DebugOverlay extends Overlay {
         this.apmekenPuzzleDetector = apmekenPuzzleDetector;
         this.akkhaDetector = akkhaDetector;
         this.zebakDetector = zebakDetector;
+        this.babaDetector = babaDetector;
     }
 
     @Override
@@ -84,6 +88,14 @@ public class DebugOverlay extends Overlay {
 
         for (WorldPoint worldPoint : apmekenPuzzleDetector.getVolatileHitTiles()) {
             renderTile(graphics, toLocalPoint(worldPoint), Color.RED);
+        }
+
+        for (WorldPoint worldPoint : babaDetector.getBoulderTiles()) {
+            renderTile(graphics, toLocalPoint(worldPoint), Color.RED);
+        }
+
+        for (WorldPoint worldPoint : babaDetector.getGapTiles()) {
+            renderTile(graphics, toLocalPoint(worldPoint), Color.GREEN);
         }
 
         for (Raider raider : raidState.getRaiders().values()) {

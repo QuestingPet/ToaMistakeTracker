@@ -201,6 +201,9 @@ public class RaidState {
         if (raiders.size() < raiderNames.size()) {
             log.debug("Not enough raiders loaded. Will try again later...");
             raiders.clear();
+            return;
         }
+
+
     }
 }
