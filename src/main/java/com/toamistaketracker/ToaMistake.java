@@ -24,10 +24,20 @@ public enum ToaMistake {
     APMEKEN_PUZZLE_VENOM("Apmeken venom", "", "It's venomous!"),
     APMEKEN_PUZZLE_VOLATILE("Apmeken volatile", "", "I'm exploding!"),
     BABA_SLAM("Ba-Ba slam", "", "Ahh there's not even an animation!"),
-    BABA_FALLING_BOULDER ("Ba-Ba falling boulder", "", "I got rocked!"),
+    BABA_PROJECTILE_BOULDER ("Ba-Ba projectile boulder", "", "I got rocked!"),
     BABA_ROLLING_BOULDER ("Ba-Ba rolling boulder", "", "They see me rollin!"),
     BABA_GAP("Ba-Ba gap", "", "I'm going down!"),
     BABA_BANANA("Ba-Ba banana", "", "I'm slipping!"),
+    BABA_FALLING_BOULDER("Ba-Ba falling boulder", "", "It's raining!"),
+    WARDENS_P1_PYRAMID("Wardens P1 pyramid", "", "I'm disco-ing!"),
+    WARDENS_P2_DDR("Wardens P2 DDR", "", "I'm dancing!"),
+    WARDENS_P2_WINDMILL("Wardens P2 windmill", "", "I'm winded!"),
+    WARDENS_P2_BOMBS("Wardens P2 bombs", "", "I'm getting bombed!"),
+    WARDENS_P2_BIND("Wardens P2 bind", "", "I'm in jail!"),
+    WARDENS_P2_SPECIAL_PRAYER("Wardens P2 special prayer", "", "What even was that attack?"),
+    WARDENS_P3_EARTHQUAKE("Wardens P3 earthquake", "", "I'm tripping!"),
+    WARDENS_P3_KEPHRI("Wardens P3 kephri", "", "I'm exploding!"),
+    WARDENS_P3_LIGHTNING("Wardens P3 lightning", "", "It's electric!"),
     ;
 
     @Getter

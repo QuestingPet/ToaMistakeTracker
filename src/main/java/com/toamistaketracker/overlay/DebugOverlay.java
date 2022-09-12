@@ -1,19 +1,19 @@
 package com.toamistaketracker.overlay;
 
-import com.google.inject.Injector;
 import com.toamistaketracker.RaidState;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistakeTrackerConfig;
-import com.toamistaketracker.detector.boss.AkkhaDetector;
+import com.toamistaketracker.detector.DelayedHitTilesTracker;
+import com.toamistaketracker.detector.MistakeDetectorManager;
 import com.toamistaketracker.detector.boss.BabaDetector;
 import com.toamistaketracker.detector.boss.KephriDetector;
 import com.toamistaketracker.detector.boss.WardensDetector;
-import com.toamistaketracker.detector.boss.ZebakDetector;
 import com.toamistaketracker.detector.puzzle.ApmekenPuzzleDetector;
 import com.toamistaketracker.detector.puzzle.CrondisPuzzleDetector;
-import com.toamistaketracker.detector.puzzle.HetPuzzleDetector;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
+import net.runelite.api.GameObject;
+import net.runelite.api.NPC;
 import net.runelite.api.Perspective;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
@@ -29,8 +29,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * This is for testing with a visual aid
@@ -42,30 +40,14 @@ public class DebugOverlay extends Overlay {
     private final Client client;
     private final RaidState raidState;
     private final ToaMistakeTrackerConfig config;
-
-    private final HetPuzzleDetector hetPuzzleDetector;
-    private final CrondisPuzzleDetector crondisPuzzleDetector;
-    private final ApmekenPuzzleDetector apmekenPuzzleDetector;
-    private final AkkhaDetector akkhaDetector;
-    private final ZebakDetector zebakDetector;
-    private final BabaDetector babaDetector;
-    private final KephriDetector kephriDetector;
-    private final WardensDetector wardensDetector;
+    private MistakeDetectorManager mistakeDetectorManager;
 
     @Inject
     public DebugOverlay(@Named("developerMode") boolean developerMode,
                         Client client,
                         RaidState raidState,
                         ToaMistakeTrackerConfig config,
-                        Injector injector,
-                        HetPuzzleDetector hetPuzzleDetector,
-                        CrondisPuzzleDetector crondisPuzzleDetector,
-                        ApmekenPuzzleDetector apmekenPuzzleDetector,
-                        AkkhaDetector akkhaDetector,
-                        ZebakDetector zebakDetector,
-                        BabaDetector babaDetector,
-                        KephriDetector kephriDetector,
-                        WardensDetector wardensDetector) {
+                        MistakeDetectorManager mistakeDetectorManager) {
         setPosition(OverlayPosition.DYNAMIC);
         setLayer(OverlayLayer.ABOVE_SCENE);
         setPriority(OverlayPriority.MED);
@@ -74,21 +56,21 @@ public class DebugOverlay extends Overlay {
         this.developerMode = developerMode;
         this.client = client;
         this.raidState = raidState;
-
-        this.hetPuzzleDetector = hetPuzzleDetector;
-        this.crondisPuzzleDetector = crondisPuzzleDetector;
-        this.apmekenPuzzleDetector = apmekenPuzzleDetector;
-        this.akkhaDetector = akkhaDetector;
-        this.zebakDetector = zebakDetector;
-        this.babaDetector = babaDetector;
-        this.kephriDetector = kephriDetector;
-        this.wardensDetector = wardensDetector;
+        this.mistakeDetectorManager = mistakeDetectorManager;
     }
 
     @Override
     public Dimension render(Graphics2D graphics) {
         if (!developerMode) return null;
         if (!config.debugMode()) return null;
+
+        CrondisPuzzleDetector crondisPuzzleDetector = mistakeDetectorManager
+                .getMistakeDetector(CrondisPuzzleDetector.class);
+        ApmekenPuzzleDetector apmekenPuzzleDetector = mistakeDetectorManager
+                .getMistakeDetector(ApmekenPuzzleDetector.class);
+        BabaDetector babaDetector = mistakeDetectorManager.getMistakeDetector(BabaDetector.class);
+        KephriDetector kephriDetector = mistakeDetectorManager.getMistakeDetector(KephriDetector.class);
+        WardensDetector wardensDetector = mistakeDetectorManager.getMistakeDetector(WardensDetector.class);
 
         for (WorldPoint worldPoint : crondisPuzzleDetector.getWaterFallTiles()) {
             renderTile(graphics, toLocalPoint(worldPoint), Color.RED);
@@ -106,14 +88,33 @@ public class DebugOverlay extends Overlay {
             renderTile(graphics, toLocalPoint(worldPoint), Color.RED);
         }
 
+        renderDelayedHitTiles(graphics, babaDetector.getFallingBoulderHitTiles());
+        renderDelayedHitTiles(graphics, babaDetector.getProjectileBoulderHitTiles());
+
+        for (NPC npc : babaDetector.getRubbles()) {
+            renderTile(graphics, toLocalPoint(npc.getWorldLocation()), Color.ORANGE);
+        }
+
+        babaDetector.getSafeRubbleTiles().values()
+                .forEach(tiles -> tiles
+                        .forEach(tile -> renderTile(graphics, toLocalPoint(tile), Color.GREEN)));
+
         for (WorldPoint worldPoint : babaDetector.getGapTiles()) {
             renderTile(graphics, toLocalPoint(worldPoint), Color.GREEN);
         }
 
-        for (WorldPoint worldPoint : kephriDetector.getBombShadowTiles().values().stream().flatMap(Set::stream)
-                .collect(Collectors.toList())) {
-            renderTile(graphics, toLocalPoint(worldPoint), Color.RED);
+        renderDelayedHitTiles(graphics, kephriDetector.getBombHitTiles());
+
+        for (GameObject gameObject : wardensDetector.getActivePyramids()) {
+            renderTile(graphics, toLocalPoint(gameObject.getWorldLocation()), Color.RED);
         }
+
+        for (WorldPoint worldPoint : wardensDetector.getPyramidHitTiles()) {
+            renderTile(graphics, toLocalPoint(worldPoint), Color.GREEN);
+        }
+
+        renderDelayedHitTiles(graphics, wardensDetector.getDdrHitTiles());
+        renderDelayedHitTiles(graphics, wardensDetector.getBombHitTiles());
 
         for (Raider raider : raidState.getRaiders().values()) {
             if (raider.getPreviousWorldLocationForOverlay() != null) {
@@ -141,5 +142,12 @@ public class DebugOverlay extends Overlay {
 
     private LocalPoint toLocalPoint(WorldPoint worldPoint) {
         return LocalPoint.fromWorld(client, worldPoint);
+    }
+
+    private void renderDelayedHitTiles(final Graphics2D graphics, DelayedHitTilesTracker tracker) {
+        tracker.getDelayedHitTiles().values()
+                .forEach(tiles -> tiles
+                        .forEach(tile -> renderTile(graphics, toLocalPoint(tile), Color.RED)));
+        tracker.getActiveHitTiles().forEach(tile -> renderTile(graphics, toLocalPoint(tile), Color.GREEN));
     }
 }

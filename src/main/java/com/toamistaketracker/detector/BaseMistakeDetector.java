@@ -8,6 +8,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import net.runelite.api.Actor;
 import net.runelite.api.Client;
+import net.runelite.api.Constants;
 import net.runelite.api.GraphicsObject;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.eventbus.EventBus;
@@ -20,6 +21,8 @@ import java.util.Set;
  * Interface for detecting mistakes during The Tombs of Amascut
  */
 public abstract class BaseMistakeDetector {
+
+    private static final int CYCLES_PER_GAME_TICK = Constants.GAME_TICK_LENGTH / Constants.CLIENT_TICK_LENGTH;
 
     @Inject
     @Setter
@@ -116,5 +119,18 @@ public abstract class BaseMistakeDetector {
                 west, center, east,
                 west.dy(-1), center.dy(-1), east.dy(-1),
                 west.dy(1), center.dy(1), east.dy(1));
+    }
+
+    /**
+     * Calculates and retrieves the activation tick for the specified GraphicsObject based on the start cycle and
+     * the given hit delay.
+     *
+     * @param graphicsObject The graphics object
+     * @param hitDelay       The delay in ticks from when the graphics object animation starts and when it causes a hit
+     * @return The activation tick for when the graphics object will denote a hit on the player
+     */
+    protected int getActivationTick(GraphicsObject graphicsObject, int hitDelay) {
+        int ticksToStart = (graphicsObject.getStartCycle() - client.getGameCycle()) / CYCLES_PER_GAME_TICK;
+        return client.getTickCount() + ticksToStart + hitDelay; // Add the hit delay for how long between start to hit
     }
 }

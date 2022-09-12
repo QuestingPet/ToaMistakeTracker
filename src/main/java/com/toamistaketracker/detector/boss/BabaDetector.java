@@ -3,10 +3,13 @@ package com.toamistaketracker.detector.boss;
 import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
+import com.toamistaketracker.detector.AppliedHitsplatsTracker;
 import com.toamistaketracker.detector.BaseMistakeDetector;
+import com.toamistaketracker.detector.DelayedHitTilesTracker;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.HitsplatID;
 import net.runelite.api.NPC;
 import net.runelite.api.Player;
 import net.runelite.api.coords.LocalPoint;
@@ -14,6 +17,7 @@ import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.AnimationChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.GraphicsObjectCreated;
+import net.runelite.api.events.HitsplatApplied;
 import net.runelite.api.events.NpcDespawned;
 import net.runelite.api.events.NpcSpawned;
 import net.runelite.client.eventbus.Subscribe;
@@ -30,7 +34,9 @@ import java.util.stream.Collectors;
 
 import static com.toamistaketracker.RaidRoom.BABA;
 import static com.toamistaketracker.ToaMistake.BABA_BANANA;
+import static com.toamistaketracker.ToaMistake.BABA_FALLING_BOULDER;
 import static com.toamistaketracker.ToaMistake.BABA_GAP;
+import static com.toamistaketracker.ToaMistake.BABA_PROJECTILE_BOULDER;
 import static com.toamistaketracker.ToaMistake.BABA_ROLLING_BOULDER;
 import static com.toamistaketracker.ToaMistake.BABA_SLAM;
 
@@ -57,11 +63,14 @@ import static com.toamistaketracker.ToaMistake.BABA_SLAM;
  * set at any point during the slip duration. To make sure we don't double count, we add a cooldown for when a player
  * can be slipping again after its most recent slip mistake.
  *
- * Finally, the rubble attack (where you have a large boulder falling onto you). This is the worst one by far, and is
- * currently unfinished.
+ * The falling boulder looks at graphics objects and delays the hit accordingly. Since Ba-Ba can phase transition
+ * during this, we also ensure that a hitsplat is applied and the animation of the player is not the knock back.
+ *
+ * Finally, the rubble attack (where you have a large boulder tracking onto you). This is the worst one by far, and is
+ * currently unfinished (now mostly finished)
  * It sets a graphics ID if it actually collides with a player (or object). This unfortunately can be bypassed by
  * overwriting on the same tick with a spec(like fang), which makes that an unreliable way of detection. Another way
- * is to check the projectile spawn, andcalculate when it would activate and hit the players, seemingly always 7
+ * is to check the projectile spawn, and calculate when it would activate and hit the players, seemingly always 7
  * ticks later. Unfortunately, if Ba-Ba phase transitions while this is out, it's not trivial to detect as his
  * animation change sometimes happens *after* the projectile is set to hit the player. Additionally, even if we were
  * able to reliably detect when the boulder hits, we would still need to resolve which players made the mistake and
@@ -69,14 +78,23 @@ import static com.toamistaketracker.ToaMistake.BABA_SLAM;
  * (or at least the number of "over" players) take damage. This likely will require maintaining the full state of the
  * game with rubble and simulating what the server would do, on the client.
  * This is something I may come back to and add in the future.
+ * EDIT: I have mostly added this now by looking to see if the player received a "large" hitsplat after the 7-tick delay
+ * of the boulder spawn and if they're not standing on a safe tile of a rubble object. If they're on a safe tile but
+ * have multiple hitsplats, some extra logic gets put into place. The method is pretty spaghetti. Ah well.
  */
 @Slf4j
 @Singleton
 public class BabaDetector extends BaseMistakeDetector {
-
-    // 7 ticks for falling boulder to hit you
+    // 7 ticks for tracking boulder to hit you
     // What about if rubble takes damage *without* a graphics id? That means it must have been wiped due to phase
     // transition, and we can wipe all tracked projectiles.
+
+    // It looks like it's: If on the hit tick, if rubble has a hitsplat and it has no more health and it does *not*
+    // have the graphics id, then it despawned because of a phase transition and all damage is nulled for that tracking
+    // projectile. Also I don't think it can ever proc if there aren't any spawned rubbles...
+
+    // It looks like for the falling boulder, if there is a rubble alive and it is not dead, we take damage. Also check
+    // hit splat and animation of player jsut in case
 
     private static final Set<WorldPoint> GAP_REGION_TILES = Set.of(
             WorldPoint.fromRegion(BABA.getRegionId(), 20, 30, 0),
@@ -91,6 +109,11 @@ public class BabaDetector extends BaseMistakeDetector {
             WorldPoint.fromRegion(BABA.getRegionId(), 21, 34, 0)
     );
 
+    private final Map<Integer, Integer> FALLING_BOULDER_GRAPHICS_IDS = Map.of(
+            2250, 6,
+            2251, 4
+    );
+
     private static final int BABA_SLAM_GRAPHICS_ID = 1103;
     private static final int BOULDER_ROLLED_ANIMATION_ID = 7210;
     private static final int GAP_FALLING_ANIMATION_ID = 4366;
@@ -98,11 +121,23 @@ public class BabaDetector extends BaseMistakeDetector {
     private static final int BANANA_SLIP_ANIMATION_ID = 4030;
     private static final int BANANA_GRAPHICS_ID = 1575;
     private static final int BANANA_SLIP_COOLDOWN_IN_TICKS = 3;
+    private static final int PLAYER_KNOCK_BACK_ANIMATION_ID = 9799;
+    private static final int RUBBLE_EXPLOSION_GRAPHICS_ID = 1463;
+    private static final int BABA_PROJECTILE_BOULDER_ANIMATION_ID = 9744;
+
+    // This is pretty arbitrary. AFAICT correctly handling the projectile boulder will never deal more than ~4 damage
+    // and failing will never deal less than ~40ish. To be safe let's put the threshold somewhere in the middle. It
+    // also always seems to over-hit. Also you can half it by standing next to a baboon/sarcophagus.
+    private static final int PROJECTILE_BOULDER_DAMAGE_THRESHOLD = 15;
 
     // The boulder collision doesn't really start for 1-2 ticks. Let's use 3 to be safe and rely on the other forms
     // of boulder detection in those early ticks anyway, as they should always be safe.
     private static final Integer BOULDER_SPAWN_DELAY_IN_TICKS = 3;
     private static final String BOULDER_NAME = "Boulder";
+    private static final String RUBBLE_NAME = "Rubble";
+    private static final String BABA_NAME = "Ba-Ba";
+    private static final Integer PROJECTILE_BOULDER_DELAY_IN_TICKS = 7;
+    private static final int RUBBLE_SAFE_TILES_LENGTH = 5;
 
     @Getter
     private Set<WorldPoint> gapTiles;
@@ -123,6 +158,22 @@ public class BabaDetector extends BaseMistakeDetector {
     @Getter
     private final Set<WorldPoint> boulderTiles;
     private final Set<WorldPoint> finalBoulderTiles;
+
+    @Getter
+    private final List<NPC> rubbles = new ArrayList<>();
+    @Getter
+    private final Map<NPC, Set<WorldPoint>> safeRubbleTiles = new HashMap<>();
+    private final Map<NPC, Integer> rubbleHitsplats = new HashMap<>();
+
+    @Getter
+    private final DelayedHitTilesTracker fallingBoulderHitTiles = new DelayedHitTilesTracker();
+    private final AppliedHitsplatsTracker fallingBoulderAppliedHitsplats = new AppliedHitsplatsTracker();
+
+    @Getter
+    // This is really just used for timing, not for the tile itself
+    private final DelayedHitTilesTracker projectileBoulderHitTiles = new DelayedHitTilesTracker();
+    // name -> list of hitsplat amounts
+    private final Map<String, List<Integer>> projectileBoulderAppliedHitsplats = new HashMap<>();
 
     public BabaDetector() {
         gapTiles = new HashSet<>();
@@ -165,6 +216,16 @@ public class BabaDetector extends BaseMistakeDetector {
         despawnedBoulders.clear();
         boulderTiles.clear();
         finalBoulderTiles.clear();
+
+        rubbles.clear();
+        safeRubbleTiles.clear();
+        rubbleHitsplats.clear();
+
+        fallingBoulderHitTiles.clear();
+        fallingBoulderAppliedHitsplats.clear();
+
+        projectileBoulderHitTiles.clear();
+        projectileBoulderAppliedHitsplats.clear();
     }
 
     @Override
@@ -195,6 +256,14 @@ public class BabaDetector extends BaseMistakeDetector {
             raidersRolled.add(raider.getName());
         }
 
+        if (isFallingBoulder(raider)) {
+            mistakes.add(BABA_FALLING_BOULDER);
+        }
+
+        if (isProjectileBoulder(raider)) {
+            mistakes.add(BABA_PROJECTILE_BOULDER);
+        }
+
         return mistakes;
     }
 
@@ -208,7 +277,11 @@ public class BabaDetector extends BaseMistakeDetector {
         raidersRolledLastTick.addAll(raidersRolled);
         raidersRolled.clear();
 
+        rubbleHitsplats.clear();
+
         finalBoulderTiles.clear();
+        fallingBoulderAppliedHitsplats.clear();
+        projectileBoulderAppliedHitsplats.clear();
     }
 
     @Subscribe
@@ -227,12 +300,19 @@ public class BabaDetector extends BaseMistakeDetector {
                 .filter(b -> !b.isDead())
                 .forEach(boulder -> boulderTiles.addAll(computeBoulderTiles(boulder.getWorldLocation())));
         boulderTiles.addAll(finalBoulderTiles);
+
+        fallingBoulderHitTiles.activateHitTilesForTick(client.getTickCount());
+        projectileBoulderHitTiles.activateHitTilesForTick(client.getTickCount());
     }
 
     @Subscribe
     public void onGraphicsObjectCreated(GraphicsObjectCreated event) {
-        if (event.getGraphicsObject().getId() == BABA_SLAM_GRAPHICS_ID) {
+        int id = event.getGraphicsObject().getId();
+        if (id == BABA_SLAM_GRAPHICS_ID) {
             slamHitTiles.add(getWorldPoint(event.getGraphicsObject()));
+        } else if (FALLING_BOULDER_GRAPHICS_IDS.containsKey(id)) {
+            int activationTick = client.getTickCount() + FALLING_BOULDER_GRAPHICS_IDS.get(id);
+            fallingBoulderHitTiles.addHitTile(activationTick, getWorldPoint(event.getGraphicsObject()));
         }
     }
 
@@ -245,6 +325,9 @@ public class BabaDetector extends BaseMistakeDetector {
             spawnedBoulders
                     .computeIfAbsent(client.getTickCount() + BOULDER_SPAWN_DELAY_IN_TICKS, k -> new ArrayList<>())
                     .add(event.getNpc());
+        } else if (RUBBLE_NAME.equals(name)) {
+            rubbles.add(event.getNpc());
+            safeRubbleTiles.put(event.getNpc(), computeSafeRubbleTiles(event.getNpc().getWorldLocation()));
         }
     }
 
@@ -261,6 +344,9 @@ public class BabaDetector extends BaseMistakeDetector {
                 // Pretend the SW tile is 1 tile lower
                 finalBoulderTiles.addAll(computeBoulderTiles(event.getNpc().getWorldLocation().dx(-1)));
             }
+        } else if (RUBBLE_NAME.equals(name)) {
+            rubbles.remove(event.getNpc());
+            safeRubbleTiles.remove(event.getNpc());
         }
     }
 
@@ -276,7 +362,182 @@ public class BabaDetector extends BaseMistakeDetector {
             } else if (event.getActor().getAnimation() == BOULDER_ROLLED_ANIMATION_ID) {
                 raidersRolledAnimation.add(name);
             }
+        } else if (event.getActor() instanceof NPC &&
+                BABA_NAME.equals(name) &&
+                event.getActor().getAnimation() == BABA_PROJECTILE_BOULDER_ANIMATION_ID) {
+            int activationTick = client.getTickCount() + PROJECTILE_BOULDER_DELAY_IN_TICKS;
+            // Add dummy location for the correct activation tick
+            projectileBoulderHitTiles.addHitTile(activationTick, event.getActor().getWorldLocation());
         }
+    }
+
+    @Subscribe
+    public void onHitsplatApplied(HitsplatApplied event) {
+        if (event.getActor() == null || event.getActor().getName() == null) return;
+
+        String name = Text.removeTags(event.getActor().getName());
+        if (raidState.isRaider(event.getActor())) {
+            fallingBoulderAppliedHitsplats.addHitsplatForRaider(name);
+
+            if (isDamageHitsplat(event.getHitsplat().getHitsplatType()) &&
+                    event.getHitsplat().getAmount() > 0) {
+                projectileBoulderAppliedHitsplats.computeIfAbsent(name, k -> new ArrayList<>())
+                        .add(event.getHitsplat().getAmount());
+
+            }
+        } else if (event.getActor() instanceof NPC && RUBBLE_NAME.equals(name)) {
+            if (event.getActor().getGraphic() == RUBBLE_EXPLOSION_GRAPHICS_ID) {
+                rubbleHitsplats.compute((NPC) event.getActor(), (k, v) -> v == null ? 1 : v + 1);
+            } else {
+                // phase transition happening, all tracking boulder projectiles are nulled
+                projectileBoulderHitTiles.clear();
+            }
+        }
+    }
+
+    private boolean isDamageHitsplat(int hitsplatType) {
+        return hitsplatType == HitsplatID.DAMAGE_ME || hitsplatType == HitsplatID.DAMAGE_OTHER;
+    }
+
+    // This is super hacky and was written at 4am without testing in a group so who knows if this works...
+    private boolean isProjectileBoulder(Raider raider) {
+        if (projectileBoulderHitTiles.getActiveHitTiles().isEmpty()) {
+            // No explosion this tick
+            return false;
+        }
+
+        if (rubbles.isEmpty()) {
+            return false;
+        }
+
+        if (!projectileBoulderAppliedHitsplats.containsKey(raider.getName())) {
+            // Somehow there was no hitsplat, so no mistake. This shouldn't be possible.
+            return false;
+        }
+
+        if (safeRubbleTiles.values().stream().noneMatch(tiles -> tiles.contains(raider.getPreviousWorldLocation()))) {
+            // Raider isn't standing on a safe tile. Definitely a mistake.
+            return true;
+        }
+
+        List<Integer> hitsplats = projectileBoulderAppliedHitsplats.get(raider.getName());
+        if (hitsplats.size() == 1) {
+            return isLargeBoulderHitsplat(hitsplats.get(0));
+        }
+
+        if (hitsplats.stream().noneMatch(this::isLargeBoulderHitsplat)) {
+            // No large hitsplats, so we're safe.
+            return false;
+        }
+
+        if (hitsplats.stream().allMatch(this::isLargeBoulderHitsplat)) {
+            // Only large hitsplats, so we made a mistake.
+            return true;
+        }
+
+        // The player must have taken more than one hitsplats this tick (possibly from baba, baboons, etc). One of them
+        // is "large", and at least one isn't. To resolve this, we need to check which rubble this player is standing on
+        // and check other players too.
+        NPC standingRubble = getStandingRubble(raider);
+        if (standingRubble == null) {
+            // Should never happen since we already know the player is standing on a rubble tile
+            return false;
+        }
+
+        List<String> raiderNamesOnSameRubble = getRaidersStandingOnRubble(standingRubble, raider.getName());
+        if (raiderNamesOnSameRubble.isEmpty()) {
+            // There are no other players on this rubble. I'm safe.
+            return false;
+        }
+
+        boolean allHaveOneHitsplat = raiderNamesOnSameRubble.stream()
+                .filter(projectileBoulderAppliedHitsplats::containsKey)
+                .allMatch(r -> projectileBoulderAppliedHitsplats.get(r).size() == 1);
+        if (!allHaveOneHitsplat) {
+            // Some other raiders have multiple hitsplats (possibly from baba, baboons, etc). Let's not bother resolving
+            // this and just determine no mistake.
+            return false;
+        }
+
+        if (!rubbleHitsplats.containsKey(standingRubble)) {
+            // Should never happen, as there should be hitsplats for this rubble
+            return false;
+        }
+        int currRubbleHitsplats = rubbleHitsplats.get(standingRubble);
+        int numSafeRaiders = (int) raiderNamesOnSameRubble.stream()
+                .map(r -> projectileBoulderAppliedHitsplats.get(r).get(0))
+                .filter(amount -> !isLargeBoulderHitsplat(amount))
+                .count();
+        if (currRubbleHitsplats == numSafeRaiders) {
+            // If there are already enough safe raiders, then we made the mistake
+            return true;
+        } else if (currRubbleHitsplats - numSafeRaiders == 1) {
+            // There's one unaccounted for safe raider. It's us.
+            return false;
+        } else {
+            // Should never happen as this means there's a mismatch between safe raiders and number of rubble hitsplats
+            // Return no mistake just in case.
+            return false;
+        }
+    }
+
+    private List<String> getRaidersStandingOnRubble(NPC rubble, String currentRaider) {
+        return raidState.getRaiders().values().stream()
+                .filter(r -> !currentRaider.equals(r.getName()))
+                .filter(r -> rubble.equals(getStandingRubble(r)))
+                .map(Raider::getName)
+                .collect(Collectors.toList());
+    }
+
+    private NPC getStandingRubble(Raider raider) {
+        for (var entry : safeRubbleTiles.entrySet()) {
+            if (entry.getValue().contains(raider.getPreviousWorldLocation())) {
+                return entry.getKey();
+            }
+        }
+
+        return null;
+    }
+
+    private boolean isLargeBoulderHitsplat(int hitsplatAmount) {
+        return hitsplatAmount > PROJECTILE_BOULDER_DAMAGE_THRESHOLD;
+    }
+
+    private Set<WorldPoint> computeSafeRubbleTiles(WorldPoint sw) {
+        WorldPoint start = new WorldPoint(sw.getX() - 1, sw.getY() - 1, sw.getPlane());
+
+        Set<WorldPoint> safeTiles = new HashSet<>(RUBBLE_SAFE_TILES_LENGTH * RUBBLE_SAFE_TILES_LENGTH);
+        for (int i = 0; i < RUBBLE_SAFE_TILES_LENGTH; i++) {
+            for (int j = 0; j < RUBBLE_SAFE_TILES_LENGTH; j++) {
+                safeTiles.add(new WorldPoint(start.getX() + i, start.getY() + j, start.getPlane()));
+            }
+        }
+
+        return safeTiles;
+    }
+
+    private boolean isFallingBoulder(Raider raider) {
+        if (raider.getPlayer().getAnimation() == PLAYER_KNOCK_BACK_ANIMATION_ID) {
+            // If we're in the knock back animation, we can't possibly be taking a small boulder hit
+            return false;
+        }
+
+        if (!fallingBoulderAppliedHitsplats.popHitsplatApplied(raider.getName())) {
+            // If there's not a hitsplat on the player at all, we also can't possibly be taking a hit
+            return false;
+        }
+
+        if (!fallingBoulderHitTiles.getActiveHitTiles().contains(raider.getPreviousWorldLocation())) {
+            // The player isn't even on a hit tile
+            return false;
+        }
+
+        if (rubbles.isEmpty()) {
+            // This might be possible when the room finishes. If there are no rubbles left, then no hit.
+            return false;
+        }
+
+        return true;
     }
 
     private boolean isSlip(Raider raider) {

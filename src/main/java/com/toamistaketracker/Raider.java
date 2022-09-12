@@ -14,7 +14,7 @@ import java.util.Set;
  */
 public class Raider {
 
-    private static Set<Integer> GHOST_POSE_IDS = Set.of(5538, 5539);
+    private static final Set<Integer> GHOST_POSE_IDS = Set.of(5538, 5539);
 
     @Getter
     @NonNull

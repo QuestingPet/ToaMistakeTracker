@@ -53,6 +53,17 @@ public class MistakeDetectorManager {
     @Getter
     private final List<BaseMistakeDetector> mistakeDetectors;
 
+    private HetPuzzleDetector hetPuzzleDetector;
+    private CrondisPuzzleDetector crondisPuzzleDetector;
+    private ScabarasPuzzleDetector scabarasPuzzleDetector;
+    private ApmekenPuzzleDetector apmekenPuzzleDetector;
+    private AkkhaDetector akkhaDetector;
+    private ZebakDetector zebakDetector;
+    private KephriDetector kephriDetector;
+    private BabaDetector babaDetector;
+    private WardensDetector wardensDetector;
+    private DeathDetector deathDetector;
+
     @Getter
     @VisibleForTesting
     private boolean started;
@@ -71,6 +82,17 @@ public class MistakeDetectorManager {
                                   BabaDetector babaDetector,
                                   WardensDetector wardensDetector,
                                   DeathDetector deathDetector) {
+        this.hetPuzzleDetector = hetPuzzleDetector;
+        this.crondisPuzzleDetector = crondisPuzzleDetector;
+        this.scabarasPuzzleDetector = scabarasPuzzleDetector;
+        this.apmekenPuzzleDetector = apmekenPuzzleDetector;
+        this.akkhaDetector = akkhaDetector;
+        this.zebakDetector = zebakDetector;
+        this.kephriDetector = kephriDetector;
+        this.babaDetector = babaDetector;
+        this.wardensDetector = wardensDetector;
+        this.deathDetector = deathDetector;
+
         // Order matters, since it's last write wins for which mistake gets put on overhead text. Death should be last.
         this.mistakeDetectors = new ArrayList<>(List.of(
                 hetPuzzleDetector,
@@ -164,12 +186,30 @@ public class MistakeDetectorManager {
     public void reset() {
         for (int i = 0; i < mistakeDetectors.size(); i++) {
             BaseMistakeDetector detector = mistakeDetectors.get(i);
-            detector.shutdown();
+            try {
+                detector.shutdown();
+            } catch (Exception e) {
+                log.error("Failed to shutdown old detector while resetting state", e);
+                // Continue anyway
+            }
             BaseMistakeDetector newInstance = detector.getClass().getDeclaredConstructor().newInstance();
             newInstance.setClient(client);
             newInstance.setEventBus(eventBus);
             newInstance.setRaidState(raidstate);
+            if (newInstance.getRaidRoom() == null || newInstance.getRaidRoom() == raidstate.getCurrentRoom()) {
+                newInstance.startup();
+            }
             mistakeDetectors.set(i, newInstance);
         }
+    }
+
+    public <T extends BaseMistakeDetector> T getMistakeDetector(Class<T> clazz) {
+        for (BaseMistakeDetector detector : mistakeDetectors) {
+            if (detector.getClass().equals(clazz)) {
+                return clazz.cast(detector);
+            }
+        }
+
+        return null;
     }
 }
