@@ -407,31 +407,37 @@ public class BabaDetector extends BaseMistakeDetector {
         }
 
         if (rubbles.isEmpty()) {
+            log.debug("No rubbles spawned");
             return false;
         }
 
         if (!projectileBoulderAppliedHitsplats.containsKey(raider.getName())) {
             // Somehow there was no hitsplat, so no mistake. This shouldn't be possible.
+            log.debug("No hitsplat somehow. Should never happen");
             return false;
         }
 
         if (safeRubbleTiles.values().stream().noneMatch(tiles -> tiles.contains(raider.getPreviousWorldLocation()))) {
             // Raider isn't standing on a safe tile. Definitely a mistake.
+            log.debug("Raider not on a safe tile");
             return true;
         }
 
         List<Integer> hitsplats = projectileBoulderAppliedHitsplats.get(raider.getName());
         if (hitsplats.size() == 1) {
+            log.debug("Exactly one hitsplat");
             return isLargeBoulderHitsplat(hitsplats.get(0));
         }
 
         if (hitsplats.stream().noneMatch(this::isLargeBoulderHitsplat)) {
             // No large hitsplats, so we're safe.
+            log.debug("Multiple hitsplats but all are small");
             return false;
         }
 
         if (hitsplats.stream().allMatch(this::isLargeBoulderHitsplat)) {
             // Only large hitsplats, so we made a mistake.
+            log.debug("Multiple hitsplats, but all are large");
             return true;
         }
 
@@ -441,12 +447,14 @@ public class BabaDetector extends BaseMistakeDetector {
         NPC standingRubble = getStandingRubble(raider);
         if (standingRubble == null) {
             // Should never happen since we already know the player is standing on a rubble tile
+            log.debug("No standing rubble - should never happen");
             return false;
         }
 
         List<String> raiderNamesOnSameRubble = getRaidersStandingOnRubble(standingRubble, raider.getName());
         if (raiderNamesOnSameRubble.isEmpty()) {
-            // There are no other players on this rubble. I'm safe.
+            // There are no other players on this rubble. I have to be safe.
+            log.debug("Only one raider on this rubble");
             return false;
         }
 
@@ -456,11 +464,13 @@ public class BabaDetector extends BaseMistakeDetector {
         if (!allHaveOneHitsplat) {
             // Some other raiders have multiple hitsplats (possibly from baba, baboons, etc). Let's not bother resolving
             // this and just determine no mistake.
+            log.debug("Other raiders on this rubble have multiple hitsplats too");
             return false;
         }
 
         if (!rubbleHitsplats.containsKey(standingRubble)) {
             // Should never happen, as there should be hitsplats for this rubble
+            log.debug("Somehow no hitsplats for this rubble. Should never happen");
             return false;
         }
         int currRubbleHitsplats = rubbleHitsplats.get(standingRubble);
@@ -470,13 +480,16 @@ public class BabaDetector extends BaseMistakeDetector {
                 .count();
         if (currRubbleHitsplats == numSafeRaiders) {
             // If there are already enough safe raiders, then we made the mistake
+            log.debug("All other safe raiders found");
             return true;
         } else if (currRubbleHitsplats - numSafeRaiders == 1) {
             // There's one unaccounted for safe raider. It's us.
+            log.debug("There's an extra safe raider somewhere that must be me");
             return false;
         } else {
             // Should never happen as this means there's a mismatch between safe raiders and number of rubble hitsplats
             // Return no mistake just in case.
+            log.debug("Somehow there's a mismatch in hitsplats and safe raiders. Should never happen");
             return false;
         }
     }
@@ -484,13 +497,14 @@ public class BabaDetector extends BaseMistakeDetector {
     private List<String> getRaidersStandingOnRubble(NPC rubble, String currentRaider) {
         return raidState.getRaiders().values().stream()
                 .filter(r -> !currentRaider.equals(r.getName()))
+                .filter(r -> !r.isDead())
                 .filter(r -> rubble.equals(getStandingRubble(r)))
                 .map(Raider::getName)
                 .collect(Collectors.toList());
     }
 
     private NPC getStandingRubble(Raider raider) {
-        for (var entry : safeRubbleTiles.entrySet()) {
+        for (Map.Entry<NPC, Set<WorldPoint>> entry : safeRubbleTiles.entrySet()) {
             if (entry.getValue().contains(raider.getPreviousWorldLocation())) {
                 return entry.getKey();
             }
@@ -500,7 +514,7 @@ public class BabaDetector extends BaseMistakeDetector {
     }
 
     private boolean isLargeBoulderHitsplat(int hitsplatAmount) {
-        return hitsplatAmount > PROJECTILE_BOULDER_DAMAGE_THRESHOLD;
+        return hitsplatAmount > 4;// TODO: PROJECTILE_BOULDER_DAMAGE_THRESHOLD;
     }
 
     private Set<WorldPoint> computeSafeRubbleTiles(WorldPoint sw) {
