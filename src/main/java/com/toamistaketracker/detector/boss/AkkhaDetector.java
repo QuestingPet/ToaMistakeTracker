@@ -3,7 +3,7 @@ package com.toamistaketracker.detector.boss;
 import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
-import com.toamistaketracker.detector.AppliedHitsplatsTracker;
+import com.toamistaketracker.detector.tracker.AppliedHitsplatsTracker;
 import com.toamistaketracker.detector.BaseMistakeDetector;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;

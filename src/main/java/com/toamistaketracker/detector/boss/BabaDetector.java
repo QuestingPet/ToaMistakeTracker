@@ -3,9 +3,9 @@ package com.toamistaketracker.detector.boss;
 import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
-import com.toamistaketracker.detector.AppliedHitsplatsTracker;
+import com.toamistaketracker.detector.tracker.AppliedHitsplatsTracker;
 import com.toamistaketracker.detector.BaseMistakeDetector;
-import com.toamistaketracker.detector.DelayedHitTilesTracker;
+import com.toamistaketracker.detector.tracker.DelayedHitTilesTracker;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -85,6 +85,8 @@ import static com.toamistaketracker.ToaMistake.BABA_SLAM;
 @Slf4j
 @Singleton
 public class BabaDetector extends BaseMistakeDetector {
+    // TODO: Boulder with faster spawns testing
+
     // 7 ticks for tracking boulder to hit you
     // What about if rubble takes damage *without* a graphics id? That means it must have been wiped due to phase
     // transition, and we can wipe all tracked projectiles.

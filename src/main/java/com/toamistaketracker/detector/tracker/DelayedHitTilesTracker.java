@@ -1,11 +1,9 @@
-package com.toamistaketracker.detector;
+package com.toamistaketracker.detector.tracker;
 
-import com.google.common.annotations.VisibleForTesting;
-import lombok.Getter;
 import lombok.NonNull;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.coords.WorldPoint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,17 +13,13 @@ import java.util.Set;
 /**
  * Wrapper class for a map tracking hit tiles delayed for a specified activation tick
  */
-// TODO: Move to tracker package and make a HitTilesTracker interface with this and InstantHitTilesTracker object.
-public class DelayedHitTilesTracker {
+@Slf4j
+@Value
+public class DelayedHitTilesTracker implements HitTilesTracker {
 
-    Logger log = LoggerFactory.getLogger(DelayedHitTilesTracker.class);
+    Set<WorldPoint> activeHitTiles = new HashSet<>();
 
-    @Getter
-    private Set<WorldPoint> activeHitTiles = new HashSet<>();
-
-    @Getter
-    @VisibleForTesting
-    private final Map<Integer, Set<WorldPoint>> delayedHitTiles = new HashMap<>(); // activationTick -> set of positions
+    Map<Integer, Set<WorldPoint>> delayedHitTiles = new HashMap<>(); // activationTick -> set of positions
 
     /**
      * Add the specified hit tile to be retrieved at the specified activation tick
@@ -37,6 +31,12 @@ public class DelayedHitTilesTracker {
         delayedHitTiles.computeIfAbsent(activationTick, k -> new HashSet<>()).add(worldPoint);
     }
 
+    /**
+     * Add the specified hit tiles to be retrieved at the specified activation tick
+     *
+     * @param activationTick The game tick to retrieve the hit tile
+     * @param worldPoints    The hit tiles
+     */
     public void addHitTiles(@NonNull Integer activationTick, @NonNull Set<WorldPoint> worldPoints) {
         delayedHitTiles.computeIfAbsent(activationTick, k -> new HashSet<>()).addAll(worldPoints);
     }
@@ -47,16 +47,15 @@ public class DelayedHitTilesTracker {
      *
      * @param gameTick the game tick
      */
+    @Override
     public void activateHitTilesForTick(@NonNull Integer gameTick) {
         activeHitTiles.clear();
         if (delayedHitTiles.containsKey(gameTick)) {
-            activeHitTiles = delayedHitTiles.remove(gameTick);
+            activeHitTiles.addAll(delayedHitTiles.remove(gameTick));
         }
     }
 
-    /**
-     * Clears all hit tiles
-     */
+    @Override
     public void clear() {
         activeHitTiles.clear();
         delayedHitTiles.clear();

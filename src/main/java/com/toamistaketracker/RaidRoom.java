@@ -1,41 +1,36 @@
 package com.toamistaketracker;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum RaidRoom {
 
     // limbo 13392
-    // in-raid lobby 14160?
-
-    RAID_LOBBY_OUTSIDE(new int[]{13454}),
-    RAID_LOBBY_INSIDE(new int[]{14160}),
-    HET_PUZZLE(new int[]{14674}),
-    CRONDIS_PUZZLE(new int[]{15698}),
-    SCABARAS_PUZZLE(new int[]{14162}),
-    APMEKEN_PUZZLE(new int[]{15186}),
-    AKKHA(new int[]{14676}),
-    ZEBAK(new int[]{15700}),
-    KEPHRI(new int[]{14164}),
-    BABA(new int[]{15188}),
-    WARDENS(new int[]{15184, 15696}),
+    RAID_LOBBY_OUTSIDE(13454),
+    RAID_LOBBY_INSIDE(14160),
+    HET_PUZZLE(14674),
+    CRONDIS_PUZZLE(15698),
+    SCABARAS_PUZZLE(14162),
+    APMEKEN_PUZZLE(15186),
+    AKKHA(14676),
+    ZEBAK(15700),
+    KEPHRI(14164),
+    BABA(15188),
+    WARDENS_P1_P2(15184),
+    WARDENS_P3(15696),
     ;
 
-    private final int[] regionIds;
+    @Getter
+    private final int regionId;
 
     public static RaidRoom forRegionId(int region) {
         for (RaidRoom r : RaidRoom.values()) {
-            for (int regionId : r.regionIds) {
-                if (regionId == region) {
-                    return r;
-                }
+            if (r.getRegionId() == region) {
+                return r;
             }
         }
 
         return null;
-    }
-
-    public int getRegionId() {
-        return regionIds[0];
     }
 }

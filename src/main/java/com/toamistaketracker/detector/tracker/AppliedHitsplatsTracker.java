@@ -1,4 +1,4 @@
-package com.toamistaketracker.detector;
+package com.toamistaketracker.detector.tracker;
 
 import java.util.HashMap;
 import java.util.Map;

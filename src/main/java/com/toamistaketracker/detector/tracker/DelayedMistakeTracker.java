@@ -1,4 +1,4 @@
-package com.toamistaketracker.detector;
+package com.toamistaketracker.detector.tracker;
 
 import com.toamistaketracker.ToaMistake;
 import lombok.Builder;

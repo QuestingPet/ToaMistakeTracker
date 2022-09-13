@@ -7,7 +7,8 @@ import com.toamistaketracker.ToaMistake;
 import com.toamistaketracker.detector.boss.AkkhaDetector;
 import com.toamistaketracker.detector.boss.BabaDetector;
 import com.toamistaketracker.detector.boss.KephriDetector;
-import com.toamistaketracker.detector.boss.WardensDetector;
+import com.toamistaketracker.detector.boss.WardensP1P2Detector;
+import com.toamistaketracker.detector.boss.WardensP3Detector;
 import com.toamistaketracker.detector.boss.ZebakDetector;
 import com.toamistaketracker.detector.death.DeathDetector;
 import com.toamistaketracker.detector.puzzle.ApmekenPuzzleDetector;
@@ -53,17 +54,6 @@ public class MistakeDetectorManager {
     @Getter
     private final List<BaseMistakeDetector> mistakeDetectors;
 
-    private HetPuzzleDetector hetPuzzleDetector;
-    private CrondisPuzzleDetector crondisPuzzleDetector;
-    private ScabarasPuzzleDetector scabarasPuzzleDetector;
-    private ApmekenPuzzleDetector apmekenPuzzleDetector;
-    private AkkhaDetector akkhaDetector;
-    private ZebakDetector zebakDetector;
-    private KephriDetector kephriDetector;
-    private BabaDetector babaDetector;
-    private WardensDetector wardensDetector;
-    private DeathDetector deathDetector;
-
     @Getter
     @VisibleForTesting
     private boolean started;
@@ -80,19 +70,9 @@ public class MistakeDetectorManager {
                                   ZebakDetector zebakDetector,
                                   KephriDetector kephriDetector,
                                   BabaDetector babaDetector,
-                                  WardensDetector wardensDetector,
+                                  WardensP1P2Detector wardensP1P2Detector,
+                                  WardensP3Detector wardensP3Detector,
                                   DeathDetector deathDetector) {
-        this.hetPuzzleDetector = hetPuzzleDetector;
-        this.crondisPuzzleDetector = crondisPuzzleDetector;
-        this.scabarasPuzzleDetector = scabarasPuzzleDetector;
-        this.apmekenPuzzleDetector = apmekenPuzzleDetector;
-        this.akkhaDetector = akkhaDetector;
-        this.zebakDetector = zebakDetector;
-        this.kephriDetector = kephriDetector;
-        this.babaDetector = babaDetector;
-        this.wardensDetector = wardensDetector;
-        this.deathDetector = deathDetector;
-
         // Order matters, since it's last write wins for which mistake gets put on overhead text. Death should be last.
         this.mistakeDetectors = new ArrayList<>(List.of(
                 hetPuzzleDetector,
@@ -103,7 +83,8 @@ public class MistakeDetectorManager {
                 zebakDetector,
                 kephriDetector,
                 babaDetector,
-                wardensDetector,
+                wardensP1P2Detector,
+                wardensP3Detector,
                 deathDetector
         ));
 
@@ -174,15 +155,16 @@ public class MistakeDetectorManager {
             log.debug("Team wiped -- Resetting all active detectors");
             mistakeDetectors.stream()
                     .filter(BaseMistakeDetector::isDetectingMistakes)
-                    .forEach(d ->{
+                    .forEach(d -> {
                         d.shutdown();
                         d.startup();
                     });
         }
     }
 
-    // TODO: remove -- for debugging with hotswap
+    // This is for debugging/hotswap
     @SneakyThrows
+    @VisibleForTesting
     public void reset() {
         for (int i = 0; i < mistakeDetectors.size(); i++) {
             BaseMistakeDetector detector = mistakeDetectors.get(i);
@@ -203,6 +185,8 @@ public class MistakeDetectorManager {
         }
     }
 
+    // This is for debugging
+    @VisibleForTesting
     public <T extends BaseMistakeDetector> T getMistakeDetector(Class<T> clazz) {
         for (BaseMistakeDetector detector : mistakeDetectors) {
             if (detector.getClass().equals(clazz)) {

@@ -4,7 +4,8 @@ import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
 import com.toamistaketracker.detector.BaseMistakeDetector;
-import com.toamistaketracker.detector.DelayedHitTilesTracker;
+import com.toamistaketracker.detector.tracker.DelayedHitTilesTracker;
+import com.toamistaketracker.detector.tracker.InstantHitTilesTracker;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -32,17 +33,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.toamistaketracker.RaidRoom.WARDENS;
+import static com.toamistaketracker.RaidRoom.WARDENS_P1_P2;
 import static com.toamistaketracker.ToaMistake.WARDENS_P1_PYRAMID;
 import static com.toamistaketracker.ToaMistake.WARDENS_P2_BIND;
 import static com.toamistaketracker.ToaMistake.WARDENS_P2_BOMBS;
 import static com.toamistaketracker.ToaMistake.WARDENS_P2_DDR;
 import static com.toamistaketracker.ToaMistake.WARDENS_P2_SPECIAL_PRAYER;
 import static com.toamistaketracker.ToaMistake.WARDENS_P2_WINDMILL;
-import static com.toamistaketracker.ToaMistake.WARDENS_P3_BABA;
-import static com.toamistaketracker.ToaMistake.WARDENS_P3_EARTHQUAKE;
-import static com.toamistaketracker.ToaMistake.WARDENS_P3_KEPHRI;
-import static com.toamistaketracker.ToaMistake.WARDENS_P3_LIGHTNING;
 
 /**
  * The pyramids are GameObjects that change their animations through changing their Renderables. Since we can't
@@ -50,13 +47,24 @@ import static com.toamistaketracker.ToaMistake.WARDENS_P3_LIGHTNING;
  * the player. Also, the pyramid animation starts 1 tick earlier and ends 1 tick earlier than when the player actually
  * takes damage, so we delay the detection by a tick.
  *
- * DDR tiles spawn all of their graphics objects
+ * DDR tiles spawn all of their graphics objects at once and delay their activation for some set number of ticks. We
+ * calculate that and delay the hit tile activations with the new {@link DelayedHitTilesTracker}. This means we only
+ * need to check for the player standing on the hit tile once the activation tick is played.
+ *
+ * The Bombs are the same, as the outer ring activates one tile later than the inner ones, using graphics objects to
+ * detect
+ *
+ * The windmill attack is similar, but activates instantly on the current game tick. For that, we use the aptly named
+ * {@link InstantHitTilesTracker} which is also a new class that helps track these hit tiles and when they should
+ * activate. Once again graphics objects are used for detection here.
+ *
+ * Sometimes the obelisk can be in different phases but use an attack from a separate special. For example, the DDR
+ * phase starts with graphics ids that are the same as the windmill, but we should count that as screwing up the DDR
+ * phase not the windmill phase, and as such we detect the obelisk phase to account for that.
  */
 @Slf4j
 @Singleton
-public class WardensDetector extends BaseMistakeDetector {
-
-    // TODO: Split this up into separate classes per phase for readability
+public class WardensP1P2Detector extends BaseMistakeDetector {
 
     // P1 constants
     private static final int RED_PYRAMID_GAME_OBJECT_ID = 45750;
@@ -73,7 +81,6 @@ public class WardensDetector extends BaseMistakeDetector {
     private static final int WINDMILL_HIT_GRAPHICS_ID = 2234;
     private static final int BOMB_GRAPHICS_ID = 2198;
     private static final int DDR_HIT_DELAY_IN_TICKS = 1;
-    private static final int WINDMILL_HIT_DELAY_IN_TICKS = 0;
     private static final int LIGHTNING_HIT_DELAY_IN_TICKS = 0;
     private static final int OBELISK_DDR_ANIMATION_ID = 9732;
     private static final int OBELISK_WINDMILL_ANIMATION_ID = 9733;
@@ -88,19 +95,6 @@ public class WardensDetector extends BaseMistakeDetector {
             2206, HeadIcon.RANGED,
             2208, HeadIcon.MAGIC
     );
-
-    // P3 constants
-    private final Set<Integer> EARTHQUAKE_GRAPHICS_IDS = Set.of(2220, 2221, 2222, 2223);
-    private static final int EARTHQUAKE_HIT_DELAY_IN_TICKS = 0;
-    private final Set<Integer> KEPHRI_BOMB_GRAPHICS_IDS = Set.of(2156, 2157, 2158, 2159);
-    private static final int KEPHRI_BOMB_HIT_DELAY_IN_TICKS = 0;
-    // Graphics ID -> tick delay
-    private final Map<Integer, Integer> BABA_BOULDERS = Map.of(
-            2250, 6,
-            2251, 4
-    );
-    private static final int P3_LIGHTNING_GRAPHICS_ID = 2197;
-    private static final int P3_LIGHTNING_HIT_DELAY_IN_TICKS = 0;
 
     @RequiredArgsConstructor
     enum ObeliskPhase {
@@ -135,7 +129,7 @@ public class WardensDetector extends BaseMistakeDetector {
     @Getter
     private final DelayedHitTilesTracker ddrHitTiles = new DelayedHitTilesTracker();
     @Getter
-    private final DelayedHitTilesTracker windmillHitTiles = new DelayedHitTilesTracker();
+    private final InstantHitTilesTracker windmillHitTiles = new InstantHitTilesTracker();
     @Getter
     private final DelayedHitTilesTracker bombHitTiles = new DelayedHitTilesTracker();
     private final Set<String> raidersBound = new HashSet<>();
@@ -144,16 +138,6 @@ public class WardensDetector extends BaseMistakeDetector {
     // This is really just used for timing, not for the tile itself
     private final DelayedHitTilesTracker specialPrayerHitTiles = new DelayedHitTilesTracker();
     private Integer currentSpecialPrayerProjectileId;
-
-    // P3 fields
-    @Getter
-    private final DelayedHitTilesTracker earthquakeHitTiles = new DelayedHitTilesTracker();
-    @Getter
-    private final DelayedHitTilesTracker kephriBombHitTiles = new DelayedHitTilesTracker();
-    @Getter
-    private final DelayedHitTilesTracker babaBoulderTiles = new DelayedHitTilesTracker();
-    @Getter
-    private final DelayedHitTilesTracker lightningHitTiles = new DelayedHitTilesTracker();
 
     @Override
     public void cleanup() {
@@ -167,22 +151,15 @@ public class WardensDetector extends BaseMistakeDetector {
         raidersBound.clear();
         specialPrayerHitTiles.clear();
         currentSpecialPrayerProjectileId = null;
-
-        earthquakeHitTiles.clear();
-        kephriBombHitTiles.clear();
-        babaBoulderTiles.clear();
-        lightningHitTiles.clear();
     }
 
     @Override
     public RaidRoom getRaidRoom() {
-        return WARDENS;
+        return WARDENS_P1_P2;
     }
 
     @Override
     public List<ToaMistake> detectMistakes(@NonNull Raider raider) {
-        raider.getPlayer().setOverheadText("" + client.getTickCount());
-
         List<ToaMistake> mistakes = new ArrayList<>();
 
         if (pyramidHitTiles.getActiveHitTiles().contains(raider.getPreviousWorldLocation())) {
@@ -208,24 +185,6 @@ public class WardensDetector extends BaseMistakeDetector {
         if (isSpecialPrayerHit(raider)) {
             mistakes.add(WARDENS_P2_SPECIAL_PRAYER);
         }
-
-        if (earthquakeHitTiles.getActiveHitTiles().contains(raider.getPreviousWorldLocation())) {
-            mistakes.add(WARDENS_P3_EARTHQUAKE);
-        }
-
-        if (kephriBombHitTiles.getActiveHitTiles().contains(raider.getPreviousWorldLocation())) {
-            mistakes.add(WARDENS_P3_KEPHRI);
-        }
-
-        if (babaBoulderTiles.getActiveHitTiles().contains(raider.getPreviousWorldLocation())) {
-            mistakes.add(WARDENS_P3_BABA);
-        }
-
-        if (lightningHitTiles.getActiveHitTiles().contains(raider.getPreviousWorldLocation())) {
-            mistakes.add(WARDENS_P3_LIGHTNING);
-        }
-
-        // TODO: P3 is its own region! and thus own room!
 
         return mistakes;
     }
@@ -265,11 +224,6 @@ public class WardensDetector extends BaseMistakeDetector {
         windmillHitTiles.activateHitTilesForTick(client.getTickCount());
         bombHitTiles.activateHitTilesForTick(client.getTickCount());
         specialPrayerHitTiles.activateHitTilesForTick(client.getTickCount());
-
-        earthquakeHitTiles.activateHitTilesForTick(client.getTickCount());
-        kephriBombHitTiles.activateHitTilesForTick(client.getTickCount());
-        babaBoulderTiles.activateHitTilesForTick(client.getTickCount());
-        lightningHitTiles.activateHitTilesForTick(client.getTickCount());
     }
 
     @Subscribe
@@ -299,16 +253,14 @@ public class WardensDetector extends BaseMistakeDetector {
                 ddrHitTiles.addHitTile(activationTick, getWorldPoint(event.getGraphicsObject()));
                 break;
             case WINDMILL_HIT_GRAPHICS_ID:
-                activationTick = getActivationTick(event.getGraphicsObject(), WINDMILL_HIT_DELAY_IN_TICKS);
                 if (obeliskPhase == ObeliskPhase.DDR) {
-                    ddrHitTiles.addHitTile(activationTick, getWorldPoint(event.getGraphicsObject()));
+                    ddrHitTiles.addHitTile(client.getTickCount(), getWorldPoint(event.getGraphicsObject()));
                 } else if (obeliskPhase == ObeliskPhase.WINDMILL) {
-                    windmillHitTiles.addHitTile(activationTick, getWorldPoint(event.getGraphicsObject()));
+                    windmillHitTiles.addHitTile(getWorldPoint(event.getGraphicsObject()));
                 }
                 break;
             case OBELISK_WINDMILL_LIGHTNING_GRAPHICS_ID:
-                activationTick = getActivationTick(event.getGraphicsObject(), WINDMILL_HIT_DELAY_IN_TICKS);
-                windmillHitTiles.addHitTile(activationTick, getWorldPoint(event.getGraphicsObject()));
+                windmillHitTiles.addHitTile(getWorldPoint(event.getGraphicsObject()));
                 break;
             case BOMB_GRAPHICS_ID:
                 if (obeliskPhase == ObeliskPhase.BOMBS) {
@@ -316,21 +268,6 @@ public class WardensDetector extends BaseMistakeDetector {
                     bombHitTiles.addHitTile(activationTick, getWorldPoint(event.getGraphicsObject()));
                 }
                 break;
-        }
-
-        int id = event.getGraphicsObject().getId();
-        if (EARTHQUAKE_GRAPHICS_IDS.contains(id)) {
-            activationTick = getActivationTick(event.getGraphicsObject(), EARTHQUAKE_HIT_DELAY_IN_TICKS);
-            earthquakeHitTiles.addHitTile(activationTick, getWorldPoint(event.getGraphicsObject()));
-        } else if (KEPHRI_BOMB_GRAPHICS_IDS.contains(id)) {
-            activationTick = getActivationTick(event.getGraphicsObject(), KEPHRI_BOMB_HIT_DELAY_IN_TICKS);
-            kephriBombHitTiles.addHitTile(activationTick, getWorldPoint(event.getGraphicsObject()));
-        } else if (BABA_BOULDERS.containsKey(id)) {
-            activationTick = getActivationTick(event.getGraphicsObject(), BABA_BOULDERS.get(id));
-            babaBoulderTiles.addHitTile(activationTick, getWorldPoint(event.getGraphicsObject()));
-        } else if (id == P3_LIGHTNING_GRAPHICS_ID) {
-            activationTick = getActivationTick(event.getGraphicsObject(), P3_LIGHTNING_HIT_DELAY_IN_TICKS);
-            lightningHitTiles.addHitTile(activationTick, getWorldPoint(event.getGraphicsObject()));
         }
     }
 
@@ -347,7 +284,6 @@ public class WardensDetector extends BaseMistakeDetector {
                         client.getTickCount());
                 return;
             }
-
 
             int activationTick = getActivationTick(event.getProjectile());
 

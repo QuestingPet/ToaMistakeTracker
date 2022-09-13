@@ -4,7 +4,7 @@ import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
 import com.toamistaketracker.detector.BaseMistakeDetector;
-import com.toamistaketracker.detector.DelayedHitTilesTracker;
+import com.toamistaketracker.detector.tracker.DelayedHitTilesTracker;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;

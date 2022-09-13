@@ -80,9 +80,7 @@ public abstract class BaseMistakeDetector {
      * This method allows detectors to handle some logic after all detectMistakes methods have been invoked
      * for this {@link net.runelite.api.events.GameTick}. Commonly, this is to cleanup state from after this tick.
      */
-    public void afterDetect() {
-        cleanup();
-    }
+    public abstract void afterDetect();
 
     /**
      * Determines whether or not this detector is currently detecting mistakes. Commonly this is by checking the current

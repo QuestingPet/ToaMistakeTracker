@@ -3,13 +3,15 @@ package com.toamistaketracker.overlay;
 import com.toamistaketracker.RaidState;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistakeTrackerConfig;
-import com.toamistaketracker.detector.DelayedHitTilesTracker;
+import com.toamistaketracker.detector.boss.WardensP3Detector;
+import com.toamistaketracker.detector.tracker.DelayedHitTilesTracker;
 import com.toamistaketracker.detector.MistakeDetectorManager;
 import com.toamistaketracker.detector.boss.BabaDetector;
 import com.toamistaketracker.detector.boss.KephriDetector;
-import com.toamistaketracker.detector.boss.WardensDetector;
+import com.toamistaketracker.detector.boss.WardensP1P2Detector;
 import com.toamistaketracker.detector.puzzle.ApmekenPuzzleDetector;
 import com.toamistaketracker.detector.puzzle.CrondisPuzzleDetector;
+import com.toamistaketracker.detector.tracker.InstantHitTilesTracker;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.GameObject;
@@ -71,7 +73,8 @@ public class DebugOverlay extends Overlay {
                 .getMistakeDetector(ApmekenPuzzleDetector.class);
         BabaDetector babaDetector = mistakeDetectorManager.getMistakeDetector(BabaDetector.class);
         KephriDetector kephriDetector = mistakeDetectorManager.getMistakeDetector(KephriDetector.class);
-        WardensDetector wardensDetector = mistakeDetectorManager.getMistakeDetector(WardensDetector.class);
+        WardensP1P2Detector wardensP1P2Detector = mistakeDetectorManager.getMistakeDetector(WardensP1P2Detector.class);
+        WardensP3Detector wardensP3Detector = mistakeDetectorManager.getMistakeDetector(WardensP3Detector.class);
 
         for (WorldPoint worldPoint : crondisPuzzleDetector.getWaterFallTiles()) {
             renderTile(graphics, toLocalPoint(worldPoint), Color.RED);
@@ -89,8 +92,8 @@ public class DebugOverlay extends Overlay {
             renderTile(graphics, toLocalPoint(worldPoint), Color.RED);
         }
 
-        renderDelayedHitTiles(graphics, babaDetector.getFallingBoulderHitTiles());
-        renderDelayedHitTiles(graphics, babaDetector.getProjectileBoulderHitTiles());
+        renderHitTiles(graphics, babaDetector.getFallingBoulderHitTiles());
+        renderHitTiles(graphics, babaDetector.getProjectileBoulderHitTiles());
 
         for (NPC npc : babaDetector.getRubbles()) {
             renderTile(graphics, toLocalPoint(npc.getWorldLocation()), Color.ORANGE);
@@ -104,25 +107,23 @@ public class DebugOverlay extends Overlay {
             renderTile(graphics, toLocalPoint(worldPoint), Color.GREEN);
         }
 
-        renderDelayedHitTiles(graphics, kephriDetector.getBombHitTiles());
+        renderHitTiles(graphics, kephriDetector.getBombHitTiles());
 
-        for (GameObject gameObject : wardensDetector.getActivePyramids()) {
+        for (GameObject gameObject : wardensP1P2Detector.getActivePyramids()) {
             renderTile(graphics, toLocalPoint(gameObject.getWorldLocation()), Color.RED);
         }
 
-//        for (WorldPoint worldPoint : wardensDetector.getPyramidHitTiles()) {
-//            renderTile(graphics, toLocalPoint(worldPoint), Color.GREEN);
-//        }
-        renderDelayedHitTiles(graphics, wardensDetector.getPyramidHitTiles());
+        renderHitTiles(graphics, wardensP1P2Detector.getPyramidHitTiles());
 
-        renderDelayedHitTiles(graphics, wardensDetector.getDdrHitTiles());
-        renderDelayedHitTiles(graphics, wardensDetector.getWindmillHitTiles());
-        renderDelayedHitTiles(graphics, wardensDetector.getBombHitTiles());
-        renderDelayedHitTiles(graphics, wardensDetector.getSpecialPrayerHitTiles());
+        renderHitTiles(graphics, wardensP1P2Detector.getDdrHitTiles());
+        renderHitTiles(graphics, wardensP1P2Detector.getWindmillHitTiles());
+        renderHitTiles(graphics, wardensP1P2Detector.getBombHitTiles());
+        renderHitTiles(graphics, wardensP1P2Detector.getSpecialPrayerHitTiles());
 
-        renderDelayedHitTiles(graphics, wardensDetector.getEarthquakeHitTiles());
-        renderDelayedHitTiles(graphics, wardensDetector.getKephriBombHitTiles());
-        renderDelayedHitTiles(graphics, wardensDetector.getLightningHitTiles());
+        renderHitTiles(graphics, wardensP3Detector.getEarthquakeHitTiles());
+        renderHitTiles(graphics, wardensP3Detector.getKephriBombHitTiles());
+        renderHitTiles(graphics, wardensP3Detector.getBabaBoulderTiles());
+        renderHitTiles(graphics, wardensP3Detector.getLightningHitTiles());
 
         for (Raider raider : raidState.getRaiders().values()) {
             if (raider.getPreviousWorldLocationForOverlay() != null) {
@@ -167,10 +168,13 @@ public class DebugOverlay extends Overlay {
         return LocalPoint.fromWorld(client, worldPoint);
     }
 
-    private void renderDelayedHitTiles(final Graphics2D graphics, DelayedHitTilesTracker tracker) {
-
+    private void renderHitTiles(final Graphics2D graphics, DelayedHitTilesTracker tracker) {
         tracker.getDelayedHitTiles().forEach((key, value) ->
                 value.forEach(tile -> renderTileWithText(graphics, toLocalPoint(tile), Color.RED, String.valueOf(key - client.getTickCount() + 1))));
+        tracker.getActiveHitTiles().forEach(tile -> renderTile(graphics, toLocalPoint(tile), Color.GREEN));
+    }
+
+    private void renderHitTiles(final Graphics2D graphics, InstantHitTilesTracker tracker) {
         tracker.getActiveHitTiles().forEach(tile -> renderTile(graphics, toLocalPoint(tile), Color.GREEN));
     }
 }
