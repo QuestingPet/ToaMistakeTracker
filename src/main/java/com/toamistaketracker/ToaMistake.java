@@ -36,7 +36,8 @@ public enum ToaMistake {
     WARDENS_P2_BIND("Wardens P2 bind", "", "I'm in jail!"),
     WARDENS_P2_SPECIAL_PRAYER("Wardens P2 special prayer", "", "What even was that attack?"),
     WARDENS_P3_EARTHQUAKE("Wardens P3 earthquake", "", "I'm tripping!"),
-    WARDENS_P3_KEPHRI("Wardens P3 kephri", "", "I'm exploding!"),
+    WARDENS_P3_KEPHRI("Wardens P3 Kephri", "", "I'm exploding!"),
+    WARDENS_P3_BABA("Wardens P3 Ba-Ba", "", "It's raining!"),
     WARDENS_P3_LIGHTNING("Wardens P3 lightning", "", "It's electric!"),
     ;
 

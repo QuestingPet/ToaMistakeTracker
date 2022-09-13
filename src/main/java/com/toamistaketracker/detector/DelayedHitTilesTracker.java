@@ -15,6 +15,7 @@ import java.util.Set;
 /**
  * Wrapper class for a map tracking hit tiles delayed for a specified activation tick
  */
+// TODO: Move to tracker package and make a HitTilesTracker interface with this and InstantHitTilesTracker object.
 public class DelayedHitTilesTracker {
 
     Logger log = LoggerFactory.getLogger(DelayedHitTilesTracker.class);
@@ -33,8 +34,11 @@ public class DelayedHitTilesTracker {
      * @param worldPoint     The hit tile
      */
     public void addHitTile(@NonNull Integer activationTick, @NonNull WorldPoint worldPoint) {
-        log.debug("Adding for tick {}, {}", activationTick, worldPoint);
         delayedHitTiles.computeIfAbsent(activationTick, k -> new HashSet<>()).add(worldPoint);
+    }
+
+    public void addHitTiles(@NonNull Integer activationTick, @NonNull Set<WorldPoint> worldPoints) {
+        delayedHitTiles.computeIfAbsent(activationTick, k -> new HashSet<>()).addAll(worldPoints);
     }
 
     /**

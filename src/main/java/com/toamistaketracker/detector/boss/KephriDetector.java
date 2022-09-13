@@ -8,6 +8,7 @@ import com.toamistaketracker.detector.DelayedHitTilesTracker;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.NPC;
 import net.runelite.api.NPCComposition;
 import net.runelite.api.events.AnimationChanged;
 import net.runelite.api.events.GameTick;
@@ -43,7 +44,10 @@ public class KephriDetector extends BaseMistakeDetector {
             1447, 4,
             1446, 3,
             2111, 2
-    ); // TODO: These need to be wiped on *any* phase transition
+    ); // TODO: These need to be wiped on *any* phase transition -- EDIT: No they don't for some reason??
+    // TODO: Looks like if the boss hp is currently 0, then the damage is nulled. Requires more testing
+    // TODO: Could be either if the boss is 0 hp, or if specifically its 0 and the "soldiers" hasnt spawned yet
+    // Since once the soldiers spawn it might allow damage again. Needs more testing.
 
     private static final Set<Integer> KEPHRI_BOMB_GRAPHICS_ID = Set.of(2156, 2157, 2158, 2159);
     private static final int SWARM_HEAL_ANIMATION_ID = 9607;
@@ -114,7 +118,7 @@ public class KephriDetector extends BaseMistakeDetector {
         if (event.getActor() == null || event.getActor().getName() == null) return;
 
         String name = Text.removeTags(event.getActor().getName());
-        if (SWARM_NAME.equals(name) &&
+        if (event.getActor() instanceof NPC && SWARM_NAME.equals(name) &&
                 event.getActor().getAnimation() == SWARM_HEAL_ANIMATION_ID &&
                 !event.getActor().isDead()) {
             swarmsHealing += 1;

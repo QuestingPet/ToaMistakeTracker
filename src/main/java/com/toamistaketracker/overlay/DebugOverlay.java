@@ -15,6 +15,7 @@ import net.runelite.api.Client;
 import net.runelite.api.GameObject;
 import net.runelite.api.NPC;
 import net.runelite.api.Perspective;
+import net.runelite.api.Point;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.ui.overlay.Overlay;
@@ -109,12 +110,19 @@ public class DebugOverlay extends Overlay {
             renderTile(graphics, toLocalPoint(gameObject.getWorldLocation()), Color.RED);
         }
 
-        for (WorldPoint worldPoint : wardensDetector.getPyramidHitTiles()) {
-            renderTile(graphics, toLocalPoint(worldPoint), Color.GREEN);
-        }
+//        for (WorldPoint worldPoint : wardensDetector.getPyramidHitTiles()) {
+//            renderTile(graphics, toLocalPoint(worldPoint), Color.GREEN);
+//        }
+        renderDelayedHitTiles(graphics, wardensDetector.getPyramidHitTiles());
 
         renderDelayedHitTiles(graphics, wardensDetector.getDdrHitTiles());
+        renderDelayedHitTiles(graphics, wardensDetector.getWindmillHitTiles());
         renderDelayedHitTiles(graphics, wardensDetector.getBombHitTiles());
+        renderDelayedHitTiles(graphics, wardensDetector.getSpecialPrayerHitTiles());
+
+        renderDelayedHitTiles(graphics, wardensDetector.getEarthquakeHitTiles());
+        renderDelayedHitTiles(graphics, wardensDetector.getKephriBombHitTiles());
+        renderDelayedHitTiles(graphics, wardensDetector.getLightningHitTiles());
 
         for (Raider raider : raidState.getRaiders().values()) {
             if (raider.getPreviousWorldLocationForOverlay() != null) {
@@ -127,6 +135,10 @@ public class DebugOverlay extends Overlay {
     }
 
     private void renderTile(final Graphics2D graphics, final LocalPoint dest, final Color color) {
+        renderTileWithText(graphics, dest, color, null);
+    }
+
+    private void renderTileWithText(final Graphics2D graphics, final LocalPoint dest, final Color color, String text) {
         if (dest == null) {
             return;
         }
@@ -138,6 +150,17 @@ public class DebugOverlay extends Overlay {
         }
 
         OverlayUtil.renderPolygon(graphics, poly, color);
+
+        if (text == null) {
+            return;
+        }
+
+        Point textPoint = Perspective.getCanvasTextLocation(client, graphics, dest, text, 0);
+        if (textPoint == null) {
+            return;
+        }
+
+        OverlayUtil.renderTextLocation(graphics, textPoint, text, color);
     }
 
     private LocalPoint toLocalPoint(WorldPoint worldPoint) {
@@ -145,9 +168,9 @@ public class DebugOverlay extends Overlay {
     }
 
     private void renderDelayedHitTiles(final Graphics2D graphics, DelayedHitTilesTracker tracker) {
-        tracker.getDelayedHitTiles().values()
-                .forEach(tiles -> tiles
-                        .forEach(tile -> renderTile(graphics, toLocalPoint(tile), Color.RED)));
+
+        tracker.getDelayedHitTiles().forEach((key, value) ->
+                value.forEach(tile -> renderTileWithText(graphics, toLocalPoint(tile), Color.RED, String.valueOf(key - client.getTickCount() + 1))));
         tracker.getActiveHitTiles().forEach(tile -> renderTile(graphics, toLocalPoint(tile), Color.GREEN));
     }
 }

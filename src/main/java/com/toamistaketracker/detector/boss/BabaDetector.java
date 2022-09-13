@@ -412,8 +412,8 @@ public class BabaDetector extends BaseMistakeDetector {
         }
 
         if (!projectileBoulderAppliedHitsplats.containsKey(raider.getName())) {
-            // Somehow there was no hitsplat, so no mistake. This shouldn't be possible.
-            log.debug("No hitsplat somehow. Should never happen");
+            // Somehow there was no hitsplat, so no mistake. This can happen if boss dies
+            log.debug("No hitsplat somehow. Can happen if the boss dies as you get a boulder");
             return false;
         }
 

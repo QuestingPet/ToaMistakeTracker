@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.HitsplatID;
+import net.runelite.api.NPC;
 import net.runelite.api.Player;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
@@ -198,7 +199,7 @@ public class CrondisPuzzleDetector extends BaseMistakeDetector {
                 isDamageHitsplat(event.getHitsplat().getHitsplatType())) {
             log.debug("{} lost water", name);
             raidersLostWater.add(name);
-        } else if (PALM_TREE_NAME.equals(name) &&
+        } else if (event.getActor() instanceof NPC && PALM_TREE_NAME.equals(name) &&
                 event.getHitsplat().getHitsplatType() == WATER_HITSPLAT_UP_ID &&
                 event.getHitsplat().getAmount() < MAX_WATER_HITSPLAT_UP_AMOUNT) {
             log.debug("Palm tree got low hitsplat");

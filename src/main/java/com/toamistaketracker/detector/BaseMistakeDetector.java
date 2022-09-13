@@ -10,6 +10,7 @@ import net.runelite.api.Actor;
 import net.runelite.api.Client;
 import net.runelite.api.Constants;
 import net.runelite.api.GraphicsObject;
+import net.runelite.api.Projectile;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.eventbus.EventBus;
 
@@ -22,7 +23,7 @@ import java.util.Set;
  */
 public abstract class BaseMistakeDetector {
 
-    private static final int CYCLES_PER_GAME_TICK = Constants.GAME_TICK_LENGTH / Constants.CLIENT_TICK_LENGTH;
+    protected static final int CYCLES_PER_GAME_TICK = Constants.GAME_TICK_LENGTH / Constants.CLIENT_TICK_LENGTH;
 
     @Inject
     @Setter
@@ -132,5 +133,16 @@ public abstract class BaseMistakeDetector {
     protected int getActivationTick(GraphicsObject graphicsObject, int hitDelay) {
         int ticksToStart = (graphicsObject.getStartCycle() - client.getGameCycle()) / CYCLES_PER_GAME_TICK;
         return client.getTickCount() + ticksToStart + hitDelay; // Add the hit delay for how long between start to hit
+    }
+
+    /**
+     * Calculates and retrieves the activation tick for the specified Projectile based on the remaining cycles.
+     *
+     * @param projectile The projectile object
+     * @return The activation tick for when the projectile object will reach its target
+     */
+    protected int getActivationTick(Projectile projectile) {
+        int ticksRemaining = projectile.getRemainingCycles() / CYCLES_PER_GAME_TICK;
+        return client.getTickCount() + ticksRemaining;
     }
 }

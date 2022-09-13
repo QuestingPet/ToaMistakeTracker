@@ -114,7 +114,9 @@ public class AkkhaDetector extends BaseMistakeDetector {
         if (!(event.getActor() instanceof NPC) || event.getActor().getName() == null) return;
 
         String name = Text.removeTags(event.getActor().getName());
-        if (UNSTABLE_ORB_NAME.equals(name) && event.getActor().getGraphic() == UNSTABLE_ORB_POPPED_GRAPHICS_ID) {
+        if (event.getActor() instanceof NPC &&
+                UNSTABLE_ORB_NAME.equals(name) &&
+                event.getActor().getGraphic() == UNSTABLE_ORB_POPPED_GRAPHICS_ID) {
             // We need to use the *actual* world location here, since the moving orb despawns too late and changes
             // graphics too early. Transform the world location 1 tile towards the client's local location.
             unstableOrbHitTiles.add(getWorldPointTransformedTowardsLocal(event.getActor()));

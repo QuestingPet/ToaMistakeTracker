@@ -226,7 +226,7 @@ public class ZebakDetector extends BaseMistakeDetector {
         if (event.getActor() == null || event.getActor().getName() == null) return;
 
         String name = Text.removeTags(event.getActor().getName());
-        if (ZEBAK_NAME.equals(name)) {
+        if (event.getActor() instanceof NPC && ZEBAK_NAME.equals(name)) {
             isZebakScreaming = event.getActor().getAnimation() == ZEBAK_SCREAM_ANIMATION_ID;
         }
     }
