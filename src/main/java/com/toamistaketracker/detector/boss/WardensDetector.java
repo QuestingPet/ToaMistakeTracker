@@ -225,7 +225,6 @@ public class WardensDetector extends BaseMistakeDetector {
             mistakes.add(WARDENS_P3_LIGHTNING);
         }
 
-        // TODO: P1 lightning obelisk when you kill the obelisk
         // TODO: P3 is its own region! and thus own room!
 
         return mistakes;
