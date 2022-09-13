@@ -8,11 +8,13 @@ import com.toamistaketracker.detector.tracker.DelayedHitTilesTracker;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.Actor;
 import net.runelite.api.NPC;
 import net.runelite.api.NPCComposition;
 import net.runelite.api.events.AnimationChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.GraphicsObjectCreated;
+import net.runelite.api.events.HitsplatApplied;
 import net.runelite.api.events.NpcChanged;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.util.Text;
@@ -38,16 +40,12 @@ import static com.toamistaketracker.ToaMistake.KEPHRI_SWARM_HEAL;
 @Singleton
 public class KephriDetector extends BaseMistakeDetector {
 
-    private static final int KEPHRI_BOMB_SHADOW_GRAPHICS_ID = 1447; // 3 ticks is 1446
-    private static final int KEPHRI_BOMB_SHADOW_EXPLOSION_DELAY_IN_TICKS = 4;
-    private static final Map<Integer, Integer> KEPHRI_BOMB_SHADOW_GRAPHICS = Map.of( // Graphics ID -> tick delay
+    // Graphics ID -> tick delay
+    private static final Map<Integer, Integer> KEPHRI_BOMB_SHADOW_GRAPHICS = Map.of(
             1447, 4,
             1446, 3,
             2111, 2
-    ); // TODO: These need to be wiped on *any* phase transition -- EDIT: No they don't for some reason??
-    // TODO: Looks like if the boss hp is currently 0, then the damage is nulled. Requires more testing
-    // TODO: Could be either if the boss is 0 hp, or if specifically its 0 and the "soldiers" hasnt spawned yet
-    // Since once the soldiers spawn it might allow damage again. Needs more testing.
+    );
 
     private static final Set<Integer> KEPHRI_BOMB_GRAPHICS_ID = Set.of(2156, 2157, 2158, 2159);
     private static final int SWARM_HEAL_ANIMATION_ID = 9607;
@@ -59,18 +57,19 @@ public class KephriDetector extends BaseMistakeDetector {
     private static final Set<Integer> KEPHRI_PHASE_IDS = Set.of(11719, 11720, 11721);
     private static final int KEPHRI_DEAD_ID = 11722;
 
-    private int swarmsHealing;
+    private int swarmsHealing = 0;
+
+    private Actor kephri;
+    private int kephriHealthInternal = -1;
 
     @Getter
     private final DelayedHitTilesTracker bombHitTiles = new DelayedHitTilesTracker();
 
-    public KephriDetector() {
-        swarmsHealing = 0;
-    }
-
     @Override
     public void cleanup() {
         swarmsHealing = 0;
+        kephriHealthInternal = -1;
+        kephri = null;
         bombHitTiles.clear();
     }
 
@@ -87,7 +86,7 @@ public class KephriDetector extends BaseMistakeDetector {
             mistakes.add(KEPHRI_SWARM_HEAL);
         }
 
-        if (bombHitTiles.getActiveHitTiles().contains(raider.getPreviousWorldLocation())) {
+        if (isBombHit(raider)) {
             mistakes.add(KEPHRI_BOMB);
         }
 
@@ -97,10 +96,14 @@ public class KephriDetector extends BaseMistakeDetector {
     @Override
     public void afterDetect() {
         swarmsHealing = 0;
+        kephri = null;
     }
 
     @Subscribe
     public void onGameTick(GameTick event) {
+        if (kephri != null) {
+            kephriHealthInternal = kephri.getHealthRatio();
+        }
         bombHitTiles.activateHitTilesForTick(client.getTickCount());
     }
 
@@ -130,11 +133,36 @@ public class KephriDetector extends BaseMistakeDetector {
         if (!KEPHRI_NAME.equals(event.getNpc().getName())) return;
 
         if (isPhaseTransition(event.getOld(), event.getNpc().getComposition())) {
-            log.debug("Found Kephri transition -- clearing bomb hit tiles");
-            bombHitTiles.clear();
+            log.debug("Found Kephri transition -- resetting internal health");
+            kephriHealthInternal = -1; // something non-zero to initialize to
         } else if (event.getNpc().getId() == KEPHRI_DEAD_ID) {
             shutdown(); // Shut down and clean up all state. Any incoming bombs shouldn't count as mistakes.
         }
+    }
+
+    @Subscribe
+    public void onHitsplatApplied(HitsplatApplied event) {
+        if (event.getActor() == null || event.getActor().getName() == null) return;
+
+        String name = Text.removeTags(event.getActor().getName());
+        if (event.getActor() instanceof NPC && KEPHRI_NAME.equals(name)) {
+            kephri = event.getActor();
+        }
+    }
+
+    private boolean isBombHit(Raider raider) {
+        if (!bombHitTiles.getActiveHitTiles().contains(raider.getPreviousWorldLocation())) {
+            return false;
+        }
+
+        if (kephriHealthInternal == 0) {
+            // Kephri bomb for some reason can't do damage when her health is 0, until she phase transitions in which
+            // we update this to be non-zero and the next hitsplat corrects it.
+            log.debug("Kephri health internal was 0. No bomb mistake");
+            return false;
+        }
+
+        return true;
     }
 
     private boolean isPhaseTransition(NPCComposition oldComp, NPCComposition newComp) {

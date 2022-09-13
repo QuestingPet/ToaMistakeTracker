@@ -102,6 +102,11 @@ public class AkkhaDetector extends BaseMistakeDetector {
         return mistakes;
     }
 
+    @Override
+    public void afterDetect() {
+        cleanup();
+    }
+
     @Subscribe
     public void onGraphicsObjectCreated(GraphicsObjectCreated event) {
         if (QUADRANT_BOMB_GRAPHICS_IDS.contains(event.getGraphicsObject().getId())) {
