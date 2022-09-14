@@ -7,6 +7,7 @@ import com.toamistaketracker.events.InRaidChanged;
 import com.toamistaketracker.events.RaidEntered;
 import com.toamistaketracker.overlay.DebugOverlay;
 import com.toamistaketracker.overlay.DebugOverlayPanel;
+import com.toamistaketracker.panel.ToaMistakeTrackerPanel;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
@@ -21,9 +22,14 @@ import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.ui.ClientToolbar;
+import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.ui.overlay.OverlayManager;
+import net.runelite.client.util.ImageUtil;
 
 import javax.inject.Inject;
+import javax.swing.SwingUtilities;
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 @Slf4j
@@ -65,23 +71,54 @@ public class ToaMistakeTrackerPlugin extends Plugin {
     @Inject
     private DebugOverlayPanel debugOverlayPanel;
 
+    // UI fields
+    @Inject
+    private ClientToolbar clientToolbar;
+    private final BufferedImage icon = ImageUtil.loadImageResource(ToaMistakeTrackerPlugin.class, "panel_icon.png");
+    private ToaMistakeTrackerPanel panel;
+    private NavigationButton navButton;
+
     @Override
     protected void startUp() throws Exception {
+        // Can't @Inject because we null it out in shutdown()
+        panel = injector.getInstance(ToaMistakeTrackerPanel.class);
+
+        // Add UI
+        panel.loadHeaderIcon(icon);
+        navButton = NavigationButton.builder()
+                .tooltip("Toa Mistake Tracker")
+                .icon(icon)
+                .priority(5)
+                .panel(panel)
+                .build();
+        clientToolbar.addNavigation(navButton);
+
+        // Add debug overlays
         overlayManager.add(debugOverlay);
         overlayManager.add(debugOverlayPanel);
 
+        // Start raid state detection
         clientThread.invoke(() -> {
             raidState.startUp();
         });
+
+        // Reload the panel with all loaded mistakes
+        panel.reload();
     }
 
     @Override
     protected void shutDown() throws Exception {
+        // Remove debug overlays
         overlayManager.remove(debugOverlay);
         overlayManager.remove(debugOverlayPanel);
 
+        // Clear all state
         raidState.shutDown();
         mistakeDetectorManager.shutdown();
+
+        // Remove UI
+        clientToolbar.removeNavigation(navButton);
+        panel = null;
     }
 
     // This should run *after* all detectors have handled the GameTick.
@@ -115,8 +152,8 @@ public class ToaMistakeTrackerPlugin extends Plugin {
                     raider.setDead(true);
                 }
 
-//                addMistakeToOverlayPanel(raider, mistake); TODO: Send over RaidState too to check room for death
                 addChatMessageForMistake(raider, mistake);
+                addMistakeToOverlayPanel(raider, mistake);
             }
         }
 
@@ -153,6 +190,13 @@ public class ToaMistakeTrackerPlugin extends Plugin {
         }
     }
 
+    private void addMistakeToOverlayPanel(Raider raider, ToaMistake mistake) {
+        // Certain mistakes have their own detection and chat messages, but should be grouped together as one in the
+        // tracker panel and written state.
+        ToaMistake groupedMistake = ToaMistake.toGroupedMistake(mistake);
+        SwingUtilities.invokeLater(() -> panel.addMistakeForPlayer(raider.getName(), groupedMistake));
+    }
+
     @Subscribe
     public void onInRaidChanged(InRaidChanged e) {
         if (e.isInRaid()) {
@@ -166,7 +210,7 @@ public class ToaMistakeTrackerPlugin extends Plugin {
 
     @Subscribe
     public void onRaidEntered(RaidEntered event) {
-        // TODO: Reset panel and state for current raid
+        panel.newRaid(event.getRaiderNames());
     }
 
     @Subscribe

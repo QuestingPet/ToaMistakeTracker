@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -50,6 +51,7 @@ public class RaidState {
     // script 6576 check then
 
     private int prevRegion;
+    private boolean newRaid;
 
     public void startUp() {
         clearState();
@@ -66,6 +68,7 @@ public class RaidState {
         currentRoom = null;
         raiders.clear();
         prevRegion = -1;
+        newRaid = false;
     }
 
     @Subscribe(priority = 5)
@@ -74,8 +77,6 @@ public class RaidState {
 
         int newRegion = getRegion();
         if (newRegion == -1) return;
-
-//        log.debug("Current region: {}", newRegion);
 
         if (prevRegion != newRegion) {
             regionChanged(newRegion);
@@ -139,7 +140,6 @@ public class RaidState {
     }
 
     private void regionChanged(int newRegion) {
-        log.debug("Region changed");
         currentRoom = RaidRoom.forRegionId(newRegion);
         if (currentRoom == null) {
             return;
@@ -156,7 +156,9 @@ public class RaidState {
 
         RaidRoom prevRoom = RaidRoom.forRegionId(prevRegion);
         if (prevRoom == RAID_LOBBY_OUTSIDE && currentRoom == RAID_LOBBY_INSIDE) {
-            newRaid();
+            // We can't load the raiders yet, as they're not set in the varcs until a few ticks later. The toa hud init
+            // script will take care of it for us
+            newRaid = true;
         } else {
             log.debug("Raid room changed: {}", currentRoom);
             eventBus.post(RaidRoomChanged.builder().newRaidRoom(currentRoom).prevRaidRoom(prevRoom).build());
@@ -165,22 +167,14 @@ public class RaidState {
         // TODO: RaidFinished?
     }
 
-    private void newRaid() {
-        log.debug("New raid");
-        // We can't load the raiders yet, as they're not set in the varcs until a few ticks later. The toa hud init
-        // script will take care of it for us
-        eventBus.post(new RaidEntered());
-    }
-
     private void tryLoadRaiders() {
-        // TODO: Test log out.
+        // TODO: Test log out with the panel
         log.debug("Setting raiders");
         raiders.clear();
 
         Set<String> raiderNames = new HashSet<>(MAX_RAIDERS);
         for (int i = 0; i < MAX_RAIDERS; i++) {
             String name = client.getVarcStrValue(TOA_RAIDERS_VARC_START + i);
-            log.debug("VARC {} - {}", TOA_RAIDERS_VARC_START + i, name);
             if (name != null && !name.isEmpty()) {
                 raiderNames.add(Text.sanitize(name));
             }
@@ -198,12 +192,16 @@ public class RaidState {
         log.debug("Loaded raiderNames: {}", raiderNames);
         log.debug("Loaded raiders: {}", raiders.keySet());
 
-        if (raiders.size() < raiderNames.size()) {
+        if (raiders.isEmpty() || raiders.size() < raiderNames.size()) {
             log.debug("Not enough raiders loaded. Will try again later...");
             raiders.clear();
             return;
         }
 
-
+        if (newRaid) {
+            log.debug("New raid");
+            eventBus.post(new RaidEntered(List.copyOf(raiders.keySet())));
+            newRaid = false;
+        }
     }
 }

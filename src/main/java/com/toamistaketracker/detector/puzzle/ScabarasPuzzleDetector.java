@@ -4,16 +4,13 @@ import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
 import com.toamistaketracker.detector.BaseMistakeDetector;
-import com.toamistaketracker.events.RaidRoomChanged;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.client.eventbus.Subscribe;
 
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.toamistaketracker.RaidRoom.CRONDIS_PUZZLE;
 import static com.toamistaketracker.RaidRoom.SCABARAS_PUZZLE;
 
 /**

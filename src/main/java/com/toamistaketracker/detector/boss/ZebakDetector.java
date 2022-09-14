@@ -28,7 +28,7 @@ import java.util.Set;
 
 import static com.toamistaketracker.RaidRoom.ZEBAK;
 import static com.toamistaketracker.ToaMistake.ZEBAK_ACID_TILE;
-import static com.toamistaketracker.ToaMistake.ZEBAK_BLOOD_HEAL;
+import static com.toamistaketracker.ToaMistake.ZEBAK_BLOOD_CLOUD;
 import static com.toamistaketracker.ToaMistake.ZEBAK_EARTHQUAKE;
 import static com.toamistaketracker.ToaMistake.ZEBAK_WAVE;
 
@@ -118,7 +118,7 @@ public class ZebakDetector extends BaseMistakeDetector {
         }
 
         if (bloodHealedTiles.contains(raider.getPreviousWorldLocation())) {
-            mistakes.add(ZEBAK_BLOOD_HEAL);
+            mistakes.add(ZEBAK_BLOOD_CLOUD);
         }
 
         if (isEarthquakeHit(raider)) {
