@@ -24,6 +24,7 @@ import java.util.Set;
 public abstract class BaseMistakeDetector {
 
     protected static final int CYCLES_PER_GAME_TICK = Constants.GAME_TICK_LENGTH / Constants.CLIENT_TICK_LENGTH;
+    protected static final String VENGEANCE_TEXT = "Taste vengeance!";
 
     @Inject
     @Setter
@@ -142,5 +143,21 @@ public abstract class BaseMistakeDetector {
     protected int getActivationTick(Projectile projectile) {
         int ticksRemaining = projectile.getRemainingCycles() / CYCLES_PER_GAME_TICK;
         return client.getTickCount() + ticksRemaining;
+    }
+
+    /**
+     * Determine if the given message is a vengeance message from another non-local player
+     * @param name The name of the sender of the message
+     * @param message The message
+     * @return True if a non-local player has the vengeance text, false otherwise
+     */
+    protected boolean isOtherVengeance(String name, String message) {
+        if (client.getLocalPlayer() != null &&
+                client.getLocalPlayer().getName() != null &&
+                client.getLocalPlayer().getName().equals(name)) {
+            return false;
+        }
+
+        return VENGEANCE_TEXT.equals(message);
     }
 }

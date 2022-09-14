@@ -29,7 +29,7 @@ public enum ToaMistake {
     CRONDIS_PUZZLE_LOW_WATER("Path of Crondis Watering", "This jug feels a little light...", "death.png"),
     ZEBAK_ACID_TILE("Zebak Acid Tile", "I'm drowning in acid!", "death.png"),
     ZEBAK_BLOOD_CLOUD("Zebak Blood Cloud", "I'm on a blood cloud!", "death.png"),
-    ZEBAK_EARTHQUAKE("Zebak Earthquake", "I'm moving!", "death.png"),
+    ZEBAK_EARTHQUAKE("Zebak Earthquake", "Nihil!", "death.png"),
     ZEBAK_WAVE("Zebak Wave", "I'm surfing!", "death.png"),
 
     // Scabaras

@@ -272,7 +272,7 @@ public class ToaMistakeTrackerPanel extends PluginPanel {
         }
 
         // Add the error for when there are no mistakes yet
-        errorPanel.setContent("Tob Mistake Tracker", "You have not tracked any mistakes yet.");
+        errorPanel.setContent("Toa Mistake Tracker", "You have not tracked any mistakes yet.");
         updateVisiblePanels(true);
     }
 

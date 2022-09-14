@@ -152,6 +152,7 @@ public class ToaMistakeTrackerPlugin extends Plugin {
                     raider.setDead(true);
                 }
 
+                // TODO: Don't overwrite veng somehow
                 addChatMessageForMistake(raider, mistake);
                 addMistakeToOverlayPanel(raider, mistake);
             }
