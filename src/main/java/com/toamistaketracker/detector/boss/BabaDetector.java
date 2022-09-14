@@ -516,7 +516,7 @@ public class BabaDetector extends BaseMistakeDetector {
     }
 
     private boolean isLargeBoulderHitsplat(int hitsplatAmount) {
-        return hitsplatAmount > 4;// TODO: PROJECTILE_BOULDER_DAMAGE_THRESHOLD;
+        return hitsplatAmount > PROJECTILE_BOULDER_DAMAGE_THRESHOLD;
     }
 
     private Set<WorldPoint> computeSafeRubbleTiles(WorldPoint sw) {
