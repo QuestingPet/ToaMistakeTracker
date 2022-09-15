@@ -3,8 +3,8 @@ package com.toamistaketracker.detector.boss;
 import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
-import com.toamistaketracker.detector.tracker.AppliedHitsplatsTracker;
 import com.toamistaketracker.detector.BaseMistakeDetector;
+import com.toamistaketracker.detector.tracker.AppliedHitsplatsTracker;
 import com.toamistaketracker.detector.tracker.DelayedHitTilesTracker;
 import lombok.Getter;
 import lombok.NonNull;
@@ -111,7 +111,9 @@ public class BabaDetector extends BaseMistakeDetector {
             WorldPoint.fromRegion(BABA.getRegionId(), 21, 34, 0)
     );
 
-    private final Map<Integer, Integer> FALLING_BOULDER_GRAPHICS_IDS = Map.of(
+    private static final WorldPoint BOULDER_WALL_REGION_TILE = WorldPoint.fromRegion(BABA.getRegionId(), 22, 25, 0);
+
+    private static final Map<Integer, Integer> FALLING_BOULDER_GRAPHICS_IDS = Map.of(
             2250, 6,
             2251, 4
     );
@@ -143,6 +145,7 @@ public class BabaDetector extends BaseMistakeDetector {
 
     @Getter
     private Set<WorldPoint> gapTiles;
+    private WorldPoint boulderWallTile;
 
     private final Set<WorldPoint> slamHitTiles;
     private final Set<String> raidersFell;
@@ -204,6 +207,7 @@ public class BabaDetector extends BaseMistakeDetector {
     @Override
     public void cleanup() {
         gapTiles.clear();
+        boulderWallTile = null;
 
         slamHitTiles.clear();
         raidersFell.clear();
@@ -339,10 +343,15 @@ public class BabaDetector extends BaseMistakeDetector {
 
         String name = Text.removeTags(event.getNpc().getName());
         if (BOULDER_NAME.equals(name)) {
+            log.debug("{} - Boulder despawned: {}", client.getTickCount(), event.getNpc().getWorldLocation());
+            log.debug("{} - {}", client.getTickCount(), boulders);
             despawnedBoulders.add(event.getNpc());
             boolean removed = boulders.remove(event.getNpc());
-            if (removed && !event.getNpc().isDead()) {
+            if (removed &&
+                    !event.getNpc().isDead() &&
+                    event.getNpc().getWorldLocation().getX() == boulderWallTile.getX()) {
                 // This despawned from hitting the wall, not from a player killing it. Extend tiles for one more tick
+                log.debug(client.getTickCount() + " - Boulder got despawned from hitting wall. Extending 1 tick");
                 // Pretend the SW tile is 1 tile lower
                 finalBoulderTiles.addAll(computeBoulderTiles(event.getNpc().getWorldLocation().dx(-1)));
             }
@@ -621,5 +630,11 @@ public class BabaDetector extends BaseMistakeDetector {
         gapTiles = GAP_REGION_TILES.stream()
                 .map(wp -> WorldPoint.fromScene(client, wp.getRegionX() + dx, wp.getRegionY() + dy, wp.getPlane()))
                 .collect(Collectors.toSet());
+
+        // Also compute the boulder wall tile
+        boulderWallTile = WorldPoint.fromScene(client,
+                BOULDER_WALL_REGION_TILE.getRegionX() + dx,
+                BOULDER_WALL_REGION_TILE.getRegionY() + dy,
+                BOULDER_WALL_REGION_TILE.getPlane());
     }
 }

@@ -2,7 +2,6 @@ package com.toamistaketracker;
 
 import com.google.inject.Provides;
 import com.toamistaketracker.detector.MistakeDetectorManager;
-import com.toamistaketracker.detector.death.DeathDetector;
 import com.toamistaketracker.detector.tracker.VengeanceTracker;
 import com.toamistaketracker.events.InRaidChanged;
 import com.toamistaketracker.events.RaidEntered;
