@@ -8,7 +8,7 @@ import net.runelite.client.eventbus.EventBus;
 import javax.inject.Inject;
 
 @Slf4j
-public abstract class BaseTracker {
+public abstract class BaseRaidTracker {
 
     @Inject
     protected Client client;

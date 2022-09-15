@@ -19,7 +19,7 @@ import java.util.Set;
 
 @Slf4j
 @Singleton
-public class VengeanceTracker extends BaseTracker {
+public class VengeanceTracker extends BaseRaidTracker {
 
     public static final String VENGEANCE_TEXT = "Taste vengeance!";
 

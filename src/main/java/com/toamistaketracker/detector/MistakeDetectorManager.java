@@ -15,7 +15,7 @@ import com.toamistaketracker.detector.puzzle.ApmekenPuzzleDetector;
 import com.toamistaketracker.detector.puzzle.CrondisPuzzleDetector;
 import com.toamistaketracker.detector.puzzle.HetPuzzleDetector;
 import com.toamistaketracker.detector.puzzle.ScabarasPuzzleDetector;
-import com.toamistaketracker.detector.tracker.BaseTracker;
+import com.toamistaketracker.detector.tracker.BaseRaidTracker;
 import com.toamistaketracker.detector.tracker.VengeanceTracker;
 import com.toamistaketracker.events.RaidRoomChanged;
 import lombok.Getter;
@@ -55,7 +55,7 @@ public class MistakeDetectorManager {
     private final VengeanceTracker vengeanceTracker;
 
     @Getter
-    private final List<BaseTracker> trackers;
+    private final List<BaseRaidTracker> raidTrackers;
 
     @Getter
     private final List<BaseMistakeDetector> mistakeDetectors;
@@ -80,7 +80,7 @@ public class MistakeDetectorManager {
                                   WardensP1P2Detector wardensP1P2Detector,
                                   WardensP3Detector wardensP3Detector,
                                   DeathDetector deathDetector) {
-        this.trackers = List.of(vengeanceTracker);
+        this.raidTrackers = List.of(vengeanceTracker);
 
         // Order matters, since it's last write wins for which mistake gets put on overhead text. Death should be last.
         this.mistakeDetectors = new ArrayList<>(List.of(
@@ -108,8 +108,8 @@ public class MistakeDetectorManager {
         started = true;
         eventBus.register(this);
 
-        // Startup all trackers
-        trackers.forEach(BaseTracker::startup);
+        // Startup all raid trackers
+        raidTrackers.forEach(BaseRaidTracker::startup);
 
         // Startup any detectors that should be active in *all* rooms
         mistakeDetectors.stream().filter(d -> d.getRaidRoom() == null).forEach(BaseMistakeDetector::startup);
@@ -119,7 +119,7 @@ public class MistakeDetectorManager {
         mistakeDetectors.forEach(BaseMistakeDetector::shutdown);
         // Don't clear mistakeDetectors or else we can't get them back.
 
-        trackers.forEach(BaseTracker::shutdown);
+        raidTrackers.forEach(BaseRaidTracker::shutdown);
 
         eventBus.unregister(this);
         started = false;
@@ -141,7 +141,7 @@ public class MistakeDetectorManager {
     public void afterDetect() {
         if (!started) return;
 
-        trackers.forEach(BaseTracker::afterDetect);
+        raidTrackers.forEach(BaseRaidTracker::afterDetect);
 
         for (BaseMistakeDetector mistakeDetector : mistakeDetectors) {
             if (mistakeDetector.isDetectingMistakes()) {
