@@ -60,8 +60,8 @@ public enum ToaMistake {
     WARDENS_P2_BIND("Wardens P2 Bind", "I'm in jail!", "death.png"),
     WARDENS_P2_SPECIAL_PRAYER("Wardens P2 Special Prayer", "What even was that attack?", "death.png"),
     WARDENS_P3_EARTHQUAKE("Wardens P3 Earthquake", "I'm tripping!", "death.png"),
-    WARDENS_P3_KEPHRI("Wardens P3 Kephri", "I'm exploding!", ""),
-    WARDENS_P3_BABA("Wardens P3 Ba-Ba", "It's raining!", ""),
+    WARDENS_P3_KEPHRI("Wardens P3 Kephri", "I'm exploding!", "death.png"),
+    WARDENS_P3_BABA("Wardens P3 Ba-Ba", "It's raining!", "death.png"),
     WARDENS_P3_LIGHTNING("Wardens P3 Lightning", "It's electric!", "death.png"),
     ;
 
@@ -72,10 +72,6 @@ public enum ToaMistake {
             APMEKEN_PUZZLE_VENT, APMEKEN_PUZZLE_PILLAR, APMEKEN_PUZZLE_CORRUPTION);
     private static final Set<ToaMistake> WARDENS_P2_OBELISK_MISTAKES = EnumSet.of(
             WARDENS_P2_DDR, WARDENS_P2_WINDMILL, WARDENS_P2_BOMBS);
-    private static final Set<ToaMistake> KEPHRI_BOMB_MISTAKES = EnumSet.of(
-            KEPHRI_BOMB, WARDENS_P3_KEPHRI);
-    private static final Set<ToaMistake> BABA_FALLING_BOULDER_MISTAKES = EnumSet.of(
-            BABA_FALLING_BOULDER, WARDENS_P3_BABA);
 
     private static final String FALLBACK_IMAGE_PATH = "death.png";
 
@@ -119,10 +115,6 @@ public enum ToaMistake {
             return APMEKEN_PUZZLE_SIGHT;
         } else if (WARDENS_P2_OBELISK_MISTAKES.contains(mistake)) {
             return WARDENS_P2_OBELISK;
-        } else if (KEPHRI_BOMB_MISTAKES.contains(mistake)) {
-            return KEPHRI_BOMB;
-        } else if (BABA_FALLING_BOULDER_MISTAKES.contains(mistake)) {
-            return BABA_FALLING_BOULDER;
         } else {
             return mistake;
         }
