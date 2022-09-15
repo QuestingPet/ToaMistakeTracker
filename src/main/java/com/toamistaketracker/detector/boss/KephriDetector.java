@@ -9,25 +9,18 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Actor;
-import net.runelite.api.ChatMessageType;
 import net.runelite.api.NPC;
 import net.runelite.api.NPCComposition;
-import net.runelite.api.Player;
-import net.runelite.api.Varbits;
 import net.runelite.api.events.AnimationChanged;
-import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.GraphicsObjectCreated;
 import net.runelite.api.events.HitsplatApplied;
 import net.runelite.api.events.NpcChanged;
-import net.runelite.api.events.OverheadTextChanged;
-import net.runelite.api.events.VarbitChanged;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.util.Text;
 
 import javax.inject.Singleton;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -70,9 +63,6 @@ public class KephriDetector extends BaseMistakeDetector {
     private int kephriHealthInternal = -1;
 
     private static final int KEPHRI_UNVENGEABLE_PHASE = 11720;
-    // TODO: Refactor this to a vengeance tracker
-    private final Set<String> raidersVengeance = new HashSet<>();
-    private final Set<String> raidersChatVengeance = new HashSet<>();
 
     @Getter
     private final DelayedHitTilesTracker bombHitTiles = new DelayedHitTilesTracker();
@@ -83,9 +73,6 @@ public class KephriDetector extends BaseMistakeDetector {
         kephriHealthInternal = -1;
         kephri = null;
         bombHitTiles.clear();
-
-        raidersVengeance.clear();
-        raidersChatVengeance.clear();
     }
 
     @Override
@@ -112,9 +99,6 @@ public class KephriDetector extends BaseMistakeDetector {
     public void afterDetect() {
         swarmsHealing = 0;
         kephri = null;
-
-        raidersVengeance.clear();
-        raidersChatVengeance.clear();
     }
 
     @Subscribe
@@ -123,9 +107,6 @@ public class KephriDetector extends BaseMistakeDetector {
             kephriHealthInternal = kephri.getHealthRatio();
         }
         bombHitTiles.activateHitTilesForTick(client.getTickCount());
-
-        raidersVengeance.removeAll(raidersChatVengeance);
-        log.debug("Raiders venged: {}", raidersVengeance);
     }
 
     @Subscribe
@@ -171,39 +152,6 @@ public class KephriDetector extends BaseMistakeDetector {
         }
     }
 
-    @Subscribe
-    public void onVarbitChanged(VarbitChanged event) {
-        if (event.getVarbitId() == Varbits.VENGEANCE_ACTIVE && event.getValue() == 0) {
-            // Local player just procc'd veng
-            if (client.getLocalPlayer() != null && raidState.isRaider(client.getLocalPlayer())) {
-                log.debug("Local player procc'd veng");
-                raidersVengeance.add(client.getLocalPlayer().getName());
-            }
-        }
-    }
-
-    @Subscribe
-    public void onOverheadTextChanged(OverheadTextChanged event) {
-        if (!(event.getActor() instanceof Player) || event.getActor().getName() == null) return;
-
-        String name = Text.sanitize(event.getActor().getName());
-        if (isOtherVengeance(name, event.getOverheadText())) {
-            log.debug("Other player procc'd veng");
-            raidersVengeance.add(name);
-        }
-    }
-
-    @Subscribe
-    public void onChatMessage(ChatMessage event) {
-        if (event.getType() != ChatMessageType.PUBLICCHAT) return;
-
-        String name = Text.sanitize(event.getName());
-        if (isOtherVengeance(name, event.getMessage())) {
-            log.debug("Other player manually typed veng!");
-            raidersChatVengeance.add(name);
-        }
-    }
-
     private boolean isBombHit(Raider raider) {
         if (!bombHitTiles.getActiveHitTiles().contains(raider.getPreviousWorldLocation())) {
             return false;
@@ -216,8 +164,8 @@ public class KephriDetector extends BaseMistakeDetector {
             return false;
         }
 
-        // Venges only count for phases that allow it (non-swarm phase)
-        if (raidersVengeance.contains(raider.getName()) && !isUnvengeablePhase()) {
+        // Vengeance only counts for phases that allow it (non-swarm phase)
+        if (vengeanceTracker.didPopVengeance(raider) && !isUnvengeablePhase()) {
             log.debug("Would have been a bomb hit but raider venged");
             return false;
         }

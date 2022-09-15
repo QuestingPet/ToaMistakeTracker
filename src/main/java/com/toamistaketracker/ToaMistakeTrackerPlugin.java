@@ -3,6 +3,7 @@ package com.toamistaketracker;
 import com.google.inject.Provides;
 import com.toamistaketracker.detector.MistakeDetectorManager;
 import com.toamistaketracker.detector.death.DeathDetector;
+import com.toamistaketracker.detector.tracker.VengeanceTracker;
 import com.toamistaketracker.events.InRaidChanged;
 import com.toamistaketracker.events.RaidEntered;
 import com.toamistaketracker.overlay.DebugOverlay;
@@ -61,6 +62,9 @@ public class ToaMistakeTrackerPlugin extends Plugin {
 
     @Inject
     private RaidState raidState;
+
+    @Inject
+    private VengeanceTracker vengeanceTracker;
 
     @Inject
     private OverlayManager overlayManager;
@@ -181,7 +185,11 @@ public class ToaMistakeTrackerPlugin extends Plugin {
         // Add to overhead text if config is enabled
         final Player player = raider.getPlayer();
         if (config.showMistakesOnOverheadText()) {
-            player.setOverheadText(msg);
+            String overheadText = msg;
+            if (vengeanceTracker.didPopVengeance(raider)) {
+                overheadText = VengeanceTracker.VENGEANCE_TEXT + " " + overheadText;
+            }
+            player.setOverheadText(overheadText);
             player.setOverheadCycle(CYCLES_FOR_OVERHEAD_TEXT);
         }
 

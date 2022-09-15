@@ -304,6 +304,10 @@ public class WardensP1P2Detector extends BaseMistakeDetector {
             return false;
         }
 
+        if (vengeanceTracker.didPopVengeance(raider)) {
+            return false;
+        }
+
         // We know there's a hit this tick. Check the prayers
         log.debug("{} - {} was praying {} when special prayer procc'd", client.getTickCount(), raider.getName(),
                 raider.getPlayer().getOverheadIcon() == null ? "NONE" : raider.getPlayer().getOverheadIcon().name());
