@@ -98,9 +98,9 @@ public class ToaMistakeTrackerPanel extends PluginPanel {
 
     static {
         final BufferedImage raidDeathsImg = ImageUtil.loadImageResource(
-                ToaMistakeTrackerPlugin.class, "raid_deaths.png");
+                ToaMistakeTrackerPlugin.class, "raid-deaths.png");
         final BufferedImage roomDeathsImg = ImageUtil.loadImageResource(
-                ToaMistakeTrackerPlugin.class, "room_deaths.png");
+                ToaMistakeTrackerPlugin.class, "room-deaths.png");
 
         RAID_DEATHS_ICON = new ImageIcon(raidDeathsImg);
         RAID_DEATHS_ICON_FADED = new ImageIcon(ImageUtil.alphaOffset(raidDeathsImg, -180));

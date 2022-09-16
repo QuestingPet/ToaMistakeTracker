@@ -77,7 +77,7 @@ public class ToaMistakeTrackerPlugin extends Plugin {
     // UI fields
     @Inject
     private ClientToolbar clientToolbar;
-    private final BufferedImage icon = ImageUtil.loadImageResource(ToaMistakeTrackerPlugin.class, "panel_icon.png");
+    private final BufferedImage icon = ImageUtil.loadImageResource(ToaMistakeTrackerPlugin.class, "panel-icon.png");
     private ToaMistakeTrackerPanel panel;
     private NavigationButton navButton;
 
