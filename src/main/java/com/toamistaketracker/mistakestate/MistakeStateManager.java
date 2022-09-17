@@ -78,6 +78,10 @@ public class MistakeStateManager {
                 currentRaidMistakeManager.getMistakeCountForPlayer(playerName, mistake);
     }
 
+    public int getCurrentMistakeCountForPlayer(String playerName, ToaMistake mistake) {
+        return currentRaidMistakeManager.getMistakeCountForPlayer(playerName, mistake);
+    }
+
     public int getTotalMistakeCountForAllPlayers() {
         return isAll ?
                 allRaidsMistakeManager.getTotalMistakeCountForAllPlayers() :

@@ -319,6 +319,17 @@ public class ToaMistakeTrackerPanel extends PluginPanel {
     }
 
     /**
+     * Retrieve the current mistake count for the specified player in the current raid
+     *
+     * @param playerName The player name to get the mistake count for
+     * @param mistake    The mistake to get the count for
+     * @return The total number of times this mistake has been made in this raid by this player
+     */
+    public int getCurrentMistakeCountForPlayer(String playerName, ToaMistake mistake) {
+        return mistakeStateManager.getCurrentMistakeCountForPlayer(playerName, mistake);
+    }
+
+    /**
      * Rebuilds all the boxes from scratch based on which view we're currently looking at
      */
     private void rebuildAll() {

@@ -6,7 +6,6 @@ import net.runelite.client.util.ImageUtil;
 
 import java.awt.image.BufferedImage;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Set;
 
 public enum ToaMistake {
@@ -21,9 +20,9 @@ public enum ToaMistake {
     // Het
     HET_PUZZLE_LIGHT("Het Puzzle Energy Beam", "Ah! It burns!", "het-light.png"),
     HET_PUZZLE_DARK_ORB("Het Puzzle Dark Orb", "Embrace Darkness!", "het-dark-orb2.png"),
-    AKKHA_SPECIAL_QUADRANT_BOMB("Akkha Quadrant Bombs", "I'm too slow!", "akkha-quadrant2.png"),
+    AKKHA_SPECIAL_QUADRANT_BOMB("Akkha Quadrant Bombs", "I'm too slow!", "akkha-quadrant3.png"),
     AKKHA_SPECIAL_ELEMENTAL_ORBS("Akkha Elemental Orbs", "I'm griefing!", "akkha-elemental2.png"),
-    AKKHA_UNSTABLE_ORB("Akkha Unstable Orb", "???", "akkha-unstable-orb.png"), // TODO: Increase lol
+    AKKHA_UNSTABLE_ORB("Akkha Unstable Orb", "?", "akkha-unstable-orb.png"),
 
     // Crondis
     CRONDIS_PUZZLE_LOW_WATER("Path of Crondis Watering", "This jug feels a little light...", "crondis-water.png"),
