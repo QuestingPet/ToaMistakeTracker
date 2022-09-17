@@ -43,7 +43,6 @@ public class ToaMistakeTrackerPlugin extends Plugin {
     private static final int OVERHEAD_TEXT_TICK_TIMEOUT = 5;
     private static final int CYCLES_PER_GAME_TICK = Constants.GAME_TICK_LENGTH / Constants.CLIENT_TICK_LENGTH;
     private static final int CYCLES_FOR_OVERHEAD_TEXT = OVERHEAD_TEXT_TICK_TIMEOUT * CYCLES_PER_GAME_TICK;
-    private static final int MAX_AKKHA_ORBS_CHAT_MESSAGE_LENGTH = 10;
 
     @Inject
     private Client client;
@@ -175,7 +174,8 @@ public class ToaMistakeTrackerPlugin extends Plugin {
     }
 
     private void addChatMessageForMistake(Raider raider, ToaMistake mistake) {
-        String msg = getMistakeChatMessage(raider, mistake);
+        int mistakeCount = panel.getCurrentMistakeCountForPlayer(raider.getName(), mistake);
+        String msg = ToaMistake.getChatMessageForMistakeCount(mistake, mistakeCount);
 
         if (msg.isEmpty()) return;
 
@@ -198,20 +198,6 @@ public class ToaMistakeTrackerPlugin extends Plugin {
         if (config.showMistakesInChat()) {
             client.addChatMessage(ChatMessageType.PUBLICCHAT, player.getName(), msg, null);
         }
-    }
-
-    private String getMistakeChatMessage(Raider raider, ToaMistake mistake) {
-        if (mistake == ToaMistake.AKKHA_UNSTABLE_ORB) {
-            int count = panel.getCurrentMistakeCountForPlayer(raider.getName(), mistake);
-            // Keep adding ?s to the text for every subsequent mistake in this raid. A bit hacky but it's funny.
-            StringBuilder sb = new StringBuilder(mistake.getChatMessage());
-            for (int i = 0; i < Math.min(count, MAX_AKKHA_ORBS_CHAT_MESSAGE_LENGTH); i++) {
-                sb.append(mistake.getChatMessage());
-            }
-            return sb.toString();
-        }
-
-        return mistake.getChatMessage();
     }
 
     private void addMistakeToOverlayPanel(Raider raider, ToaMistake mistake) {

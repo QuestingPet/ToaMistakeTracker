@@ -43,9 +43,9 @@ public enum ToaMistake {
     APMEKEN_PUZZLE_CORRUPTION("Apmeken Corruption", "I've been corrupted!", ""),
     APMEKEN_PUZZLE_VENOM("Apmeken Venom Tile", "It's venomous!", "apmeken-venom.png"),
     APMEKEN_PUZZLE_VOLATILE("Apmeken Volatile", "I'm exploding!", "apmeken-volatile.png"),
-    BABA_SLAM("Ba-Ba Slam", "Ahh there's not even an animation!", "baba-slam.png"),
+    BABA_SLAM("Ba-Ba Slam", "Come on and slam!", "baba-slam.png"),
     BABA_PROJECTILE_BOULDER("Ba-Ba Projectile Boulder", "I got rocked!", "baba-projectile-boulder.png"),
-    BABA_ROLLING_BOULDER("Ba-Ba Rolling Boulder", "They see me rollin!", "baba-rolling-boulder.png"),
+    BABA_ROLLING_BOULDER("Ba-Ba Rolling Boulder", "I'm rolling!", "baba-rolling-boulder.png"),
     BABA_FALLING_BOULDER("Ba-Ba Falling Boulder", "It's raining!", "baba-falling-boulder.png"),
     BABA_BANANA("Ba-Ba Banana", "Who put that there?", "baba-banana.png"),
     BABA_GAP("Ba-Ba Gap", "I'm going down!", "baba-gap.png"),
@@ -73,6 +73,9 @@ public enum ToaMistake {
             WARDENS_P2_DDR, WARDENS_P2_WINDMILL, WARDENS_P2_BOMBS);
 
     private static final String FALLBACK_IMAGE_PATH = "death.png";
+
+    private static final int MAX_AKKHA_ORBS_CHAT_MESSAGE_LENGTH = 10;
+    private static final String ALTERNATE_BABA_SLAM_CHAT_MESSAGE = "And welcome to the jam!";
 
     @Getter
     @NonNull
@@ -116,6 +119,43 @@ public enum ToaMistake {
             return WARDENS_P2_OBELISK;
         } else {
             return mistake;
+        }
+    }
+
+    /**
+     * Retrieve the chat message for the given mistake, also considering special cases and the current
+     * mistake count of this mistake in the raid for the current raider, *previous* to this mistake happening.
+     *
+     * @param mistake      The mistake
+     * @param mistakeCount The current mistake count of this mistake for the current raider in this current raid,
+     *                     previously before this.
+     * @return The mistake chat message to use for the raider
+     */
+    public static String getChatMessageForMistakeCount(ToaMistake mistake, int mistakeCount) {
+        // Special case a few mistake chat messages
+        if (mistake == AKKHA_UNSTABLE_ORB) {
+            return getChatMessageForAkkhaUnstableOrb(mistake.getChatMessage(), mistakeCount);
+        } else if (mistake == BABA_SLAM) {
+            return getChatMessageForBabaSlam(mistake.getChatMessage(), mistakeCount);
+        }
+
+        return mistake.getChatMessage();
+    }
+
+    private static String getChatMessageForAkkhaUnstableOrb(String message, int mistakeCount) {
+        // Keep adding ?s to the text for every subsequent mistake in this raid. A bit hacky but it's funny.
+        StringBuilder sb = new StringBuilder(message);
+        for (int i = 0; i < Math.min(mistakeCount, MAX_AKKHA_ORBS_CHAT_MESSAGE_LENGTH); i++) {
+            sb.append(message);
+        }
+        return sb.toString();
+    }
+
+    private static String getChatMessageForBabaSlam(String message, int mistakeCount) {
+        if (mistakeCount % 2 == 0) {
+            return message;
+        } else {
+            return ALTERNATE_BABA_SLAM_CHAT_MESSAGE;
         }
     }
 }
