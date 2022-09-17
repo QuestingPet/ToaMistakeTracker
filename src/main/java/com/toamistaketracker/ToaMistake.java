@@ -33,7 +33,7 @@ public enum ToaMistake {
 
     // Scabaras
     KEPHRI_BOMB("Kephri Bomb", "I'm exploding!", "kephri-bomb.png"),
-    KEPHRI_SWARM_HEAL("Kephri Swarm Heal", "The swarms are going in!", "kephri-swarm2.png"),
+    KEPHRI_SWARM_HEAL("Kephri Swarm Heal", "The swarms are going in!", "kephri-swarm.png"),
     KEPHRI_EGG_EXPLODE("Kephri Egg Explode", "I've been hatched!", ""),
 
     // Apmeken
