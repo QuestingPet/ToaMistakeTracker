@@ -1,5 +1,6 @@
 package com.toamistaketracker.detector.puzzle;
 
+import com.google.common.collect.ImmutableSet;
 import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
@@ -48,7 +49,7 @@ import static com.toamistaketracker.ToaMistake.CRONDIS_PUZZLE_LOW_WATER;
 @Singleton
 public class CrondisPuzzleDetector extends BaseMistakeDetector {
 
-    private static final Set<WorldPoint> WATERFALL_REGION_TILES = Set.of(
+    private static final Set<WorldPoint> WATERFALL_REGION_TILES = ImmutableSet.of(
             // SW
             WorldPoint.fromRegion(CRONDIS_PUZZLE.getRegionId(), 23, 7, 0),
             WorldPoint.fromRegion(CRONDIS_PUZZLE.getRegionId(), 24, 7, 0),
@@ -74,7 +75,7 @@ public class CrondisPuzzleDetector extends BaseMistakeDetector {
             WorldPoint.fromRegion(CRONDIS_PUZZLE.getRegionId(), 41, 57, 0)
     );
 
-    private static final Set<WorldPoint> PALM_TREE_REGION_TILES = Set.of(
+    private static final Set<WorldPoint> PALM_TREE_REGION_TILES = ImmutableSet.of(
             // S
             WorldPoint.fromRegion(CRONDIS_PUZZLE.getRegionId(), 30, 29, 0),
             WorldPoint.fromRegion(CRONDIS_PUZZLE.getRegionId(), 31, 29, 0),

@@ -1,5 +1,6 @@
 package com.toamistaketracker.detector.boss;
 
+import com.google.common.collect.ImmutableMap;
 import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
@@ -90,7 +91,7 @@ public class WardensP1P2Detector extends BaseMistakeDetector {
     private static final int OBELISK_WINDMILL_LIGHTNING_GRAPHICS_ID = 2200;
     private static final int PLAYER_BIND_ANIMATION_ID = 9714;
     // Projectile ID -> correct overhead icon
-    private final Map<Integer, HeadIcon> SPECIAL_PRAYER_ATTACKS = Map.of(
+    private final Map<Integer, HeadIcon> SPECIAL_PRAYER_ATTACKS = ImmutableMap.of(
             2204, HeadIcon.MELEE,
             2206, HeadIcon.RANGED,
             2208, HeadIcon.MAGIC

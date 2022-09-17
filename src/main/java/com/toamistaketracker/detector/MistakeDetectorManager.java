@@ -32,6 +32,8 @@ import net.runelite.client.util.Text;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -80,10 +82,10 @@ public class MistakeDetectorManager {
                                   WardensP1P2Detector wardensP1P2Detector,
                                   WardensP3Detector wardensP3Detector,
                                   DeathDetector deathDetector) {
-        this.raidTrackers = List.of(vengeanceTracker);
+        this.raidTrackers = Arrays.asList(vengeanceTracker);
 
         // Order matters, since it's last write wins for which mistake gets put on overhead text. Death should be last.
-        this.mistakeDetectors = new ArrayList<>(List.of(
+        this.mistakeDetectors = new ArrayList<>(Arrays.asList(
                 hetPuzzleDetector,
                 crondisPuzzleDetector,
                 scabarasPuzzleDetector,
@@ -126,7 +128,7 @@ public class MistakeDetectorManager {
     }
 
     public List<ToaMistake> detectMistakes(@NonNull Raider raider) {
-        if (!started) return List.of();
+        if (!started) return Collections.emptyList();
 
         List<ToaMistake> mistakes = new ArrayList<>();
         for (BaseMistakeDetector mistakeDetector : mistakeDetectors) {

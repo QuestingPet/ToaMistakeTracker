@@ -1,5 +1,6 @@
 package com.toamistaketracker;
 
+import com.google.common.collect.ImmutableList;
 import com.toamistaketracker.events.InRaidChanged;
 import com.toamistaketracker.events.RaidEntered;
 import com.toamistaketracker.events.RaidRoomChanged;
@@ -200,7 +201,7 @@ public class RaidState {
 
         if (newRaid) {
             log.debug("New raid");
-            eventBus.post(new RaidEntered(List.copyOf(raiders.keySet())));
+            eventBus.post(new RaidEntered(ImmutableList.copyOf(raiders.keySet())));
             newRaid = false;
         }
     }

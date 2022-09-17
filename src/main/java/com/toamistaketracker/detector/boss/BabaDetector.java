@@ -1,5 +1,7 @@
 package com.toamistaketracker.detector.boss;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
@@ -98,7 +100,7 @@ public class BabaDetector extends BaseMistakeDetector {
     // It looks like for the falling boulder, if there is a rubble alive and it is not dead, we take damage. Also check
     // hit splat and animation of player jsut in case
 
-    private static final Set<WorldPoint> GAP_REGION_TILES = Set.of(
+    private static final Set<WorldPoint> GAP_REGION_TILES = ImmutableSet.of(
             WorldPoint.fromRegion(BABA.getRegionId(), 20, 30, 0),
             WorldPoint.fromRegion(BABA.getRegionId(), 20, 31, 0),
             WorldPoint.fromRegion(BABA.getRegionId(), 20, 32, 0),
@@ -113,7 +115,7 @@ public class BabaDetector extends BaseMistakeDetector {
 
     private static final WorldPoint BOULDER_WALL_REGION_TILE = WorldPoint.fromRegion(BABA.getRegionId(), 22, 25, 0);
 
-    private static final Map<Integer, Integer> FALLING_BOULDER_GRAPHICS_IDS = Map.of(
+    private static final Map<Integer, Integer> FALLING_BOULDER_GRAPHICS_IDS = ImmutableMap.of(
             2250, 6,
             2251, 4
     );
@@ -613,7 +615,7 @@ public class BabaDetector extends BaseMistakeDetector {
         WorldPoint cw = sw.dy(1);
         WorldPoint nw = sw.dy(2);
 
-        return Set.of(
+        return ImmutableSet.of(
                 sw.dx(1), cw.dx(1), nw.dx(1),
                 sw.dx(2), cw.dx(2), nw.dx(2),
                 sw.dx(3), cw.dx(3), nw.dx(3));

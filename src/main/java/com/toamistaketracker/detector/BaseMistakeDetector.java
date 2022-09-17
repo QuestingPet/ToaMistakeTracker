@@ -1,5 +1,6 @@
 package com.toamistaketracker.detector;
 
+import com.google.common.collect.ImmutableSet;
 import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.RaidState;
 import com.toamistaketracker.Raider;
@@ -119,7 +120,7 @@ public abstract class BaseMistakeDetector {
         WorldPoint west = center.dx(-1);
         WorldPoint east = center.dx(1);
 
-        return Set.of(
+        return ImmutableSet.of(
                 west, center, east,
                 west.dy(-1), center.dy(-1), east.dy(-1),
                 west.dy(1), center.dy(1), east.dy(1));

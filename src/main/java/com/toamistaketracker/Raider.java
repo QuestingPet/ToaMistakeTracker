@@ -1,5 +1,6 @@
 package com.toamistaketracker;
 
+import com.google.common.collect.ImmutableSet;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
@@ -14,7 +15,7 @@ import java.util.Set;
  */
 public class Raider {
 
-    private static final Set<Integer> GHOST_POSE_IDS = Set.of(5538, 5539);
+    private static final Set<Integer> GHOST_POSE_IDS = ImmutableSet.of(5538, 5539);
 
     @Getter
     @NonNull

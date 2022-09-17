@@ -1,5 +1,6 @@
 package com.toamistaketracker.detector.puzzle;
 
+import com.google.common.collect.ImmutableSet;
 import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
@@ -39,7 +40,7 @@ import static com.toamistaketracker.ToaMistake.HET_PUZZLE_LIGHT;
 @Singleton
 public class HetPuzzleDetector extends BaseMistakeDetector {
 
-    private static final Set<Integer> LIGHT_BEAM_GRAPHICS_IDS = Set.of(2064, 2114);
+    private static final Set<Integer> LIGHT_BEAM_GRAPHICS_IDS = ImmutableSet.of(2064, 2114);
     private static final int ORB_OF_DARKNESS_GRAPHICS_ID = 379;
 
     private final Set<WorldPoint> orbHitTiles;

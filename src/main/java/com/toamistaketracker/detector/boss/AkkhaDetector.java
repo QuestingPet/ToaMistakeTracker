@@ -1,5 +1,6 @@
 package com.toamistaketracker.detector.boss;
 
+import com.google.common.collect.ImmutableSet;
 import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
@@ -50,9 +51,9 @@ import static com.toamistaketracker.ToaMistake.AKKHA_UNSTABLE_ORB;
 @Singleton
 public class AkkhaDetector extends BaseMistakeDetector {
 
-    private static final Set<Integer> QUADRANT_BOMB_GRAPHICS_IDS = Set.of(2256, 2257, 2258, 2259);
-    private static final Set<String> ELEMENTAL_ORB_NAMES = Set
-            .of("Orb of Lightning", "Orb of Darkness", "Burning Orb", "Frozen Orb");
+    private static final Set<Integer> QUADRANT_BOMB_GRAPHICS_IDS = ImmutableSet.of(2256, 2257, 2258, 2259);
+    private static final Set<String> ELEMENTAL_ORB_NAMES = ImmutableSet.of(
+            "Orb of Lightning", "Orb of Darkness", "Burning Orb", "Frozen Orb");
     private static final String UNSTABLE_ORB_NAME = "Unstable Orb";
     private static final int UNSTABLE_ORB_POPPED_GRAPHICS_ID = 2260;
 

@@ -1,5 +1,6 @@
 package com.toamistaketracker.detector.death;
 
+import com.google.common.collect.ImmutableMap;
 import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
@@ -12,6 +13,7 @@ import net.runelite.client.eventbus.Subscribe;
 
 import javax.inject.Singleton;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,18 +33,18 @@ import static com.toamistaketracker.ToaMistake.DEATH_WARDENS;
 @Singleton
 public class DeathDetector extends BaseMistakeDetector {
 
-    private static final Map<RaidRoom, ToaMistake> ROOM_DEATHS = Map.of(
-            RaidRoom.HET_PUZZLE, DEATH_HET,
-            RaidRoom.AKKHA, DEATH_HET,
-            RaidRoom.CRONDIS_PUZZLE, DEATH_CRONDIS,
-            RaidRoom.ZEBAK, DEATH_CRONDIS,
-            RaidRoom.SCABARAS_PUZZLE, DEATH_SCABARAS,
-            RaidRoom.KEPHRI, DEATH_SCABARAS,
-            RaidRoom.APMEKEN_PUZZLE, DEATH_APMEKEN,
-            RaidRoom.BABA, DEATH_APMEKEN,
-            RaidRoom.WARDENS_P1_P2, DEATH_WARDENS,
-            RaidRoom.WARDENS_P3, DEATH_WARDENS
-    );
+    private static final Map<RaidRoom, ToaMistake> ROOM_DEATHS = ImmutableMap.<RaidRoom, ToaMistake>builder()
+            .put(RaidRoom.HET_PUZZLE, DEATH_HET)
+            .put(RaidRoom.AKKHA, DEATH_HET)
+            .put(RaidRoom.CRONDIS_PUZZLE, DEATH_CRONDIS)
+            .put(RaidRoom.ZEBAK, DEATH_CRONDIS)
+            .put(RaidRoom.SCABARAS_PUZZLE, DEATH_SCABARAS)
+            .put(RaidRoom.KEPHRI, DEATH_SCABARAS)
+            .put(RaidRoom.APMEKEN_PUZZLE, DEATH_APMEKEN)
+            .put(RaidRoom.BABA, DEATH_APMEKEN)
+            .put(RaidRoom.WARDENS_P1_P2, DEATH_WARDENS)
+            .put(RaidRoom.WARDENS_P3, DEATH_WARDENS)
+            .build();
 
     private final Set<String> raiderDeaths;
 
@@ -70,7 +72,7 @@ public class DeathDetector extends BaseMistakeDetector {
             if (!ROOM_DEATHS.containsKey(raidState.getCurrentRoom())) {
                 // Should never happen. If it does, log and return empty mistakes for this death
                 log.error("Unknown room death: {}", raidState.getCurrentRoom());
-                return List.of();
+                return Collections.emptyList();
             }
 
             mistakes.add(ROOM_DEATHS.get(raidState.getCurrentRoom()));

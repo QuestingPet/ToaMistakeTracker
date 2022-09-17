@@ -9,6 +9,7 @@ import net.runelite.client.eventbus.EventBus;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,7 @@ public class DelayedMistakeTracker {
      * @return The tracked mistakes that have had enough ticks passed
      */
     public List<ToaMistake> popDelayedMistakes(@NonNull String raiderName, @NonNull Integer currentTick) {
-        if (delayedMistakes.get(raiderName) == null) return List.of();
+        if (delayedMistakes.get(raiderName) == null) return Collections.emptyList();
 
         List<DelayedMistake> foundMistakes = new ArrayList<>();
         for (DelayedMistake delayedMistake : delayedMistakes.get(raiderName)) {
@@ -72,7 +73,7 @@ public class DelayedMistakeTracker {
      * @return The tracked mistakes
      */
     public List<ToaMistake> popAllDelayedMistakes(@NonNull String raiderName) {
-        if (delayedMistakes.get(raiderName) == null) return List.of();
+        if (delayedMistakes.get(raiderName) == null) return Collections.emptyList();
 
         List<ToaMistake> mistakes = delayedMistakes.get(raiderName).stream()
                 .map(DelayedMistake::getMistake)

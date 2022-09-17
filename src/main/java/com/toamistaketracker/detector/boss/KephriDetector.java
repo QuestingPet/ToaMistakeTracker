@@ -1,5 +1,7 @@
 package com.toamistaketracker.detector.boss;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
@@ -41,20 +43,20 @@ import static com.toamistaketracker.ToaMistake.KEPHRI_SWARM_HEAL;
 public class KephriDetector extends BaseMistakeDetector {
 
     // Graphics ID -> tick delay
-    private static final Map<Integer, Integer> KEPHRI_BOMB_SHADOW_GRAPHICS = Map.of(
+    private static final Map<Integer, Integer> KEPHRI_BOMB_SHADOW_GRAPHICS = ImmutableMap.of(
             1447, 4,
             1446, 3,
             2111, 2
     );
 
-    private static final Set<Integer> KEPHRI_BOMB_GRAPHICS_ID = Set.of(2156, 2157, 2158, 2159);
+    private static final Set<Integer> KEPHRI_BOMB_GRAPHICS_ID = ImmutableSet.of(2156, 2157, 2158, 2159);
     private static final int SWARM_HEAL_ANIMATION_ID = 9607;
     private static final String SWARM_NAME = "Scarab Swarm";
     private static final int KEPHRI_BOMB_PROJECTILE_ID = 2266;
     private static final int EXPLODING_SCARAB_PROJECTILE_ID = 2147;
 
     private static final String KEPHRI_NAME = "Kephri";
-    private static final Set<Integer> KEPHRI_PHASE_IDS = Set.of(11719, 11720, 11721);
+    private static final Set<Integer> KEPHRI_PHASE_IDS = ImmutableSet.of(11719, 11720, 11721);
     private static final int KEPHRI_DEAD_ID = 11722;
 
     private int swarmsHealing = 0;

@@ -1,5 +1,6 @@
 package com.toamistaketracker.detector.boss;
 
+import com.google.common.collect.ImmutableSet;
 import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
@@ -60,8 +61,8 @@ public class ZebakDetector extends BaseMistakeDetector {
     private static final int CHOMP_ANIMATION_ID = 9620;
     private static final int CHOMP_HIT_DELAY_IN_TICKS = 2;
 
-    private static final Set<Integer> SWIMMING_POSE_IDS = Set.of(772, 773);
-    private static final Set<Integer> ACID_TILE_GAME_OBJECT_IDS = Set.of(
+    private static final Set<Integer> SWIMMING_POSE_IDS = ImmutableSet.of(772, 773);
+    private static final Set<Integer> ACID_TILE_GAME_OBJECT_IDS = ImmutableSet.of(
             45570, 45571, 45572, 45573, 45574, 45575, 45576);
     private static final int EARTHQUAKE_GRAPHICS_ID = 2184;
     private static final int ZEBAK_SCREAM_ANIMATION_ID = 9628;

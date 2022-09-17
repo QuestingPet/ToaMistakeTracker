@@ -1,5 +1,7 @@
 package com.toamistaketracker.detector.boss;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
@@ -43,10 +45,10 @@ import static com.toamistaketracker.ToaMistake.WARDENS_P3_LIGHTNING;
 @Singleton
 public class WardensP3Detector extends BaseMistakeDetector {
 
-    private final Set<Integer> EARTHQUAKE_GRAPHICS_IDS = Set.of(2220, 2221, 2222, 2223);
-    private final Set<Integer> KEPHRI_BOMB_GRAPHICS_IDS = Set.of(2156, 2157, 2158, 2159);
+    private final Set<Integer> EARTHQUAKE_GRAPHICS_IDS = ImmutableSet.of(2220, 2221, 2222, 2223);
+    private final Set<Integer> KEPHRI_BOMB_GRAPHICS_IDS = ImmutableSet.of(2156, 2157, 2158, 2159);
     // Graphics ID -> tick delay
-    private final Map<Integer, Integer> BABA_BOULDERS = Map.of(
+    private final Map<Integer, Integer> BABA_BOULDERS = ImmutableMap.of(
             2250, 6,
             2251, 4
     );
