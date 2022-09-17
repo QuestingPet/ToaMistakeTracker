@@ -86,9 +86,11 @@ public class KephriDetector extends BaseMistakeDetector {
     public List<ToaMistake> detectMistakes(@NonNull Raider raider) {
         List<ToaMistake> mistakes = new ArrayList<>();
 
-        for (int i = 0; i < swarmsHealing; i++) {
-            mistakes.add(KEPHRI_SWARM_HEAL);
-        }
+        // Disabling Swarm mistakes for now, as currently it's not even possible to fully kill them all in solos, and
+        // it can just be noisy.
+//        for (int i = 0; i < swarmsHealing; i++) {
+//            mistakes.add(KEPHRI_SWARM_HEAL);
+//        }
 
         if (isBombHit(raider)) {
             mistakes.add(KEPHRI_BOMB);
