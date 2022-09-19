@@ -199,7 +199,6 @@ public class WardensP1P2Detector extends BaseMistakeDetector {
         if (event.getActor() instanceof NPC && OBELISK_NAME.equals(name)) {
             ObeliskPhase newObeliskPhase = ObeliskPhase.fromAnimationId(event.getActor().getAnimation());
             if (newObeliskPhase != null) {
-                log.debug("Found new obelisk phase: {}", newObeliskPhase.name());
                 obeliskPhase = newObeliskPhase;
             }
         } else if (event.getActor() instanceof Player && raidState.getRaiders().containsKey(name)) {

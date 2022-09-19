@@ -110,7 +110,6 @@ public class HetPuzzleDetector extends BaseMistakeDetector {
     @Subscribe
     public void onHitsplatApplied(HitsplatApplied event) {
         if (raidState.isRaider(event.getActor())) {
-            log.debug("Adding hitsplat for {}", event.getActor().getName());
             appliedHitsplats.addHitsplatForRaider(event.getActor().getName());
         }
     }

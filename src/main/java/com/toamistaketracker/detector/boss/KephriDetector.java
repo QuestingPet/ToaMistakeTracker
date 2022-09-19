@@ -138,7 +138,6 @@ public class KephriDetector extends BaseMistakeDetector {
         if (!KEPHRI_NAME.equals(event.getNpc().getName())) return;
 
         if (isPhaseTransition(event.getOld(), event.getNpc().getComposition())) {
-            log.debug("Found Kephri transition -- resetting internal health");
             kephriHealthInternal = -1; // something non-zero to initialize to
         } else if (event.getNpc().getId() == KEPHRI_DEAD_ID) {
             shutdown(); // Shut down and clean up all state. Any incoming bombs shouldn't count as mistakes.
@@ -163,13 +162,11 @@ public class KephriDetector extends BaseMistakeDetector {
         if (kephriHealthInternal == 0) {
             // Kephri bomb for some reason can't do damage when her health is 0, until she phase transitions in
             // which we update this to be non-zero and the next hitsplat corrects it.
-            log.debug("Kephri health internal was 0. No bomb mistake");
             return false;
         }
 
         // Vengeance only counts for phases that allow it (non-swarm phase)
         if (vengeanceTracker.didPopVengeance(raider) && !isUnvengeablePhase()) {
-            log.debug("Would have been a bomb hit but raider venged");
             return false;
         }
 

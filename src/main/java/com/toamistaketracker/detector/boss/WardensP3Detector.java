@@ -181,7 +181,7 @@ public class WardensP3Detector extends BaseMistakeDetector {
 
     @Subscribe
     public void onProjectileMoved(ProjectileMoved event) {
-        if (!AKKHA_ATTACKS.containsKey(event.getProjectile().getId()) ||
+        if (!AKKHA_ATTACKS.containsKey(event.getProjectile().getId()) &&
                 !ZEBAK_ATTACKS.containsKey(event.getProjectile().getId())) {
             return;
         }

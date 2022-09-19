@@ -20,7 +20,6 @@ import com.toamistaketracker.detector.tracker.VengeanceTracker;
 import com.toamistaketracker.events.RaidRoomChanged;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
@@ -179,41 +178,5 @@ public class MistakeDetectorManager {
                         d.startup();
                     });
         }
-    }
-
-    // This is for debugging/hotswap
-    @SneakyThrows
-    @VisibleForTesting
-    public void reset() {
-        for (int i = 0; i < mistakeDetectors.size(); i++) {
-            BaseMistakeDetector detector = mistakeDetectors.get(i);
-            try {
-                detector.shutdown();
-            } catch (Exception e) {
-                log.error("Failed to shutdown old detector while resetting state", e);
-                // Continue anyway
-            }
-            BaseMistakeDetector newInstance = detector.getClass().getDeclaredConstructor().newInstance();
-            newInstance.setClient(client);
-            newInstance.setEventBus(eventBus);
-            newInstance.setRaidState(raidstate);
-            newInstance.setVengeanceTracker(vengeanceTracker);
-            if (newInstance.getRaidRoom() == null || newInstance.getRaidRoom() == raidstate.getCurrentRoom()) {
-                newInstance.startup();
-            }
-            mistakeDetectors.set(i, newInstance);
-        }
-    }
-
-    // This is for debugging
-    @VisibleForTesting
-    public <T extends BaseMistakeDetector> T getMistakeDetector(Class<T> clazz) {
-        for (BaseMistakeDetector detector : mistakeDetectors) {
-            if (detector.getClass().equals(clazz)) {
-                return clazz.cast(detector);
-            }
-        }
-
-        return null;
     }
 }

@@ -87,18 +87,6 @@ import static com.toamistaketracker.ToaMistake.BABA_SLAM;
 @Slf4j
 @Singleton
 public class BabaDetector extends BaseMistakeDetector {
-    // TODO: Boulder with faster spawns testing
-
-    // 7 ticks for tracking boulder to hit you
-    // What about if rubble takes damage *without* a graphics id? That means it must have been wiped due to phase
-    // transition, and we can wipe all tracked projectiles.
-
-    // It looks like it's: If on the hit tick, if rubble has a hitsplat and it has no more health and it does *not*
-    // have the graphics id, then it despawned because of a phase transition and all damage is nulled for that tracking
-    // projectile. Also I don't think it can ever proc if there aren't any spawned rubbles...
-
-    // It looks like for the falling boulder, if there is a rubble alive and it is not dead, we take damage. Also check
-    // hit splat and animation of player jsut in case
 
     private static final Set<WorldPoint> GAP_REGION_TILES = ImmutableSet.of(
             WorldPoint.fromRegion(BABA.getRegionId(), 20, 30, 0),
@@ -178,6 +166,7 @@ public class BabaDetector extends BaseMistakeDetector {
 
     @Getter
     // This is really just used for timing, not for the tile itself
+    // TODO: Can now refactor this to use DelayedObjects interface
     private final DelayedHitTilesTracker projectileBoulderHitTiles = new DelayedHitTilesTracker();
     // name -> list of hitsplat amounts
     private final Map<String, List<Integer>> projectileBoulderAppliedHitsplats = new HashMap<>();
@@ -345,15 +334,12 @@ public class BabaDetector extends BaseMistakeDetector {
 
         String name = Text.removeTags(event.getNpc().getName());
         if (BOULDER_NAME.equals(name)) {
-            log.debug("{} - Boulder despawned: {}", client.getTickCount(), event.getNpc().getWorldLocation());
-            log.debug("{} - {}", client.getTickCount(), boulders);
             despawnedBoulders.add(event.getNpc());
             boolean removed = boulders.remove(event.getNpc());
             if (removed &&
                     !event.getNpc().isDead() &&
                     event.getNpc().getWorldLocation().getX() == boulderWallTile.getX()) {
                 // This despawned from hitting the wall, not from a player killing it. Extend tiles for one more tick
-                log.debug(client.getTickCount() + " - Boulder got despawned from hitting wall. Extending 1 tick");
                 // Pretend the SW tile is 1 tile lower
                 finalBoulderTiles.addAll(computeBoulderTiles(event.getNpc().getWorldLocation().dx(-1)));
             }
@@ -420,37 +406,31 @@ public class BabaDetector extends BaseMistakeDetector {
         }
 
         if (rubbles.isEmpty()) {
-            log.debug("No rubbles spawned");
             return false;
         }
 
         if (!projectileBoulderAppliedHitsplats.containsKey(raider.getName())) {
             // Somehow there was no hitsplat, so no mistake. This can happen if boss dies
-            log.debug("No hitsplat somehow. Can happen if the boss dies as you get a boulder");
             return false;
         }
 
         if (safeRubbleTiles.values().stream().noneMatch(tiles -> tiles.contains(raider.getPreviousWorldLocation()))) {
             // Raider isn't standing on a safe tile. Definitely a mistake.
-            log.debug("Raider not on a safe tile");
             return true;
         }
 
         List<Integer> hitsplats = projectileBoulderAppliedHitsplats.get(raider.getName());
         if (hitsplats.size() == 1) {
-            log.debug("Exactly one hitsplat");
             return isLargeBoulderHitsplat(hitsplats.get(0));
         }
 
         if (hitsplats.stream().noneMatch(this::isLargeBoulderHitsplat)) {
             // No large hitsplats, so we're safe.
-            log.debug("Multiple hitsplats but all are small");
             return false;
         }
 
         if (hitsplats.stream().allMatch(this::isLargeBoulderHitsplat)) {
             // Only large hitsplats, so we made a mistake.
-            log.debug("Multiple hitsplats, but all are large");
             return true;
         }
 
@@ -460,14 +440,12 @@ public class BabaDetector extends BaseMistakeDetector {
         NPC standingRubble = getStandingRubble(raider);
         if (standingRubble == null) {
             // Should never happen since we already know the player is standing on a rubble tile
-            log.debug("No standing rubble - should never happen");
             return false;
         }
 
         List<String> raiderNamesOnSameRubble = getRaidersStandingOnRubble(standingRubble, raider.getName());
         if (raiderNamesOnSameRubble.isEmpty()) {
             // There are no other players on this rubble. I have to be safe.
-            log.debug("Only one raider on this rubble");
             return false;
         }
 
@@ -477,13 +455,11 @@ public class BabaDetector extends BaseMistakeDetector {
         if (!allHaveOneHitsplat) {
             // Some other raiders have multiple hitsplats (possibly from baba, baboons, etc). Let's not bother resolving
             // this and just determine no mistake.
-            log.debug("Other raiders on this rubble have multiple hitsplats too");
             return false;
         }
 
         if (!rubbleHitsplats.containsKey(standingRubble)) {
             // Should never happen, as there should be hitsplats for this rubble
-            log.debug("Somehow no hitsplats for this rubble. Should never happen");
             return false;
         }
         int currRubbleHitsplats = rubbleHitsplats.get(standingRubble);
@@ -493,16 +469,13 @@ public class BabaDetector extends BaseMistakeDetector {
                 .count();
         if (currRubbleHitsplats == numSafeRaiders) {
             // If there are already enough safe raiders, then we made the mistake
-            log.debug("All other safe raiders found");
             return true;
         } else if (currRubbleHitsplats - numSafeRaiders == 1) {
             // There's one unaccounted for safe raider. It's us.
-            log.debug("There's an extra safe raider somewhere that must be me");
             return false;
         } else {
             // Should never happen as this means there's a mismatch between safe raiders and number of rubble hitsplats
             // Return no mistake just in case.
-            log.debug("Somehow there's a mismatch in hitsplats and safe raiders. Should never happen");
             return false;
         }
     }

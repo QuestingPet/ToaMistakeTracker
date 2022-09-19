@@ -163,14 +163,7 @@ public class CrondisPuzzleDetector extends BaseMistakeDetector {
 
         List<ToaMistake> mistakes = new ArrayList<>();
 
-        log.debug("Current Raider: {}", raider.getName());
-        log.debug("Raiders with water: {}", raidersWithWater);
-        log.debug("Raiders lost water: {}", raidersLostWater);
-        log.debug("Raiders watering: {}", raidersWatering);
-
         if (raidersWatering.contains(raider.getName())) {
-            log.debug("{} watered", raider.getName());
-
             if (lowWaterHitsplats > 0 && raidersLostWater.contains(raider.getName())) {
                 mistakes.add(CRONDIS_PUZZLE_LOW_WATER);
                 lowWaterHitsplats -= 1;
@@ -198,12 +191,10 @@ public class CrondisPuzzleDetector extends BaseMistakeDetector {
         if (raidState.isRaider(event.getActor()) &&
                 raidersWithWater.contains(name) &&
                 isDamageHitsplat(event.getHitsplat().getHitsplatType())) {
-            log.debug("{} lost water", name);
             raidersLostWater.add(name);
         } else if (event.getActor() instanceof NPC && PALM_TREE_NAME.equals(name) &&
                 event.getHitsplat().getHitsplatType() == WATER_HITSPLAT_UP_ID &&
                 event.getHitsplat().getAmount() < MAX_WATER_HITSPLAT_UP_AMOUNT) {
-            log.debug("Palm tree got low hitsplat");
             lowWaterHitsplats += 1;
         }
     }
@@ -228,12 +219,6 @@ public class CrondisPuzzleDetector extends BaseMistakeDetector {
         LocalPoint lpPlayer = LocalPoint.fromWorld(client, wpPlayer);
         if (lpPlayer == null) return;
 
-//        WorldPoint wpRegion = WATERFALL_REGION_TILES.stream().findAny().get();
-//        WorldPoint wpScene = WorldPoint
-//                .fromScene(client, wpRegion.getRegionX(), wpRegion.getRegionY(), wpRegion.getPlane());
-
-//        int dx = wpRegion.getRegionX() - wpScene.getRegionX();
-//        int dy = wpRegion.getRegionY() - wpScene.getRegionY();
         int dx = lpPlayer.getSceneX() - wpPlayer.getRegionX();
         int dy = lpPlayer.getSceneY() - wpPlayer.getRegionY();
 
@@ -247,11 +232,9 @@ public class CrondisPuzzleDetector extends BaseMistakeDetector {
 
     private void computeRaiderWatering(Raider raider) {
         if (waterFallTiles.contains(raider.getCurrentWorldLocation())) {
-            log.debug("{} filling water", raider.getName());
             raidersWithWater.add(raider.getName());
             raidersLostWater.remove(raider.getName());
         } else if (palmTreeTiles.contains(raider.getCurrentWorldLocation())) {
-            log.debug("{} watering", raider.getName());
             raidersWatering.add(raider.getName());
         }
     }

@@ -5,8 +5,6 @@ import com.toamistaketracker.detector.MistakeDetectorManager;
 import com.toamistaketracker.detector.tracker.VengeanceTracker;
 import com.toamistaketracker.events.InRaidChanged;
 import com.toamistaketracker.events.RaidEntered;
-import com.toamistaketracker.overlay.DebugOverlay;
-import com.toamistaketracker.overlay.DebugOverlayPanel;
 import com.toamistaketracker.panel.ToaMistakeTrackerPanel;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +17,6 @@ import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
-import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
@@ -69,12 +66,6 @@ public class ToaMistakeTrackerPlugin extends Plugin {
     @Inject
     private OverlayManager overlayManager;
 
-    @Inject
-    private DebugOverlay debugOverlay;
-
-    @Inject
-    private DebugOverlayPanel debugOverlayPanel;
-
     // UI fields
     @Inject
     private ClientToolbar clientToolbar;
@@ -97,10 +88,6 @@ public class ToaMistakeTrackerPlugin extends Plugin {
                 .build();
         clientToolbar.addNavigation(navButton);
 
-        // Add debug overlays
-        overlayManager.add(debugOverlay);
-        overlayManager.add(debugOverlayPanel);
-
         // Start raid state detection
         clientThread.invoke(() -> {
             raidState.startUp();
@@ -112,10 +99,6 @@ public class ToaMistakeTrackerPlugin extends Plugin {
 
     @Override
     protected void shutDown() throws Exception {
-        // Remove debug overlays
-        overlayManager.remove(debugOverlay);
-        overlayManager.remove(debugOverlayPanel);
-
         // Clear all state
         raidState.shutDown();
         mistakeDetectorManager.shutdown();
@@ -156,7 +139,6 @@ public class ToaMistakeTrackerPlugin extends Plugin {
                     raider.setDead(true);
                 }
 
-                // TODO: Don't overwrite veng somehow
                 addChatMessageForMistake(raider, mistake);
                 addMistakeToOverlayPanel(raider, mistake);
             }
@@ -179,10 +161,6 @@ public class ToaMistakeTrackerPlugin extends Plugin {
         String msg = ToaMistake.getChatMessageForMistakeCount(mistake, mistakeCount);
 
         if (msg.isEmpty()) return;
-
-        if (config.debugMode()) {
-            msg = client.getTickCount() + " " + msg;
-        }
 
         // Add to overhead text if config is enabled
         final Player player = raider.getPlayer();
@@ -222,16 +200,6 @@ public class ToaMistakeTrackerPlugin extends Plugin {
     @Subscribe
     public void onRaidEntered(RaidEntered event) {
         panel.newRaid(event.getRaiderNames());
-    }
-
-    @Subscribe
-    public void onConfigChanged(ConfigChanged event) {
-        if (!CONFIG_GROUP.equals(event.getGroup())) return;
-
-        // TODO: remove -- used for debugging with hotswap
-        if ("resetDetectors".equals(event.getKey())) {
-            mistakeDetectorManager.reset();
-        }
     }
 
     @Provides

@@ -46,7 +46,6 @@ public class OverheadTracker extends DelayedObjectsTracker<Projectile>{
 
         put(activationTick, projectile);
         trackedProjectiles.add(projectile);
-        log.debug("Tracking projectile {} for activation tick: {}", projectile.getId(), activationTick);
     }
 
     @Override
@@ -55,11 +54,6 @@ public class OverheadTracker extends DelayedObjectsTracker<Projectile>{
 
         // Clear state of projectiles that have at most 1 game tick left, as they can't be added anyway
         trackedProjectiles.removeIf(projectile ->!hasEnoughRemainingCycles(projectile));
-//        trackedProjectiles.clear();
-//        trackedProjectiles.addAll(activeObjects);
-//        trackedProjectiles.addAll(delayedObjects.values().stream()
-//                .flatMap(Collection::stream)
-//                .collect(Collectors.toSet()));
     }
 
     @Override
@@ -81,10 +75,6 @@ public class OverheadTracker extends DelayedObjectsTracker<Projectile>{
         if (getActiveProjectiles().isEmpty()) {
             return false;
         }
-
-        // We know there's a hit this tick. Check the prayers
-        log.debug("{} was praying {} when special prayer procc'd", raider.getName(),
-                raider.getPlayer().getOverheadIcon() == null ? "NONE" : raider.getPlayer().getOverheadIcon().name());
 
         HeadIcon playerHeadIcon = raider.getPlayer().getOverheadIcon();
         if (playerHeadIcon == null) {

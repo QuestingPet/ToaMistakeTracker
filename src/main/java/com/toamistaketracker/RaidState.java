@@ -49,7 +49,6 @@ public class RaidState {
     private RaidRoom currentRoom;
     @Getter
     private final Map<String, Raider> raiders = new HashMap<>(); // name -> raider
-    // script 6576 check then
 
     private int prevRegion;
     private boolean newRaid;
@@ -84,18 +83,6 @@ public class RaidState {
         }
         prevRegion = newRegion;
 
-//        Widget widget = client.getWidget(WidgetInfo.TOA_RAID_LAYER);
-//        log.debug("Widget is null: {}", widget == null);
-//        log.debug("Widget is hidden: {}", widget != null && widget.isHidden());
-//        boolean newInRaid = widget != null && !widget.isHidden();
-//        boolean newInRaid = currentRoom != null && currentRoom != RAID_LOBBY_OUTSIDE;
-//        if (newInRaid != inRaid) {
-//            log.debug("In Raid changed: {}", newInRaid);
-//            eventBus.post(new InRaidChanged(newInRaid));
-//        }
-//
-//        inRaid = newInRaid;
-
         if (!inRaid) {
             raiders.clear();
             return;
@@ -114,7 +101,6 @@ public class RaidState {
         if (event.getGameState() == GameState.LOADING) {
             // If there are still raiders, they can't be dead anymore after loading.
             for (Raider raider : raiders.values()) {
-                log.debug("{} setDead(false): {}", client.getTickCount(), raider.getName());
                 raider.setDead(false);
             }
         }
@@ -169,7 +155,6 @@ public class RaidState {
     }
 
     private void tryLoadRaiders() {
-        // TODO: Test log out with the panel
         log.debug("Setting raiders");
         raiders.clear();
 

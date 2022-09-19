@@ -140,19 +140,15 @@ public class AkkhaDetector extends BaseMistakeDetector {
      */
     private WorldPoint getWorldPointTransformedTowardsLocal(Actor actor) {
         WorldPoint worldPoint = actor.getWorldLocation();
-        log.debug("worldPoint: {}", worldPoint);
         WorldPoint worldPointFromLocal = getWorldPoint(actor);
-        log.debug("worldPointFromLocal: {}", worldPointFromLocal);
 
         int distX = worldPoint.getX() - worldPointFromLocal.getX();
         int distY = worldPoint.getY() - worldPointFromLocal.getY();
 
         int dx = Integer.compare(0, distX);
         int dy = Integer.compare(0, distY);
-        log.debug("dx: {} | dy: {}", dx, dy);
 
         WorldPoint transformed = worldPoint.dx(dx).dy(dy);
-        log.debug("transformed: {}", transformed);
         return transformed;
     }
 

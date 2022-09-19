@@ -48,7 +48,6 @@ public class VengeanceTracker extends BaseRaidTracker {
         if (event.getVarbitId() == Varbits.VENGEANCE_ACTIVE && event.getValue() == 0) {
             // Local player just procc'd veng
             if (client.getLocalPlayer() != null && raidState.isRaider(client.getLocalPlayer())) {
-                log.debug("Local player procc'd veng");
                 raidersVengeance.add(client.getLocalPlayer().getName());
             }
         }
@@ -60,7 +59,6 @@ public class VengeanceTracker extends BaseRaidTracker {
 
         String name = Text.sanitize(event.getActor().getName());
         if (isOtherVengeance(name, event.getOverheadText())) {
-            log.debug("Other player procc'd veng");
             raidersVengeance.add(name);
         }
     }
@@ -71,7 +69,6 @@ public class VengeanceTracker extends BaseRaidTracker {
 
         String name = Text.sanitize(event.getName());
         if (isOtherVengeance(name, event.getMessage())) {
-            log.debug("Other player manually typed veng!");
             raidersChatVengeance.add(name);
         }
     }
