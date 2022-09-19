@@ -4,10 +4,9 @@ import com.toamistaketracker.ToaMistake;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
-import net.runelite.client.eventbus.EventBus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,6 +19,8 @@ import java.util.stream.Collectors;
  */
 public class DelayedMistakeTracker {
 
+    private final Logger log = LoggerFactory.getLogger(DelayedMistakeTracker.class);
+
     private final Map<String, List<DelayedMistake>> delayedMistakes; // name -> list of delayed mistakes
 
     public DelayedMistakeTracker() {
@@ -28,10 +29,11 @@ public class DelayedMistakeTracker {
 
     /**
      * Add a delayed mistake which can be retrieved after a specified number of ticks in the future
-     * @param raiderName The raider to retrieve mistakes for
-     * @param mistake The mistkae
+     *
+     * @param raiderName  The raider to retrieve mistakes for
+     * @param mistake     The mistake
      * @param currentTick The current game tick
-     * @param tickDelay The amount of ticks to delay until the mistake can successfully be retrieved
+     * @param tickDelay   The amount of ticks to delay until the mistake can successfully be retrieved
      */
     public void addDelayedMistake(@NonNull String raiderName, @NonNull ToaMistake mistake, @NonNull Integer currentTick,
                                   Integer tickDelay) {
@@ -47,7 +49,8 @@ public class DelayedMistakeTracker {
     /**
      * Retrieve the delayed mistakes for the specified raider if enough ticks have passed. This removes all found
      * mistakes
-     * @param raiderName The raider to retrieve mistakes for
+     *
+     * @param raiderName  The raider to retrieve mistakes for
      * @param currentTick The current game tick
      * @return The tracked mistakes that have had enough ticks passed
      */
@@ -69,6 +72,7 @@ public class DelayedMistakeTracker {
     /**
      * Forcibly retrieve all tracked delayed mistakes for the specified raider. This removes all tracked delayed
      * mistakes for that raider.
+     *
      * @param raiderName The raider to retrieve mistakes for
      * @return The tracked mistakes
      */

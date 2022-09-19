@@ -38,10 +38,11 @@ import java.util.List;
 )
 public class ToaMistakeTrackerPlugin extends Plugin {
 
+    public static final int CYCLES_PER_GAME_TICK = Constants.GAME_TICK_LENGTH / Constants.CLIENT_TICK_LENGTH;
+
     static final String CONFIG_GROUP = "toaMistakeTracker";
 
     private static final int OVERHEAD_TEXT_TICK_TIMEOUT = 5;
-    private static final int CYCLES_PER_GAME_TICK = Constants.GAME_TICK_LENGTH / Constants.CLIENT_TICK_LENGTH;
     private static final int CYCLES_FOR_OVERHEAD_TEXT = OVERHEAD_TEXT_TICK_TIMEOUT * CYCLES_PER_GAME_TICK;
 
     @Inject

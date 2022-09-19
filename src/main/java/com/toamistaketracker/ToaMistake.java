@@ -59,8 +59,10 @@ public enum ToaMistake {
     WARDENS_P2_BIND("Wardens P2 Bind", "I'm in jail!", "wardens-bind.png"),
     WARDENS_P2_SPECIAL_PRAYER("Wardens P2 Special Prayer", "What even was that attack?", "wardens-special-prayer.png"),
     WARDENS_P3_EARTHQUAKE("Wardens P3 Slam", "I'm tripping!", "wardens-earthquake.png"),
-    WARDENS_P3_KEPHRI("Wardens P3 Kephri", "I'm exploding!", ""), // TODO
-    WARDENS_P3_BABA("Wardens P3 Ba-Ba", "It's raining!", ""), // TODO
+    WARDENS_P3_AKKHA("Wardens P3 Akkha", "", "wardens-akkha.png"),
+    WARDENS_P3_ZEBAK("Wardens P3 Zebak", "", "wardens-zebak.png"),
+    WARDENS_P3_KEPHRI("Wardens P3 Kephri", "I'm exploding!", "wardens-kephri.png"),
+    WARDENS_P3_BABA("Wardens P3 Ba-Ba", "It's raining!", "wardens-baba.png"),
     WARDENS_P3_LIGHTNING("Wardens P3 Lightning", "It's electric!", "wardens-lightning.png"),
     ;
 

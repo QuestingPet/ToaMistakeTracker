@@ -43,7 +43,7 @@ public class DebugOverlay extends Overlay {
     private final Client client;
     private final RaidState raidState;
     private final ToaMistakeTrackerConfig config;
-    private MistakeDetectorManager mistakeDetectorManager;
+    private final MistakeDetectorManager mistakeDetectorManager;
 
     @Inject
     public DebugOverlay(@Named("developerMode") boolean developerMode,
@@ -118,7 +118,6 @@ public class DebugOverlay extends Overlay {
         renderHitTiles(graphics, wardensP1P2Detector.getDdrHitTiles());
         renderHitTiles(graphics, wardensP1P2Detector.getWindmillHitTiles());
         renderHitTiles(graphics, wardensP1P2Detector.getBombHitTiles());
-        renderHitTiles(graphics, wardensP1P2Detector.getSpecialPrayerHitTiles());
 
         renderHitTiles(graphics, wardensP3Detector.getEarthquakeHitTiles());
         renderHitTiles(graphics, wardensP3Detector.getKephriBombHitTiles());
@@ -169,7 +168,7 @@ public class DebugOverlay extends Overlay {
     }
 
     private void renderHitTiles(final Graphics2D graphics, DelayedHitTilesTracker tracker) {
-        tracker.getDelayedHitTiles().forEach((key, value) ->
+        tracker.getDelayedObjects().forEach((key, value) ->
                 value.forEach(tile -> renderTileWithText(graphics, toLocalPoint(tile), Color.RED, String.valueOf(key - client.getTickCount() + 1))));
         tracker.getActiveHitTiles().forEach(tile -> renderTile(graphics, toLocalPoint(tile), Color.GREEN));
     }

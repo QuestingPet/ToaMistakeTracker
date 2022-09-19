@@ -309,8 +309,8 @@ public class BabaDetector extends BaseMistakeDetector {
                 .forEach(boulder -> boulderTiles.addAll(computeBoulderTiles(boulder.getWorldLocation())));
         boulderTiles.addAll(finalBoulderTiles);
 
-        fallingBoulderHitTiles.activateHitTilesForTick(client.getTickCount());
-        projectileBoulderHitTiles.activateHitTilesForTick(client.getTickCount());
+        fallingBoulderHitTiles.onGameTick(client.getTickCount());
+        projectileBoulderHitTiles.onGameTick(client.getTickCount());
     }
 
     @Subscribe
@@ -320,7 +320,7 @@ public class BabaDetector extends BaseMistakeDetector {
             slamHitTiles.add(getWorldPoint(event.getGraphicsObject()));
         } else if (FALLING_BOULDER_GRAPHICS_IDS.containsKey(id)) {
             int activationTick = client.getTickCount() + FALLING_BOULDER_GRAPHICS_IDS.get(id);
-            fallingBoulderHitTiles.addHitTile(activationTick, getWorldPoint(event.getGraphicsObject()));
+            fallingBoulderHitTiles.put(activationTick, getWorldPoint(event.getGraphicsObject()));
         }
     }
 
@@ -380,7 +380,7 @@ public class BabaDetector extends BaseMistakeDetector {
                 event.getActor().getAnimation() == BABA_PROJECTILE_BOULDER_ANIMATION_ID) {
             int activationTick = client.getTickCount() + PROJECTILE_BOULDER_DELAY_IN_TICKS;
             // Add dummy location for the correct activation tick
-            projectileBoulderHitTiles.addHitTile(activationTick, event.getActor().getWorldLocation());
+            projectileBoulderHitTiles.put(activationTick, event.getActor().getWorldLocation());
         }
     }
 

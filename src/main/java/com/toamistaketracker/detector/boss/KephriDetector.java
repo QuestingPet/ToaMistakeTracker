@@ -29,7 +29,6 @@ import java.util.Set;
 
 import static com.toamistaketracker.RaidRoom.KEPHRI;
 import static com.toamistaketracker.ToaMistake.KEPHRI_BOMB;
-import static com.toamistaketracker.ToaMistake.KEPHRI_SWARM_HEAL;
 
 /**
  * The Kephri bomb, exploding scarabs, and exploding eggs all reuse the same set of graphics IDs on impact, though they
@@ -110,7 +109,7 @@ public class KephriDetector extends BaseMistakeDetector {
         if (kephri != null) {
             kephriHealthInternal = kephri.getHealthRatio();
         }
-        bombHitTiles.activateHitTilesForTick(client.getTickCount());
+        bombHitTiles.onGameTick(client.getTickCount());
     }
 
     @Subscribe
@@ -118,7 +117,7 @@ public class KephriDetector extends BaseMistakeDetector {
         int id = event.getGraphicsObject().getId();
         if (KEPHRI_BOMB_SHADOW_GRAPHICS.containsKey(id)) {
             int activationTick = client.getTickCount() + KEPHRI_BOMB_SHADOW_GRAPHICS.get(id);
-            bombHitTiles.addHitTile(activationTick, getWorldPoint(event.getGraphicsObject()));
+            bombHitTiles.put(activationTick, getWorldPoint(event.getGraphicsObject()));
         }
     }
 

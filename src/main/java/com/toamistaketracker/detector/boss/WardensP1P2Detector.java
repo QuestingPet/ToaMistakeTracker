@@ -7,6 +7,7 @@ import com.toamistaketracker.ToaMistake;
 import com.toamistaketracker.detector.BaseMistakeDetector;
 import com.toamistaketracker.detector.tracker.DelayedHitTilesTracker;
 import com.toamistaketracker.detector.tracker.InstantHitTilesTracker;
+import com.toamistaketracker.detector.tracker.OverheadTracker;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,6 @@ import net.runelite.api.GameObject;
 import net.runelite.api.HeadIcon;
 import net.runelite.api.NPC;
 import net.runelite.api.Player;
-import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.AnimationChanged;
 import net.runelite.api.events.GameObjectDespawned;
 import net.runelite.api.events.GameObjectSpawned;
@@ -135,10 +135,7 @@ public class WardensP1P2Detector extends BaseMistakeDetector {
     private final DelayedHitTilesTracker bombHitTiles = new DelayedHitTilesTracker();
     private final Set<String> raidersBound = new HashSet<>();
 
-    @Getter
-    // This is really just used for timing, not for the tile itself
-    private final DelayedHitTilesTracker specialPrayerHitTiles = new DelayedHitTilesTracker();
-    private Integer currentSpecialPrayerProjectileId;
+    private final OverheadTracker specialPrayerOverheadTracker = new OverheadTracker(SPECIAL_PRAYER_ATTACKS);
 
     @Override
     public void cleanup() {
@@ -150,8 +147,7 @@ public class WardensP1P2Detector extends BaseMistakeDetector {
         windmillHitTiles.clear();
         bombHitTiles.clear();
         raidersBound.clear();
-        specialPrayerHitTiles.clear();
-        currentSpecialPrayerProjectileId = null;
+        specialPrayerOverheadTracker.clear();
     }
 
     @Override
@@ -193,9 +189,6 @@ public class WardensP1P2Detector extends BaseMistakeDetector {
     @Override
     public void afterDetect() {
         raidersBound.clear();
-        if (!specialPrayerHitTiles.getActiveHitTiles().isEmpty()) {
-            currentSpecialPrayerProjectileId = null;
-        }
     }
 
     @Subscribe
@@ -219,12 +212,12 @@ public class WardensP1P2Detector extends BaseMistakeDetector {
     @Subscribe
     public void onGameTick(GameTick event) {
         computePyramidHitTiles();
-        pyramidHitTiles.activateHitTilesForTick(client.getTickCount());
+        pyramidHitTiles.onGameTick(client.getTickCount());
 
-        ddrHitTiles.activateHitTilesForTick(client.getTickCount());
-        windmillHitTiles.activateHitTilesForTick(client.getTickCount());
-        bombHitTiles.activateHitTilesForTick(client.getTickCount());
-        specialPrayerHitTiles.activateHitTilesForTick(client.getTickCount());
+        ddrHitTiles.onGameTick(client.getTickCount());
+        windmillHitTiles.onGameTick(client.getTickCount());
+        bombHitTiles.onGameTick(client.getTickCount());
+        specialPrayerOverheadTracker.onGameTick(client.getTickCount());
     }
 
     @Subscribe
@@ -247,26 +240,26 @@ public class WardensP1P2Detector extends BaseMistakeDetector {
         switch (event.getGraphicsObject().getId()) {
             case DDR_GRAPHICS_ID:
                 activationTick = getActivationTick(event.getGraphicsObject(), DDR_HIT_DELAY_IN_TICKS);
-                ddrHitTiles.addHitTile(activationTick, getWorldPoint(event.getGraphicsObject()));
+                ddrHitTiles.put(activationTick, getWorldPoint(event.getGraphicsObject()));
                 break;
             case OBELISK_DDR_LIGHTNING_GRAPHICS_ID:
                 activationTick = getActivationTick(event.getGraphicsObject(), LIGHTNING_HIT_DELAY_IN_TICKS);
-                ddrHitTiles.addHitTile(activationTick, getWorldPoint(event.getGraphicsObject()));
+                ddrHitTiles.put(activationTick, getWorldPoint(event.getGraphicsObject()));
                 break;
             case WINDMILL_HIT_GRAPHICS_ID:
                 if (obeliskPhase == ObeliskPhase.DDR) {
-                    ddrHitTiles.addHitTile(client.getTickCount(), getWorldPoint(event.getGraphicsObject()));
+                    ddrHitTiles.put(client.getTickCount(), getWorldPoint(event.getGraphicsObject()));
                 } else if (obeliskPhase == ObeliskPhase.WINDMILL) {
-                    windmillHitTiles.addHitTile(getWorldPoint(event.getGraphicsObject()));
+                    windmillHitTiles.add(getWorldPoint(event.getGraphicsObject()));
                 }
                 break;
             case OBELISK_WINDMILL_LIGHTNING_GRAPHICS_ID:
-                windmillHitTiles.addHitTile(getWorldPoint(event.getGraphicsObject()));
+                windmillHitTiles.add(getWorldPoint(event.getGraphicsObject()));
                 break;
             case BOMB_GRAPHICS_ID:
                 if (obeliskPhase == ObeliskPhase.BOMBS) {
                     activationTick = getActivationTick(event.getGraphicsObject(), LIGHTNING_HIT_DELAY_IN_TICKS);
-                    bombHitTiles.addHitTile(activationTick, getWorldPoint(event.getGraphicsObject()));
+                    bombHitTiles.put(activationTick, getWorldPoint(event.getGraphicsObject()));
                 }
                 break;
         }
@@ -274,57 +267,17 @@ public class WardensP1P2Detector extends BaseMistakeDetector {
 
     @Subscribe
     public void onProjectileMoved(ProjectileMoved event) {
-        if (SPECIAL_PRAYER_ATTACKS.containsKey(event.getProjectile().getId())) {
-            if (currentSpecialPrayerProjectileId != null) return;
-            log.debug("{} - No others out yet", client.getTickCount());
+        if (!SPECIAL_PRAYER_ATTACKS.containsKey(event.getProjectile().getId())) return;
 
-            if (event.getProjectile().getRemainingCycles() <= CYCLES_PER_GAME_TICK) {
-                // There's no way there's a new projectile that only has at most 1 game tick left. It's probably
-                // hanging around from the previous attack, so let's ignore
-                log.debug("{} - Found special prayer projectile with too few remaining cycles. Ignoring.",
-                        client.getTickCount());
-                return;
-            }
-
-            int activationTick = getActivationTick(event.getProjectile());
-
-            // Add dummy location for the correct activation tick
-            specialPrayerHitTiles.addHitTile(activationTick, WorldPoint.fromLocal(client, event.getPosition()));
-            currentSpecialPrayerProjectileId = event.getProjectile().getId();
-            log.debug("{} - Added special prayer projectile {} for tick: {}", client.getTickCount(),
-                    event.getProjectile().getId(), activationTick);
-        }
+        specialPrayerOverheadTracker.trackProjectile(event, getActivationTick(event.getProjectile()));
     }
 
     private boolean isSpecialPrayerHit(Raider raider) {
-        if (currentSpecialPrayerProjectileId == null) {
-            return false;
-        }
-
-        if (specialPrayerHitTiles.getActiveHitTiles().isEmpty()) {
-            return false;
-        }
-
         if (vengeanceTracker.didPopVengeance(raider)) {
             return false;
         }
 
-        // We know there's a hit this tick. Check the prayers
-        log.debug("{} - {} was praying {} when special prayer procc'd", client.getTickCount(), raider.getName(),
-                raider.getPlayer().getOverheadIcon() == null ? "NONE" : raider.getPlayer().getOverheadIcon().name());
-
-        HeadIcon playerHeadIcon = raider.getPlayer().getOverheadIcon();
-        if (playerHeadIcon == null) {
-            return true;
-        }
-
-        HeadIcon requiredHeadIcon = SPECIAL_PRAYER_ATTACKS.get(currentSpecialPrayerProjectileId);
-        if (requiredHeadIcon == null) {
-            // Can't happen, but just in case, no mistake
-            return false;
-        }
-
-        return playerHeadIcon != requiredHeadIcon;
+        return specialPrayerOverheadTracker.didMissPrayer(raider);
     }
 
     private void computePyramidHitTiles() {
@@ -333,7 +286,7 @@ public class WardensP1P2Detector extends BaseMistakeDetector {
                 Animation animation = ((DynamicObject) pyramid.getRenderable()).getAnimation();
                 if (animation != null && animation.getId() == PYRAMID_ACTIVE_ANIMATION_ID) {
                     int activationTick = client.getTickCount() + PYRAMID_HIT_DELAY_IN_TICKS;
-                    pyramidHitTiles.addHitTiles(activationTick, compute3By3TilesFromCenter(pyramid.getWorldLocation()));
+                    pyramidHitTiles.putAll(activationTick, compute3By3TilesFromCenter(pyramid.getWorldLocation()));
                 }
             }
         });
