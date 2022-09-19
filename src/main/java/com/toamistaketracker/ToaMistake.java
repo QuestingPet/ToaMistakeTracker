@@ -63,7 +63,7 @@ public enum ToaMistake {
     WARDENS_P3_ZEBAK("Wardens P3 Zebak", "", "wardens-zebak.png"),
     WARDENS_P3_KEPHRI("Wardens P3 Kephri", "I'm exploding!", "wardens-kephri.png"),
     WARDENS_P3_BABA("Wardens P3 Ba-Ba", "It's raining!", "wardens-baba.png"),
-    WARDENS_P3_LIGHTNING("Wardens P3 Lightning", "It's electric!", "wardens-lightning.png"),
+    WARDENS_P3_LIGHTNING("Wardens P3 Lightning", "", "wardens-lightning.png"), // Too noisy
     ;
 
     private static final Set<ToaMistake> ROOM_DEATHS = EnumSet.of(
