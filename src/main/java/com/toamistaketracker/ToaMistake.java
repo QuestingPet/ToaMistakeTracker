@@ -45,7 +45,7 @@ public enum ToaMistake {
     APMEKEN_PUZZLE_VOLATILE("Apmeken Volatile", "I'm exploding!", "apmeken-volatile.png"),
     BABA_SLAM("Ba-Ba Slam", "Come on and slam!", "baba-slam.png"),
     BABA_PROJECTILE_BOULDER("Ba-Ba Projectile Boulder", "I got rocked!", "baba-projectile-boulder.png"),
-    BABA_ROLLING_BOULDER("Ba-Ba Rolling Boulder", "I'm rolling!", "baba-rolling-boulder.png"),
+    BABA_ROLLING_BOULDER("Ba-Ba Rolling Boulder", "They see me rollin'...", "baba-rolling-boulder.png"),
     BABA_FALLING_BOULDER("Ba-Ba Falling Boulder", "It's raining!", "baba-falling-boulder.png"),
     BABA_BANANA("Ba-Ba Banana", "Who put that there?", "baba-banana.png"),
     BABA_GAP("Ba-Ba Gap", "I'm going down!", "baba-gap.png"),
