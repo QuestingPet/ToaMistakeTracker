@@ -1,6 +1,7 @@
 package com.toamistaketracker.detector.boss;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
@@ -23,6 +24,7 @@ import net.runelite.api.events.GameObjectDespawned;
 import net.runelite.api.events.GameObjectSpawned;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.GraphicsObjectCreated;
+import net.runelite.api.events.NpcChanged;
 import net.runelite.api.events.ProjectileMoved;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.util.Text;
@@ -91,11 +93,12 @@ public class WardensP1P2Detector extends BaseMistakeDetector {
     private static final int OBELISK_WINDMILL_LIGHTNING_GRAPHICS_ID = 2200;
     private static final int PLAYER_BIND_ANIMATION_ID = 9714;
     // Projectile ID -> correct overhead icon
-    private final Map<Integer, HeadIcon> SPECIAL_PRAYER_ATTACKS = ImmutableMap.of(
+    private static final Map<Integer, HeadIcon> SPECIAL_PRAYER_ATTACKS = ImmutableMap.of(
             2204, HeadIcon.MELEE,
             2206, HeadIcon.RANGED,
             2208, HeadIcon.MAGIC
     );
+    private static final Set<Integer> WARDENS_HEALTH_PHASE = ImmutableSet.of(11755, 11758);
 
     @RequiredArgsConstructor
     enum ObeliskPhase {
@@ -269,6 +272,14 @@ public class WardensP1P2Detector extends BaseMistakeDetector {
         if (!SPECIAL_PRAYER_ATTACKS.containsKey(event.getProjectile().getId())) return;
 
         specialPrayerOverheadTracker.trackProjectile(event, getActivationTick(event.getProjectile()));
+    }
+
+    @Subscribe
+    public void onNpcChanged(NpcChanged event) {
+        if (WARDENS_HEALTH_PHASE.contains(event.getNpc().getId())) {
+            // Wardens changed to health phase with core. DDR special can no longer deal damage here as of 09/21/2022
+            ddrHitTiles.clear();
+        }
     }
 
     private boolean isSpecialPrayerHit(Raider raider) {
