@@ -73,6 +73,10 @@ Current mistakes being tracked:
 
 ## Changes
 
+#### 1.1
+
+* Fixed Akkha special attacks detecting a mistake when the player was not actually hit, due to a recent game change
+
 #### 1.0
 
 * Initial release

@@ -4,13 +4,15 @@ import com.google.common.collect.ImmutableSet;
 import com.toamistaketracker.RaidRoom;
 import com.toamistaketracker.Raider;
 import com.toamistaketracker.ToaMistake;
-import com.toamistaketracker.detector.tracker.AppliedHitsplatsTracker;
 import com.toamistaketracker.detector.BaseMistakeDetector;
+import com.toamistaketracker.detector.tracker.AppliedHitsplatsTracker;
+import com.toamistaketracker.detector.tracker.DelayedHitTilesTracker;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Actor;
 import net.runelite.api.NPC;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.events.GameTick;
 import net.runelite.api.events.GraphicChanged;
 import net.runelite.api.events.GraphicsObjectCreated;
 import net.runelite.api.events.HitsplatApplied;
@@ -33,6 +35,11 @@ import static com.toamistaketracker.ToaMistake.AKKHA_UNSTABLE_ORB;
  * Akkha's memory/simon says special is the same attack as the hourglass special, which is also the same attack as
  * the explode special, and as such they are all counted as the same mistake. It's fairly straightforward, just looking
  * at if the graphics object spawned under the player's tile. ALL players on that tile are affected.
+ *
+ * UPDATE: As of 10/03/2022 Jagex recently changed Akkha's quadrant special behavior in the past week or two. Now, all
+ * of the graphics objects spawn immediately, with a 1-tick delay. Seemingly this is to stop cheesing in the corners
+ * where some of the orbs spawn 1-tick after others and you can "skip". We still need to account for the explode
+ * special, as there is a 0-tick delay for those hitting the player.
  *
  * For the elemental orbs special, those are detected through NPC despawn events, again checking the player's tile
  *
@@ -57,14 +64,16 @@ public class AkkhaDetector extends BaseMistakeDetector {
     private static final String UNSTABLE_ORB_NAME = "Unstable Orb";
     private static final int UNSTABLE_ORB_POPPED_GRAPHICS_ID = 2260;
 
-    private final Set<WorldPoint> quadrantBombTiles;
+    private static final int QUADRANT_EXPLODE_HIT_DELAY_IN_TICKS = 0;
+    private static final int QUADRANT_HIT_DELAY_IN_TICKS = 1;
+
+    private final DelayedHitTilesTracker quadrantBombTiles = new DelayedHitTilesTracker();
     private final Set<WorldPoint> elementalOrbHitTiles;
     private final Set<WorldPoint> unstableOrbHitTiles;
 
     private final AppliedHitsplatsTracker appliedHitsplats;
 
     public AkkhaDetector() {
-        quadrantBombTiles = new HashSet<>();
         elementalOrbHitTiles = new HashSet<>();
         unstableOrbHitTiles = new HashSet<>();
         appliedHitsplats = new AppliedHitsplatsTracker();
@@ -87,7 +96,7 @@ public class AkkhaDetector extends BaseMistakeDetector {
     public List<ToaMistake> detectMistakes(@NonNull Raider raider) {
         List<ToaMistake> mistakes = new ArrayList<>();
 
-        if (quadrantBombTiles.contains(raider.getPreviousWorldLocation())) {
+        if (quadrantBombTiles.getActiveHitTiles().contains(raider.getPreviousWorldLocation())) {
             mistakes.add(AKKHA_SPECIAL_QUADRANT_BOMB);
         }
 
@@ -105,13 +114,24 @@ public class AkkhaDetector extends BaseMistakeDetector {
 
     @Override
     public void afterDetect() {
-        cleanup();
+        elementalOrbHitTiles.clear();
+        unstableOrbHitTiles.clear();
+        appliedHitsplats.clear();
+    }
+
+    @Subscribe
+    public void onGameTick(GameTick event) {
+        quadrantBombTiles.onGameTick(client.getTickCount());
     }
 
     @Subscribe
     public void onGraphicsObjectCreated(GraphicsObjectCreated event) {
         if (QUADRANT_BOMB_GRAPHICS_IDS.contains(event.getGraphicsObject().getId())) {
-            quadrantBombTiles.add(getWorldPoint(event.getGraphicsObject()));
+            int activationTick = getActivationTick(event.getGraphicsObject(), QUADRANT_EXPLODE_HIT_DELAY_IN_TICKS);
+            if (activationTick != client.getTickCount()) { // If not this tick, then it's going to be a 1-tick delay
+                activationTick = client.getTickCount() + QUADRANT_HIT_DELAY_IN_TICKS;
+            }
+            quadrantBombTiles.put(activationTick, getWorldPoint(event.getGraphicsObject()));
         }
     }
 
