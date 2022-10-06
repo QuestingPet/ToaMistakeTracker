@@ -279,6 +279,10 @@ public class WardensP1P2Detector extends BaseMistakeDetector {
         if (WARDENS_HEALTH_PHASE.contains(event.getNpc().getId())) {
             // Wardens changed to health phase with core. DDR special can no longer deal damage here as of 09/21/2022
             ddrHitTiles.clear();
+            // Clear all other sources of damage too just in case
+            windmillHitTiles.clear();
+            bombHitTiles.clear();
+            specialPrayerOverheadTracker.clear();
         }
     }
 

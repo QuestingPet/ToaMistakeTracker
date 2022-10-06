@@ -73,6 +73,10 @@ Current mistakes being tracked:
 
 ## Changes
 
+#### 1.2
+
+* Fixed Wardens P2 special prayer (divine projectile) attack counting as a mistake even if nulled from core being out
+
 #### 1.1
 
 * Fixed Akkha special attacks detecting a mistake when the player was not actually hit, due to a recent game change
