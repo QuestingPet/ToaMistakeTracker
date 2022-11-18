@@ -22,7 +22,7 @@ public enum ToaMistake {
     HET_PUZZLE_DARK_ORB("Het Puzzle Dark Orb", "Embrace Darkness!", "het-dark-orb2.png"),
     AKKHA_SPECIAL_QUADRANT_BOMB("Akkha Quadrant Bombs", "I'm too slow!", "akkha-quadrant3.png"),
     AKKHA_SPECIAL_ELEMENTAL_ORBS("Akkha Elemental Orbs", "I'm griefing!", "akkha-elemental2.png"),
-    AKKHA_UNSTABLE_ORB("Akkha Unstable Orb", "?", "akkha-unstable-orb.png"),
+    AKKHA_UNSTABLE_ORB("Akkha Cum Orb", "?", "akkha-unstable-orb.png"),
 
     // Crondis
     CRONDIS_PUZZLE_LOW_WATER("Path of Crondis Watering", "This jug feels a little light...", "crondis-water.png"),
