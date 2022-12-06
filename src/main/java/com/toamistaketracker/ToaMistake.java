@@ -17,28 +17,28 @@ public enum ToaMistake {
     DEATH_SCABARAS("Path of Scabaras Death", (config) -> config.deathMessage(), "death-kephri.png"),
     DEATH_APMEKEN("Path of Apmeken Death", (config) -> config.deathMessage(), "death-baba.png"),
     DEATH_WARDENS("Wardens Death", (config) -> config.deathMessage(), "death-wardens.png"),
-    
+
     // Het
     HET_PUZZLE_LIGHT("Het Puzzle Energy Beam", (config) -> config.hetPuzzleBeamMessage(), "het-light.png"),
     HET_PUZZLE_DARK_ORB("Het Puzzle Dark Orb", (config) -> config.hetPuzzleOrbMessage(), "het-dark-orb2.png"),
     AKKHA_SPECIAL_QUADRANT_BOMB("Akkha Quadrant Bombs", (config) -> config.akkhaQuadrantMessage(),
-    "akkha-quadrant3.png"),
+            "akkha-quadrant3.png"),
     AKKHA_SPECIAL_ELEMENTAL_ORBS("Akkha Elemental Orbs", (config) -> config.akkhaElementalOrbMessage(),
-    "akkha-elemental2.png"),
+            "akkha-elemental2.png"),
     AKKHA_UNSTABLE_ORB("Akkha Unstable Orb", (config) -> config.akkhaUnstableOrbMessage(), "akkha-unstable-orb.png"),
-    
+
     // Crondis
     CRONDIS_PUZZLE_LOW_WATER("Path of Crondis Watering", (config) -> config.crondisWaterMessage(), "crondis-water.png"),
     ZEBAK_ACID_TILE("Zebak Acid Tile", (config) -> config.zebakAcidMessage(), "zebak-acid.png"),
     ZEBAK_BLOOD_CLOUD("Zebak Blood Cloud", (config) -> config.zebakBloodMessage(), "zebak-blood-cloud.png"),
     ZEBAK_EARTHQUAKE("Zebak Scream", (config) -> config.zebakScreamMessage(), "zebak-scream.png"),
     ZEBAK_WAVE("Zebak Wave", (config) -> config.zebakWaveMessage(), "zebak-wave.png"),
-    
+
     // Scabaras
     KEPHRI_BOMB("Kephri Bomb", (config) -> config.kephriBombMessage(), "kephri-bomb.png"),
     KEPHRI_SWARM_HEAL("Kephri Swarm Heal", (config) -> config.kephriSwarmMessage(), "kephri-swarm.png"),
     KEPHRI_EGG_EXPLODE("Kephri Egg Explode", (config) -> config.kephriEggMessage(), ""),
-    
+
     // Apmeken
     APMEKEN_PUZZLE_SIGHT("Apmeken Sight", (config) -> "", "apmeken-sight.png"),
     APMEKEN_PUZZLE_VENT("Apmeken Vent", (config) -> config.apmekenVentMessage(), ""),
@@ -48,14 +48,14 @@ public enum ToaMistake {
     APMEKEN_PUZZLE_VOLATILE("Apmeken Volatile", (config) -> config.apmekenVolatileMessage(), "apmeken-volatile.png"),
     BABA_SLAM("Ba-Ba Slam", (config) -> config.babaSlamMessage(), "baba-slam.png"),
     BABA_PROJECTILE_BOULDER("Ba-Ba Projectile Boulder", (config) -> config.babaProjectileBoulderMessage(),
-    "baba-projectile-boulder.png"),
+            "baba-projectile-boulder.png"),
     BABA_ROLLING_BOULDER("Ba-Ba Rolling Boulder", (config) -> config.babaRollingBoulderMessage(),
-    "baba-rolling-boulder.png"),
+            "baba-rolling-boulder.png"),
     BABA_FALLING_BOULDER("Ba-Ba Falling Boulder", (config) -> config.babaFallingBoulderMessage(),
-    "baba-falling-boulder.png"),
+            "baba-falling-boulder.png"),
     BABA_BANANA("Ba-Ba Banana", (config) -> config.babaBananaMessage(), "baba-banana.png"),
     BABA_GAP("Ba-Ba Gap", (config) -> config.babaGapMessage(), "baba-gap.png"),
-    
+
     // Wardens
     WARDENS_P1_PYRAMID("Wardens P1 Pyramid", (config) -> config.wardensPyramidMessage(), "wardens-pyramid.png"),
     WARDENS_P2_OBELISK("Wardens P2 Obelisk", (config) -> "", "wardens-obelisk.png"),
@@ -64,7 +64,7 @@ public enum ToaMistake {
     WARDENS_P2_BOMBS("Wardens P2 Bombs", (config) -> config.wardensBombsMessage(), ""),
     WARDENS_P2_BIND("Wardens P2 Bind", (config) -> config.wardensBindMessage(), "wardens-bind.png"),
     WARDENS_P2_SPECIAL_PRAYER("Wardens P2 Special Prayer", (config) -> config.wardensPrayerMessage(),
-    "wardens-special-prayer.png"),
+            "wardens-special-prayer.png"),
     WARDENS_P3_EARTHQUAKE("Wardens P3 Slam", (config) -> config.wardensSlamMessage(), "wardens-earthquake.png"),
     WARDENS_P3_AKKHA("Wardens P3 Akkha", (config) -> "", "wardens-akkha.png"),
     WARDENS_P3_ZEBAK("Wardens P3 Zebak", (config) -> "", "wardens-zebak.png"),
