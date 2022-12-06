@@ -83,7 +83,7 @@ public class MistakeStateManager {
     }
 
     public int getCurrentMistakeCountForPlayer(String playerName) {
-      return currentRaidMistakeManager.getMistakeCountForPlayer(playerName);
+        return currentRaidMistakeManager.getMistakeCountForPlayer(playerName);
     }
 
     public int getTotalMistakeCountForAllPlayers() {

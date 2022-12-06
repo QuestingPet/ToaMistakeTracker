@@ -70,14 +70,14 @@ class MistakeManager {
     }
 
     public int getMistakeCountForPlayer(String playerName) {
-      int totalMistakes = 0;
-      PlayerTrackingInfo playerInfo = trackingInfo.get(playerName);
-      if (playerInfo != null) {
-        for (int mistakes : playerInfo.getMistakes().values()) {
-          totalMistakes += mistakes;
+        int totalMistakes = 0;
+        PlayerTrackingInfo playerInfo = trackingInfo.get(playerName);
+        if (playerInfo != null) {
+            for (int mistakes : playerInfo.getMistakes().values()) {
+                totalMistakes += mistakes;
+            }
         }
-      }
-      return totalMistakes;
+        return totalMistakes;
     }
 
     public int getTotalMistakeCountForAllPlayers() {
