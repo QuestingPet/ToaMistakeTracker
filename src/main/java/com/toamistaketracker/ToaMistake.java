@@ -5,65 +5,66 @@ import lombok.NonNull;
 import net.runelite.client.util.ImageUtil;
 
 import java.awt.image.BufferedImage;
+import java.util.function.Function;
 import java.util.EnumSet;
 import java.util.Set;
 
 public enum ToaMistake {
     // Deaths
-    DEATH("Death", "", "death.png"), // Chat message handled in deaths below
-    DEATH_HET("Path of Het Death", "I'm planking!", "death-akkha.png"),
-    DEATH_CRONDIS("Path of Crondis Death", "I'm planking!", "death-zebak.png"),
-    DEATH_SCABARAS("Path of Scabaras Death", "I'm planking!", "death-kephri.png"),
-    DEATH_APMEKEN("Path of Apmeken Death", "I'm planking!", "death-baba.png"),
-    DEATH_WARDENS("Wardens Death", "I'm planking!", "death-wardens.png"),
+    DEATH("Death", (config) -> "", "death.png"), // Chat message handled in deaths below
+    DEATH_HET("Path of Het Death", (config) -> config.deathMessage(), "death-akkha.png"),
+    DEATH_CRONDIS("Path of Crondis Death", (config) -> config.deathMessage(), "death-zebak.png"),
+    DEATH_SCABARAS("Path of Scabaras Death", (config) -> config.deathMessage(), "death-kephri.png"),
+    DEATH_APMEKEN("Path of Apmeken Death", (config) -> config.deathMessage(), "death-baba.png"),
+    DEATH_WARDENS("Wardens Death", (config) -> config.deathMessage(), "death-wardens.png"),
 
     // Het
-    HET_PUZZLE_LIGHT("Het Puzzle Energy Beam", "Ah! It burns!", "het-light.png"),
-    HET_PUZZLE_DARK_ORB("Het Puzzle Dark Orb", "Embrace Darkness!", "het-dark-orb2.png"),
-    AKKHA_SPECIAL_QUADRANT_BOMB("Akkha Quadrant Bombs", "I'm too slow!", "akkha-quadrant3.png"),
-    AKKHA_SPECIAL_ELEMENTAL_ORBS("Akkha Elemental Orbs", "I'm griefing!", "akkha-elemental2.png"),
-    AKKHA_UNSTABLE_ORB("Akkha Unstable Orb", "?", "akkha-unstable-orb.png"),
+    HET_PUZZLE_LIGHT("Het Puzzle Energy Beam", (config) -> config.hetPuzzleBeamMessage(), "het-light.png"),
+    HET_PUZZLE_DARK_ORB("Het Puzzle Dark Orb", (config) -> config.hetPuzzleOrbMessage(), "het-dark-orb2.png"),
+    AKKHA_SPECIAL_QUADRANT_BOMB("Akkha Quadrant Bombs", (config) -> config.akkhaQuadrantMessage(), "akkha-quadrant3.png"),
+    AKKHA_SPECIAL_ELEMENTAL_ORBS("Akkha Elemental Orbs", (config) -> config.akkhaElementalOrbMessage(), "akkha-elemental2.png"),
+    AKKHA_UNSTABLE_ORB("Akkha Unstable Orb", (config) -> config.akkhaUnstableOrbMessage(), "akkha-unstable-orb.png"),
 
     // Crondis
-    CRONDIS_PUZZLE_LOW_WATER("Path of Crondis Watering", "This jug feels a little light...", "crondis-water.png"),
-    ZEBAK_ACID_TILE("Zebak Acid Tile", "I'm drowning in acid!", "zebak-acid.png"),
-    ZEBAK_BLOOD_CLOUD("Zebak Blood Cloud", "I'm on a blood cloud!", "zebak-blood-cloud.png"),
-    ZEBAK_EARTHQUAKE("Zebak Scream", "Nihil!", "zebak-scream.png"),
-    ZEBAK_WAVE("Zebak Wave", "I'm surfing!", "zebak-wave.png"),
+    CRONDIS_PUZZLE_LOW_WATER("Path of Crondis Watering", (config) -> config.crondisWaterMessage(), "crondis-water.png"),
+    ZEBAK_ACID_TILE("Zebak Acid Tile", (config) -> config.zebakAcidMessage(), "zebak-acid.png"),
+    ZEBAK_BLOOD_CLOUD("Zebak Blood Cloud", (config) -> config.zebakBloodMessage(), "zebak-blood-cloud.png"),
+    ZEBAK_EARTHQUAKE("Zebak Scream", (config) -> config.zebakScreamMessage(), "zebak-scream.png"),
+    ZEBAK_WAVE("Zebak Wave", (config) -> config.zebakWaveMessage(), "zebak-wave.png"),
 
     // Scabaras
-    KEPHRI_BOMB("Kephri Bomb", "I'm exploding!", "kephri-bomb.png"),
-    KEPHRI_SWARM_HEAL("Kephri Swarm Heal", "The swarms are going in!", "kephri-swarm.png"),
-    KEPHRI_EGG_EXPLODE("Kephri Egg Explode", "I've been hatched!", ""),
+    KEPHRI_BOMB("Kephri Bomb", (config) -> config.kephriBombMessage(), "kephri-bomb.png"),
+    KEPHRI_SWARM_HEAL("Kephri Swarm Heal", (config) -> config.kephriSwarmMessage(), "kephri-swarm.png"),
+    KEPHRI_EGG_EXPLODE("Kephri Egg Explode", (config) -> config.kephriEggMessage(), ""),
 
     // Apmeken
-    APMEKEN_PUZZLE_SIGHT("Apmeken Sight", "", "apmeken-sight.png"),
-    APMEKEN_PUZZLE_VENT("Apmeken Vent", "I'm fuming!", ""),
-    APMEKEN_PUZZLE_PILLAR("Apmeken Pillar", "The sky is falling!", ""),
-    APMEKEN_PUZZLE_CORRUPTION("Apmeken Corruption", "I've been corrupted!", ""),
-    APMEKEN_PUZZLE_VENOM("Apmeken Venom Tile", "It's venomous!", "apmeken-venom.png"),
-    APMEKEN_PUZZLE_VOLATILE("Apmeken Volatile", "I'm exploding!", "apmeken-volatile.png"),
-    BABA_SLAM("Ba-Ba Slam", "Come on and slam!", "baba-slam.png"),
-    BABA_PROJECTILE_BOULDER("Ba-Ba Projectile Boulder", "I got rocked!", "baba-projectile-boulder.png"),
-    BABA_ROLLING_BOULDER("Ba-Ba Rolling Boulder", "They see me rollin'...", "baba-rolling-boulder.png"),
-    BABA_FALLING_BOULDER("Ba-Ba Falling Boulder", "It's raining!", "baba-falling-boulder.png"),
-    BABA_BANANA("Ba-Ba Banana", "Who put that there?", "baba-banana.png"),
-    BABA_GAP("Ba-Ba Gap", "I'm going down!", "baba-gap.png"),
+    APMEKEN_PUZZLE_SIGHT("Apmeken Sight", (config) -> "", "apmeken-sight.png"),
+    APMEKEN_PUZZLE_VENT("Apmeken Vent", (config) -> config.apmekenVentMessage(), ""),
+    APMEKEN_PUZZLE_PILLAR("Apmeken Pillar", (config) -> config.apmekenPillarMessage(), ""),
+    APMEKEN_PUZZLE_CORRUPTION("Apmeken Corruption", (config) -> config.apmekenCorruptionMessage(), ""),
+    APMEKEN_PUZZLE_VENOM("Apmeken Venom Tile", (config) -> config.apmekenVenomMessage(), "apmeken-venom.png"),
+    APMEKEN_PUZZLE_VOLATILE("Apmeken Volatile", (config) -> config.apmekenVolatileMessage(), "apmeken-volatile.png"),
+    BABA_SLAM("Ba-Ba Slam", (config) -> config.babaSlamMessage(), "baba-slam.png"),
+    BABA_PROJECTILE_BOULDER("Ba-Ba Projectile Boulder", (config) -> config.babaProjectileBoulderMessage(), "baba-projectile-boulder.png"),
+    BABA_ROLLING_BOULDER("Ba-Ba Rolling Boulder", (config) -> config.babaRollingBoulderMessage(), "baba-rolling-boulder.png"),
+    BABA_FALLING_BOULDER("Ba-Ba Falling Boulder", (config) -> config.babaFallingBoulderMessage(), "baba-falling-boulder.png"),
+    BABA_BANANA("Ba-Ba Banana", (config) -> config.babaBananaMessage(), "baba-banana.png"),
+    BABA_GAP("Ba-Ba Gap", (config) -> config.babaGapMessage(), "baba-gap.png"),
 
     // Wardens
-    WARDENS_P1_PYRAMID("Wardens P1 Pyramid", "I'm disco-ing!", "wardens-pyramid.png"),
-    WARDENS_P2_OBELISK("Wardens P2 Obelisk", "", "wardens-obelisk.png"),
-    WARDENS_P2_DDR("Wardens P2 DDR", "I'm dancing!", ""),
-    WARDENS_P2_WINDMILL("Wardens P2 Windmill", "I'm winded!", ""),
-    WARDENS_P2_BOMBS("Wardens P2 Bombs", "I'm getting bombed!", ""),
-    WARDENS_P2_BIND("Wardens P2 Bind", "I'm in jail!", "wardens-bind.png"),
-    WARDENS_P2_SPECIAL_PRAYER("Wardens P2 Special Prayer", "What even was that attack?", "wardens-special-prayer.png"),
-    WARDENS_P3_EARTHQUAKE("Wardens P3 Slam", "I'm tripping!", "wardens-earthquake.png"),
-    WARDENS_P3_AKKHA("Wardens P3 Akkha", "", "wardens-akkha.png"),
-    WARDENS_P3_ZEBAK("Wardens P3 Zebak", "", "wardens-zebak.png"),
-    WARDENS_P3_KEPHRI("Wardens P3 Kephri", "I'm exploding!", "wardens-kephri.png"),
-    WARDENS_P3_BABA("Wardens P3 Ba-Ba", "It's raining!", "wardens-baba.png"),
-    WARDENS_P3_LIGHTNING("Wardens P3 Lightning", "", "wardens-lightning.png"), // Too noisy
+    WARDENS_P1_PYRAMID("Wardens P1 Pyramid", (config) -> config.wardensPyramidMessage(), "wardens-pyramid.png"),
+    WARDENS_P2_OBELISK("Wardens P2 Obelisk", (config) -> "", "wardens-obelisk.png"),
+    WARDENS_P2_DDR("Wardens P2 DDR", (config) -> config.wardensDDRMessage(), ""),
+    WARDENS_P2_WINDMILL("Wardens P2 Windmill", (config) -> config.wardensWindmillMessage(), ""),
+    WARDENS_P2_BOMBS("Wardens P2 Bombs", (config) -> config.wardensBombsMessage(), ""),
+    WARDENS_P2_BIND("Wardens P2 Bind", (config) -> config.wardensBindMessage(), "wardens-bind.png"),
+    WARDENS_P2_SPECIAL_PRAYER("Wardens P2 Special Prayer", (config) -> config.wardensPrayerMessage(), "wardens-special-prayer.png"),
+    WARDENS_P3_EARTHQUAKE("Wardens P3 Slam", (config) -> config.wardensSlamMessage(), "wardens-earthquake.png"),
+    WARDENS_P3_AKKHA("Wardens P3 Akkha", (config) -> "", "wardens-akkha.png"),
+    WARDENS_P3_ZEBAK("Wardens P3 Zebak", (config) -> "", "wardens-zebak.png"),
+    WARDENS_P3_KEPHRI("Wardens P3 Kephri", (config) -> config.wardensKephriMessage(), "wardens-kephri.png"),
+    WARDENS_P3_BABA("Wardens P3 Ba-Ba", (config) -> config.wardensBabaMessage(), "wardens-baba.png"),
+    WARDENS_P3_LIGHTNING("Wardens P3 Lightning", (config) -> "", "wardens-lightning.png"), // Too noisy
     ;
 
     private static final Set<ToaMistake> ROOM_DEATHS = EnumSet.of(
@@ -76,24 +77,23 @@ public enum ToaMistake {
 
     private static final String FALLBACK_IMAGE_PATH = "death.png";
 
-    private static final int MAX_AKKHA_ORBS_CHAT_MESSAGE_LENGTH = 10;
-    private static final String ALTERNATE_BABA_SLAM_CHAT_MESSAGE = "And welcome to the jam!";
+    private static final int MAX_AKKHA_ORBS_CHAT_MESSAGE_LENGTH = 20;
+    // private static final String ALTERNATE_BABA_SLAM_CHAT_MESSAGE = "And welcome to the jam!";
 
     @Getter
     @NonNull
     private final String mistakeName;
 
-    @Getter
     @NonNull
-    private final String chatMessage;
+    private final Function<ToaMistakeTrackerConfig, String> chatMessageFunc;
 
     @Getter
     @NonNull
     private final BufferedImage mistakeImage;
 
-    ToaMistake(@NonNull String mistakeName, @NonNull String chatMessage, @NonNull String mistakeImagePath) {
+    ToaMistake(@NonNull String mistakeName, @NonNull Function<ToaMistakeTrackerConfig, String> chatMessageConsumer, @NonNull String mistakeImagePath) {
         this.mistakeName = mistakeName;
-        this.chatMessage = chatMessage;
+        this.chatMessageFunc = chatMessageConsumer;
 
         final String imagePath;
         if (mistakeImagePath.isEmpty()) {
@@ -102,6 +102,10 @@ public enum ToaMistake {
             imagePath = mistakeImagePath;
         }
         this.mistakeImage = ImageUtil.loadImageResource(getClass(), imagePath);
+    }
+
+    public String getChatMessage(ToaMistakeTrackerConfig config) {
+      return chatMessageFunc.apply(config);
     }
 
     public static boolean isRoomDeath(ToaMistake mistake) {
@@ -133,15 +137,15 @@ public enum ToaMistake {
      *                     previously before this.
      * @return The mistake chat message to use for the raider
      */
-    public static String getChatMessageForMistakeCount(ToaMistake mistake, int mistakeCount) {
+    public static String getChatMessageForMistakeCount(ToaMistakeTrackerConfig config, ToaMistake mistake, int mistakeCount) {
         // Special case a few mistake chat messages
         if (mistake == AKKHA_UNSTABLE_ORB) {
-            return getChatMessageForAkkhaUnstableOrb(mistake.getChatMessage(), mistakeCount);
+            return getChatMessageForAkkhaUnstableOrb(mistake.getChatMessage(config), mistakeCount);
         } else if (mistake == BABA_SLAM) {
-            return getChatMessageForBabaSlam(mistake.getChatMessage(), mistakeCount);
+            return getChatMessageForBabaSlam(mistake.getChatMessage(config), mistakeCount);
         }
 
-        return mistake.getChatMessage();
+        return mistake.getChatMessage(config);
     }
 
     private static String getChatMessageForAkkhaUnstableOrb(String message, int mistakeCount) {
@@ -154,10 +158,11 @@ public enum ToaMistake {
     }
 
     private static String getChatMessageForBabaSlam(String message, int mistakeCount) {
-        if (mistakeCount % 2 == 0) {
-            return message;
-        } else {
-            return ALTERNATE_BABA_SLAM_CHAT_MESSAGE;
-        }
+        // if (mistakeCount % 2 == 0) {
+        //     return message;
+        // } else {
+        //     return ALTERNATE_BABA_SLAM_CHAT_MESSAGE;
+        // }
+        return message;
     }
 }
