@@ -77,7 +77,7 @@ public enum ToaMistake {
 
     private static final String FALLBACK_IMAGE_PATH = "death.png";
 
-    private static final int MAX_AKKHA_ORBS_CHAT_MESSAGE_LENGTH = 20;
+    private static final int MAX_STACKING_CHAT_MESSAGE_LENGTH = 20;
     // private static final String ALTERNATE_BABA_SLAM_CHAT_MESSAGE = "And welcome to the jam!";
 
     @Getter
@@ -139,30 +139,27 @@ public enum ToaMistake {
      */
     public static String getChatMessageForMistakeCount(ToaMistakeTrackerConfig config, ToaMistake mistake, int mistakeCount) {
         // Special case a few mistake chat messages
-        if (mistake == AKKHA_UNSTABLE_ORB) {
-            return getChatMessageForAkkhaUnstableOrb(mistake.getChatMessage(config), mistakeCount);
-        } else if (mistake == BABA_SLAM) {
-            return getChatMessageForBabaSlam(mistake.getChatMessage(config), mistakeCount);
+        if (config.stackQuestionMarks() && mistake.getChatMessage(config).equals("?")) {
+          return getStackingChatMessage(mistake.getChatMessage(config), mistakeCount);
+        } else if (mistake.getChatMessage(config).contains("|")) {
+          return getAlternatingChatMessage(mistake.getChatMessage(config), mistakeCount);
         }
 
         return mistake.getChatMessage(config);
     }
 
-    private static String getChatMessageForAkkhaUnstableOrb(String message, int mistakeCount) {
+    private static String getStackingChatMessage(String message, int mistakeCount) {
         // Keep adding ?s to the text for every subsequent mistake in this raid. A bit hacky but it's funny.
         StringBuilder sb = new StringBuilder(message);
-        for (int i = 0; i < Math.min(mistakeCount, MAX_AKKHA_ORBS_CHAT_MESSAGE_LENGTH); i++) {
+        for (int i = 0; i < Math.min(mistakeCount, MAX_STACKING_CHAT_MESSAGE_LENGTH); i++) {
             sb.append(message);
         }
         return sb.toString();
     }
 
-    private static String getChatMessageForBabaSlam(String message, int mistakeCount) {
-        // if (mistakeCount % 2 == 0) {
-        //     return message;
-        // } else {
-        //     return ALTERNATE_BABA_SLAM_CHAT_MESSAGE;
-        // }
-        return message;
+    private static String getAlternatingChatMessage(String message, int mistakeCount) {
+      String[] messageChoices = message.split("\\|");
+      String messageChoice = messageChoices[mistakeCount % messageChoices.length];
+      return messageChoice;
     }
 }

@@ -157,7 +157,9 @@ public class ToaMistakeTrackerPlugin extends Plugin {
     }
 
     private void addChatMessageForMistake(Raider raider, ToaMistake mistake) {
-        int mistakeCount = panel.getCurrentMistakeCountForPlayer(raider.getName(), mistake);
+        int mistakeCount = config.stackOnlySameMistakes()
+          ? panel.getCurrentMistakeCountForPlayer(raider.getName(), mistake)
+          : panel.getCurrentMistakeCountForPlayer(raider.getName());
         String msg = ToaMistake.getChatMessageForMistakeCount(config, mistake, mistakeCount);
 
         if (msg.isEmpty()) return;
