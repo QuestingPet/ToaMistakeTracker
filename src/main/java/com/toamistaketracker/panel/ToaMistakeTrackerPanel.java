@@ -336,7 +336,7 @@ public class ToaMistakeTrackerPanel extends PluginPanel {
      * @return The total number of mistakes made in this raid by this player
      */
     public int getCurrentMistakeCountForPlayer(String playerName) {
-      return mistakeStateManager.getCurrentMistakeCountForPlayer(playerName);
+        return mistakeStateManager.getCurrentMistakeCountForPlayer(playerName);
     }
 
     /**

@@ -72,34 +72,35 @@ public enum ToaMistake {
     WARDENS_P3_BABA("Wardens P3 Ba-Ba", (config) -> config.wardensBabaMessage(), "wardens-baba.png"),
     WARDENS_P3_LIGHTNING("Wardens P3 Lightning", (config) -> "", "wardens-lightning.png"), // Too noisy
     ;
-    
-    private static final Set<ToaMistake> ROOM_DEATHS = EnumSet.of(
-    DEATH_HET, DEATH_CRONDIS, DEATH_SCABARAS, DEATH_APMEKEN, DEATH_WARDENS);
-    
-    private static final Set<ToaMistake> APMEKEN_SIGHT_MISTAKES = EnumSet.of(
-    APMEKEN_PUZZLE_VENT, APMEKEN_PUZZLE_PILLAR, APMEKEN_PUZZLE_CORRUPTION);
-    private static final Set<ToaMistake> WARDENS_P2_OBELISK_MISTAKES = EnumSet.of(
-    WARDENS_P2_DDR, WARDENS_P2_WINDMILL, WARDENS_P2_BOMBS);
-    
+
+    private static final Set<ToaMistake> ROOM_DEATHS = EnumSet.of(DEATH_HET, DEATH_CRONDIS, DEATH_SCABARAS,
+            DEATH_APMEKEN, DEATH_WARDENS);
+
+    private static final Set<ToaMistake> APMEKEN_SIGHT_MISTAKES = EnumSet.of(APMEKEN_PUZZLE_VENT, APMEKEN_PUZZLE_PILLAR,
+            APMEKEN_PUZZLE_CORRUPTION);
+    private static final Set<ToaMistake> WARDENS_P2_OBELISK_MISTAKES = EnumSet.of(WARDENS_P2_DDR, WARDENS_P2_WINDMILL,
+            WARDENS_P2_BOMBS);
+
     private static final String FALLBACK_IMAGE_PATH = "death.png";
-    
+
     private static final int MAX_STACKING_CHAT_MESSAGE_LENGTH = 20;
-    
+
     @Getter
     @NonNull
     private final String mistakeName;
-    
+
     @NonNull
     private final Function<ToaMistakeTrackerConfig, String> chatMessageFunc;
-    
+
     @Getter
     @NonNull
     private final BufferedImage mistakeImage;
-    
-    ToaMistake(@NonNull String mistakeName, @NonNull Function<ToaMistakeTrackerConfig, String> chatMessageConsumer, @NonNull String mistakeImagePath) {
+
+    ToaMistake(@NonNull String mistakeName, @NonNull Function<ToaMistakeTrackerConfig, String> chatMessageFunc,
+            @NonNull String mistakeImagePath) {
         this.mistakeName = mistakeName;
-        this.chatMessageFunc = chatMessageConsumer;
-        
+        this.chatMessageFunc = chatMessageFunc;
+
         final String imagePath;
         if (mistakeImagePath.isEmpty()) {
             imagePath = FALLBACK_IMAGE_PATH;
@@ -108,15 +109,15 @@ public enum ToaMistake {
         }
         this.mistakeImage = ImageUtil.loadImageResource(getClass(), imagePath);
     }
-    
+
     public String getChatMessage(ToaMistakeTrackerConfig config) {
         return chatMessageFunc.apply(config);
     }
-    
+
     public static boolean isRoomDeath(ToaMistake mistake) {
         return ROOM_DEATHS.contains(mistake);
     }
-    
+
     /**
      * Get the grouped mistake for the specified detected mistake.
      *
@@ -132,7 +133,7 @@ public enum ToaMistake {
             return mistake;
         }
     }
-    
+
     /**
      * Retrieve the chat message for the given mistake, also considering special cases and the current
      * mistake count of this mistake in the raid for the current raider, *previous* to this mistake happening.
@@ -142,17 +143,18 @@ public enum ToaMistake {
      *                     previously before this.
      * @return The mistake chat message to use for the raider
      */
-    public static String getChatMessageForMistakeCount(ToaMistakeTrackerConfig config, ToaMistake mistake, int mistakeCount) {
+    public static String getChatMessageForMistakeCount(ToaMistakeTrackerConfig config, ToaMistake mistake,
+            int mistakeCount) {
         // Special case a few mistake chat messages
         if (config.stackQuestionMarks() && mistake.getChatMessage(config).equals("?")) {
             return getStackingChatMessage(mistake.getChatMessage(config), mistakeCount);
         } else if (mistake.getChatMessage(config).contains("|")) {
             return getAlternatingChatMessage(mistake.getChatMessage(config), mistakeCount);
         }
-        
+
         return mistake.getChatMessage(config);
     }
-    
+
     private static String getStackingChatMessage(String message, int mistakeCount) {
         // Keep adding ?s to the text for every subsequent mistake in this raid. A bit hacky but it's funny.
         StringBuilder sb = new StringBuilder(message);
@@ -161,7 +163,7 @@ public enum ToaMistake {
         }
         return sb.toString();
     }
-    
+
     private static String getAlternatingChatMessage(String message, int mistakeCount) {
         String[] messageChoices = message.split("\\|");
         String messageChoice = messageChoices[mistakeCount % messageChoices.length];
