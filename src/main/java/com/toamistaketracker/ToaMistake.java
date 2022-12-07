@@ -83,7 +83,7 @@ public enum ToaMistake {
 
     private static final String FALLBACK_IMAGE_PATH = "death.png";
 
-    private static final int MAX_STACKING_CHAT_MESSAGE_LENGTH = 20;
+    private static final int MAX_STACKING_CHAT_MESSAGE_LENGTH = 10;
 
     @Getter
     @NonNull
