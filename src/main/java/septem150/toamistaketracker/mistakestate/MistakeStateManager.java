@@ -1,8 +1,8 @@
-package com.toamistaketracker.mistakestate;
+package septem150.toamistaketracker.mistakestate;
 
-import com.toamistaketracker.ToaMistake;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import septem150.toamistaketracker.ToaMistake;
 
 import javax.inject.Singleton;
 import java.util.Set;
@@ -82,8 +82,8 @@ public class MistakeStateManager {
         return currentRaidMistakeManager.getMistakeCountForPlayer(playerName, mistake);
     }
 
-    public int getCurrentTotalMistakeCountForPlayer(String playerName) {
-        return currentRaidMistakeManager.getTotalMistakeCountForPlayer(playerName);
+    public int getCurrentMistakeCountForPlayer(String playerName) {
+      return currentRaidMistakeManager.getMistakeCountForPlayer(playerName);
     }
 
     public int getTotalMistakeCountForAllPlayers() {

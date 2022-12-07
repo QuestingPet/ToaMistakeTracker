@@ -1,9 +1,5 @@
-package com.toamistaketracker.panel;
+package septem150.toamistaketracker.panel;
 
-import com.toamistaketracker.ToaMistake;
-import com.toamistaketracker.ToaMistakeTrackerPlugin;
-import com.toamistaketracker.mistakestate.MistakeStateManager;
-import com.toamistaketracker.mistakestate.MistakeStateReader;
 import net.runelite.api.Client;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
@@ -13,6 +9,10 @@ import net.runelite.client.util.ColorUtil;
 import net.runelite.client.util.ImageUtil;
 import net.runelite.client.util.QuantityFormatter;
 import net.runelite.client.util.SwingUtil;
+import septem150.toamistaketracker.ToaMistake;
+import septem150.toamistaketracker.ToaMistakeTrackerPlugin;
+import septem150.toamistaketracker.mistakestate.MistakeStateManager;
+import septem150.toamistaketracker.mistakestate.MistakeStateReader;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -335,8 +335,8 @@ public class ToaMistakeTrackerPanel extends PluginPanel {
      * @param playerName The player name to get the mistake count for
      * @return The total number of mistakes made in this raid by this player
      */
-    public int getCurrentTotalMistakeCountForPlayer(String playerName) {
-        return mistakeStateManager.getCurrentTotalMistakeCountForPlayer(playerName);
+    public int getCurrentMistakeCountForPlayer(String playerName) {
+      return mistakeStateManager.getCurrentMistakeCountForPlayer(playerName);
     }
 
     /**

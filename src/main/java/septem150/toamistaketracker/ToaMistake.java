@@ -1,4 +1,4 @@
-package com.toamistaketracker;
+package septem150.toamistaketracker;
 
 import lombok.Getter;
 import lombok.NonNull;
@@ -21,10 +21,8 @@ public enum ToaMistake {
     // Het
     HET_PUZZLE_LIGHT("Het Puzzle Energy Beam", (config) -> config.hetPuzzleBeamMessage(), "het-light.png"),
     HET_PUZZLE_DARK_ORB("Het Puzzle Dark Orb", (config) -> config.hetPuzzleOrbMessage(), "het-dark-orb2.png"),
-    AKKHA_SPECIAL_QUADRANT_BOMB("Akkha Quadrant Bombs", (config) -> config.akkhaQuadrantMessage(),
-            "akkha-quadrant3.png"),
-    AKKHA_SPECIAL_ELEMENTAL_ORBS("Akkha Elemental Orbs", (config) -> config.akkhaElementalOrbMessage(),
-            "akkha-elemental2.png"),
+    AKKHA_SPECIAL_QUADRANT_BOMB("Akkha Quadrant Bombs", (config) -> config.akkhaQuadrantMessage(), "akkha-quadrant3.png"),
+    AKKHA_SPECIAL_ELEMENTAL_ORBS("Akkha Elemental Orbs", (config) -> config.akkhaElementalOrbMessage(), "akkha-elemental2.png"),
     AKKHA_UNSTABLE_ORB("Akkha Unstable Orb", (config) -> config.akkhaUnstableOrbMessage(), "akkha-unstable-orb.png"),
 
     // Crondis
@@ -36,8 +34,8 @@ public enum ToaMistake {
 
     // Scabaras
     KEPHRI_BOMB("Kephri Bomb", (config) -> config.kephriBombMessage(), "kephri-bomb.png"),
-    KEPHRI_SWARM_HEAL("Kephri Swarm Heal", (config) -> "The swarms are going in!", "kephri-swarm.png"),
-    KEPHRI_EGG_EXPLODE("Kephri Egg Explode", (config) -> "I've been hatched!", ""),
+    KEPHRI_SWARM_HEAL("Kephri Swarm Heal", (config) -> config.kephriSwarmMessage(), "kephri-swarm.png"),
+    KEPHRI_EGG_EXPLODE("Kephri Egg Explode", (config) -> config.kephriEggMessage(), ""),
 
     // Apmeken
     APMEKEN_PUZZLE_SIGHT("Apmeken Sight", (config) -> "", "apmeken-sight.png"),
@@ -47,12 +45,9 @@ public enum ToaMistake {
     APMEKEN_PUZZLE_VENOM("Apmeken Venom Tile", (config) -> config.apmekenVenomMessage(), "apmeken-venom.png"),
     APMEKEN_PUZZLE_VOLATILE("Apmeken Volatile", (config) -> config.apmekenVolatileMessage(), "apmeken-volatile.png"),
     BABA_SLAM("Ba-Ba Slam", (config) -> config.babaSlamMessage(), "baba-slam.png"),
-    BABA_PROJECTILE_BOULDER("Ba-Ba Projectile Boulder", (config) -> config.babaProjectileBoulderMessage(),
-            "baba-projectile-boulder.png"),
-    BABA_ROLLING_BOULDER("Ba-Ba Rolling Boulder", (config) -> config.babaRollingBoulderMessage(),
-            "baba-rolling-boulder.png"),
-    BABA_FALLING_BOULDER("Ba-Ba Falling Boulder", (config) -> config.babaFallingBoulderMessage(),
-            "baba-falling-boulder.png"),
+    BABA_PROJECTILE_BOULDER("Ba-Ba Projectile Boulder", (config) -> config.babaProjectileBoulderMessage(), "baba-projectile-boulder.png"),
+    BABA_ROLLING_BOULDER("Ba-Ba Rolling Boulder", (config) -> config.babaRollingBoulderMessage(), "baba-rolling-boulder.png"),
+    BABA_FALLING_BOULDER("Ba-Ba Falling Boulder", (config) -> config.babaFallingBoulderMessage(), "baba-falling-boulder.png"),
     BABA_BANANA("Ba-Ba Banana", (config) -> config.babaBananaMessage(), "baba-banana.png"),
     BABA_GAP("Ba-Ba Gap", (config) -> config.babaGapMessage(), "baba-gap.png"),
 
@@ -63,27 +58,27 @@ public enum ToaMistake {
     WARDENS_P2_WINDMILL("Wardens P2 Windmill", (config) -> config.wardensWindmillMessage(), ""),
     WARDENS_P2_BOMBS("Wardens P2 Bombs", (config) -> config.wardensBombsMessage(), ""),
     WARDENS_P2_BIND("Wardens P2 Bind", (config) -> config.wardensBindMessage(), "wardens-bind.png"),
-    WARDENS_P2_SPECIAL_PRAYER("Wardens P2 Special Prayer", (config) -> config.wardensPrayerMessage(),
-            "wardens-special-prayer.png"),
+    WARDENS_P2_SPECIAL_PRAYER("Wardens P2 Special Prayer", (config) -> config.wardensPrayerMessage(), "wardens-special-prayer.png"),
     WARDENS_P3_EARTHQUAKE("Wardens P3 Slam", (config) -> config.wardensSlamMessage(), "wardens-earthquake.png"),
     WARDENS_P3_AKKHA("Wardens P3 Akkha", (config) -> "", "wardens-akkha.png"),
     WARDENS_P3_ZEBAK("Wardens P3 Zebak", (config) -> "", "wardens-zebak.png"),
-    WARDENS_P3_KEPHRI("Wardens P3 Kephri", (config) -> config.kephriBombMessage(), "wardens-kephri.png"),
-    WARDENS_P3_BABA("Wardens P3 Ba-Ba", (config) -> config.babaFallingBoulderMessage(), "wardens-baba.png"),
+    WARDENS_P3_KEPHRI("Wardens P3 Kephri", (config) -> config.wardensKephriMessage(), "wardens-kephri.png"),
+    WARDENS_P3_BABA("Wardens P3 Ba-Ba", (config) -> config.wardensBabaMessage(), "wardens-baba.png"),
     WARDENS_P3_LIGHTNING("Wardens P3 Lightning", (config) -> "", "wardens-lightning.png"), // Too noisy
     ;
 
-    private static final Set<ToaMistake> ROOM_DEATHS = EnumSet.of(DEATH_HET, DEATH_CRONDIS, DEATH_SCABARAS,
-            DEATH_APMEKEN, DEATH_WARDENS);
+    private static final Set<ToaMistake> ROOM_DEATHS = EnumSet.of(
+            DEATH_HET, DEATH_CRONDIS, DEATH_SCABARAS, DEATH_APMEKEN, DEATH_WARDENS);
 
-    private static final Set<ToaMistake> APMEKEN_SIGHT_MISTAKES = EnumSet.of(APMEKEN_PUZZLE_VENT, APMEKEN_PUZZLE_PILLAR,
-            APMEKEN_PUZZLE_CORRUPTION);
-    private static final Set<ToaMistake> WARDENS_P2_OBELISK_MISTAKES = EnumSet.of(WARDENS_P2_DDR, WARDENS_P2_WINDMILL,
-            WARDENS_P2_BOMBS);
+    private static final Set<ToaMistake> APMEKEN_SIGHT_MISTAKES = EnumSet.of(
+            APMEKEN_PUZZLE_VENT, APMEKEN_PUZZLE_PILLAR, APMEKEN_PUZZLE_CORRUPTION);
+    private static final Set<ToaMistake> WARDENS_P2_OBELISK_MISTAKES = EnumSet.of(
+            WARDENS_P2_DDR, WARDENS_P2_WINDMILL, WARDENS_P2_BOMBS);
 
     private static final String FALLBACK_IMAGE_PATH = "death.png";
 
     private static final int MAX_STACKING_CHAT_MESSAGE_LENGTH = 20;
+    // private static final String ALTERNATE_BABA_SLAM_CHAT_MESSAGE = "And welcome to the jam!";
 
     @Getter
     @NonNull
@@ -96,10 +91,9 @@ public enum ToaMistake {
     @NonNull
     private final BufferedImage mistakeImage;
 
-    ToaMistake(@NonNull String mistakeName, @NonNull Function<ToaMistakeTrackerConfig, String> chatMessageFunc,
-            @NonNull String mistakeImagePath) {
+    ToaMistake(@NonNull String mistakeName, @NonNull Function<ToaMistakeTrackerConfig, String> chatMessageConsumer, @NonNull String mistakeImagePath) {
         this.mistakeName = mistakeName;
-        this.chatMessageFunc = chatMessageFunc;
+        this.chatMessageFunc = chatMessageConsumer;
 
         final String imagePath;
         if (mistakeImagePath.isEmpty()) {
@@ -111,7 +105,7 @@ public enum ToaMistake {
     }
 
     public String getChatMessage(ToaMistakeTrackerConfig config) {
-        return chatMessageFunc.apply(config);
+      return chatMessageFunc.apply(config);
     }
 
     public static boolean isRoomDeath(ToaMistake mistake) {
@@ -135,28 +129,23 @@ public enum ToaMistake {
     }
 
     /**
-     * Retrieve the chat message for the given mistake, considering special cases given the config
-     * settings about whether to stack question marks and the current mistake count of either
-     * this specific mistake in the raid for the current raider, *or* the total current raid mistake
-     * count for the current raider.
+     * Retrieve the chat message for the given mistake, also considering special cases and the current
+     * mistake count of this mistake in the raid for the current raider, *previous* to this mistake happening.
      *
      * @param mistake      The mistake
-     * @param mistakeCount The current mistake count of this mistake *or* the current raid mistake count for the
-     *                     raider in this raid
-     * 
+     * @param mistakeCount The current mistake count of this mistake for the current raider in this current raid,
+     *                     previously before this.
      * @return The mistake chat message to use for the raider
      */
-    public static String getChatMessageForMistakeCount(ToaMistakeTrackerConfig config, ToaMistake mistake,
-            int mistakeCount) {
-        String mistakeMessage = mistake.getChatMessage(config);
-        // Special case a few mistake chat messages based on config
-        if (config.mistakeMessageStacking() != StackingBehavior.NONE && mistakeMessage.equals("?")) {
-            return getStackingChatMessage(mistakeMessage, mistakeCount);
-        } else if (mistakeMessage.contains("|")) {
-            return getAlternatingChatMessage(mistakeMessage, mistakeCount);
+    public static String getChatMessageForMistakeCount(ToaMistakeTrackerConfig config, ToaMistake mistake, int mistakeCount) {
+        // Special case a few mistake chat messages
+        if (config.stackQuestionMarks() && mistake.getChatMessage(config).equals("?")) {
+          return getStackingChatMessage(mistake.getChatMessage(config), mistakeCount);
+        } else if (mistake.getChatMessage(config).contains("|")) {
+          return getAlternatingChatMessage(mistake.getChatMessage(config), mistakeCount);
         }
 
-        return mistakeMessage;
+        return mistake.getChatMessage(config);
     }
 
     private static String getStackingChatMessage(String message, int mistakeCount) {
@@ -169,8 +158,8 @@ public enum ToaMistake {
     }
 
     private static String getAlternatingChatMessage(String message, int mistakeCount) {
-        String[] messageChoices = message.split("\\|");
-        String messageChoice = messageChoices[mistakeCount % messageChoices.length];
-        return messageChoice;
+      String[] messageChoices = message.split("\\|");
+      String messageChoice = messageChoices[mistakeCount % messageChoices.length];
+      return messageChoice;
     }
 }

@@ -1,11 +1,7 @@
-package com.toamistaketracker;
+package septem150.toamistaketracker;
 
 import com.google.inject.Provides;
-import com.toamistaketracker.detector.MistakeDetectorManager;
-import com.toamistaketracker.detector.tracker.VengeanceTracker;
-import com.toamistaketracker.events.InRaidChanged;
-import com.toamistaketracker.events.RaidEntered;
-import com.toamistaketracker.panel.ToaMistakeTrackerPanel;
+
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
@@ -23,6 +19,11 @@ import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.ImageUtil;
+import septem150.toamistaketracker.detector.MistakeDetectorManager;
+import septem150.toamistaketracker.detector.tracker.VengeanceTracker;
+import septem150.toamistaketracker.events.InRaidChanged;
+import septem150.toamistaketracker.events.RaidEntered;
+import septem150.toamistaketracker.panel.ToaMistakeTrackerPanel;
 
 import javax.inject.Inject;
 import javax.swing.SwingUtilities;
@@ -31,13 +32,13 @@ import java.util.List;
 
 @Slf4j
 @PluginDescriptor(
-        name = "Toa Mistake Tracker"
+        name = "Toa Mistake Tracker Extended"
 )
 public class ToaMistakeTrackerPlugin extends Plugin {
 
     public static final int CYCLES_PER_GAME_TICK = Constants.GAME_TICK_LENGTH / Constants.CLIENT_TICK_LENGTH;
 
-    static final String CONFIG_GROUP = "toaMistakeTracker";
+    static final String CONFIG_GROUP = "toaMistakeTrackerExtended";
 
     private static final int OVERHEAD_TEXT_TICK_TIMEOUT = 5;
     private static final int CYCLES_FOR_OVERHEAD_TEXT = OVERHEAD_TEXT_TICK_TIMEOUT * CYCLES_PER_GAME_TICK;
@@ -157,9 +158,9 @@ public class ToaMistakeTrackerPlugin extends Plugin {
     }
 
     private void addChatMessageForMistake(Raider raider, ToaMistake mistake) {
-        int mistakeCount = config.mistakeMessageStacking() == StackingBehavior.SAME_MISTAKES_ONLY
-                ? panel.getCurrentMistakeCountForPlayer(raider.getName(), mistake)
-                : panel.getCurrentTotalMistakeCountForPlayer(raider.getName());
+        int mistakeCount = config.stackOnlySameMistakes()
+          ? panel.getCurrentMistakeCountForPlayer(raider.getName(), mistake)
+          : panel.getCurrentMistakeCountForPlayer(raider.getName());
         String msg = ToaMistake.getChatMessageForMistakeCount(config, mistake, mistakeCount);
 
         if (msg.isEmpty()) return;

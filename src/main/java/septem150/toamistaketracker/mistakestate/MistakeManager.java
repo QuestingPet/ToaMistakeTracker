@@ -1,11 +1,11 @@
-package com.toamistaketracker.mistakestate;
-
-import com.toamistaketracker.ToaMistake;
+package septem150.toamistaketracker.mistakestate;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import septem150.toamistaketracker.ToaMistake;
 
 /**
  * Keeps track of mistakes for players
@@ -69,15 +69,15 @@ class MistakeManager {
         return 0;
     }
 
-    public int getTotalMistakeCountForPlayer(String playerName) {
-        int totalMistakes = 0;
-        PlayerTrackingInfo playerInfo = trackingInfo.get(playerName);
-        if (playerInfo != null) {
-            for (int mistakes : playerInfo.getMistakes().values()) {
-                totalMistakes += mistakes;
-            }
+    public int getMistakeCountForPlayer(String playerName) {
+      int totalMistakes = 0;
+      PlayerTrackingInfo playerInfo = trackingInfo.get(playerName);
+      if (playerInfo != null) {
+        for (int mistakes : playerInfo.getMistakes().values()) {
+          totalMistakes += mistakes;
         }
-        return totalMistakes;
+      }
+      return totalMistakes;
     }
 
     public int getTotalMistakeCountForAllPlayers() {
