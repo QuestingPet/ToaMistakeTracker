@@ -199,7 +199,7 @@ public enum ToaMistake {
     private static String getAlternatingChatMessage(String message, String defaultMessage, int mistakeCount) {
         String[] messageChoices = Arrays.stream(message.split("\\|")).filter(msg -> !msg.isEmpty())
                 .toArray(String[]::new);
-        if (messageChoices.length < 1) {
+        if (messageChoices.length == 0) {
             return defaultMessage;
         }
         return messageChoices[mistakeCount % messageChoices.length];
