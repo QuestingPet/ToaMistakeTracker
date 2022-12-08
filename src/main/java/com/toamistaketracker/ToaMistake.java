@@ -82,10 +82,10 @@ public enum ToaMistake {
             "wardens-earthquake.png"),
     WARDENS_P3_AKKHA("Wardens P3 Akkha", (config) -> "", "", "wardens-akkha.png"),
     WARDENS_P3_ZEBAK("Wardens P3 Zebak", (config) -> "", "", "wardens-zebak.png"),
-    WARDENS_P3_KEPHRI("Wardens P3 Kephri", (config) -> config.kephriBombMessage(), "I'm exploding!",
+    WARDENS_P3_KEPHRI("Wardens P3 Kephri", (config) -> config.kephriBombMessage(), KEPHRI_BOMB.getDefaultMessage(),
             "wardens-kephri.png"),
-    WARDENS_P3_BABA("Wardens P3 Ba-Ba", (config) -> config.babaFallingBoulderMessage(), "It's raining!",
-            "wardens-baba.png"),
+    WARDENS_P3_BABA("Wardens P3 Ba-Ba", (config) -> config.babaFallingBoulderMessage(),
+            BABA_FALLING_BOULDER.getDefaultMessage(), "wardens-baba.png"),
     WARDENS_P3_LIGHTNING("Wardens P3 Lightning", (config) -> "", "", "wardens-lightning.png"), // Too noisy
     ;
 
