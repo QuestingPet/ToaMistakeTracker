@@ -383,7 +383,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 3
     )
     default String wardensBombsMessage() {
-        return ToaMistake.WARDENS_P3_KEPHRI.getDefaultMessage();
+        return ToaMistake.WARDENS_P2_BOMBS.getDefaultMessage();
     }
 
     @ConfigItem(
