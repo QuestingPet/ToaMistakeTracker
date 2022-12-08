@@ -69,6 +69,17 @@ class MistakeManager {
         return 0;
     }
 
+    public int getTotalMistakeCountForPlayer(String playerName) {
+        int totalMistakes = 0;
+        PlayerTrackingInfo playerInfo = trackingInfo.get(playerName);
+        if (playerInfo != null) {
+            for (int mistakes : playerInfo.getMistakes().values()) {
+                totalMistakes += mistakes;
+            }
+        }
+        return totalMistakes;
+    }
+
     public int getTotalMistakeCountForAllPlayers() {
         // TODO: Fix bug where room death and raid death count as 2 distinct mistakes, but they're the same.
         int totalMistakes = 0;
