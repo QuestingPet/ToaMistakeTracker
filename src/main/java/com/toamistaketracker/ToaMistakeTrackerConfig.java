@@ -57,7 +57,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 0
     )
     default String deathMessage() {
-        return ToaMistake.DEATH.getDefaultMessage();
+        return ToaMistake.defaultDeathMessage();
     }
 
     @ConfigSection(

@@ -12,79 +12,79 @@ import java.util.Set;
 
 public enum ToaMistake {
     // Deaths
-    DEATH("Death", (config) -> "", "I'm planking!", "death.png"), // Chat message handled in deaths below
-    DEATH_HET("Path of Het Death", (config) -> config.deathMessage(), "I'm planking!", "death-akkha.png"),
-    DEATH_CRONDIS("Path of Crondis Death", (config) -> config.deathMessage(), "I'm planking!", "death-zebak.png"),
-    DEATH_SCABARAS("Path of Scabaras Death", (config) -> config.deathMessage(), "I'm planking!", "death-kephri.png"),
-    DEATH_APMEKEN("Path of Apmeken Death", (config) -> config.deathMessage(), "I'm planking!", "death-baba.png"),
-    DEATH_WARDENS("Wardens Death", (config) -> config.deathMessage(), "I'm planking!", "death-wardens.png"),
+    DEATH("Death", (config) -> "", "", "death.png"), // Chat message handled in deaths below
+    DEATH_HET("Path of Het Death", ToaMistakeTrackerConfig::deathMessage, defaultDeathMessage(), "death-akkha.png"),
+    DEATH_CRONDIS("Path of Crondis Death", ToaMistakeTrackerConfig::deathMessage, defaultDeathMessage(), "death-zebak.png"),
+    DEATH_SCABARAS("Path of Scabaras Death", ToaMistakeTrackerConfig::deathMessage, defaultDeathMessage(), "death-kephri.png"),
+    DEATH_APMEKEN("Path of Apmeken Death", ToaMistakeTrackerConfig::deathMessage, defaultDeathMessage(), "death-baba.png"),
+    DEATH_WARDENS("Wardens Death", ToaMistakeTrackerConfig::deathMessage, defaultDeathMessage(), "death-wardens.png"),
 
     // Het
-    HET_PUZZLE_LIGHT("Het Puzzle Energy Beam", (config) -> config.hetPuzzleBeamMessage(), "Ah! It burns!",
+    HET_PUZZLE_LIGHT("Het Puzzle Energy Beam", ToaMistakeTrackerConfig::hetPuzzleBeamMessage, "Ah! It burns!",
             "het-light.png"),
-    HET_PUZZLE_DARK_ORB("Het Puzzle Dark Orb", (config) -> config.hetPuzzleOrbMessage(), "Embrace Darkness!",
+    HET_PUZZLE_DARK_ORB("Het Puzzle Dark Orb", ToaMistakeTrackerConfig::hetPuzzleOrbMessage, "Embrace Darkness!",
             "het-dark-orb2.png"),
-    AKKHA_SPECIAL_QUADRANT_BOMB("Akkha Quadrant Bombs", (config) -> config.akkhaQuadrantMessage(), "I'm too slow!",
+    AKKHA_SPECIAL_QUADRANT_BOMB("Akkha Quadrant Bombs", ToaMistakeTrackerConfig::akkhaQuadrantMessage, "I'm too slow!",
             "akkha-quadrant3.png"),
-    AKKHA_SPECIAL_ELEMENTAL_ORBS("Akkha Elemental Orbs", (config) -> config.akkhaElementalOrbMessage(), "I'm griefing!",
+    AKKHA_SPECIAL_ELEMENTAL_ORBS("Akkha Elemental Orbs", ToaMistakeTrackerConfig::akkhaElementalOrbMessage, "I'm griefing!",
             "akkha-elemental2.png"),
-    AKKHA_UNSTABLE_ORB("Akkha Unstable Orb", (config) -> config.akkhaUnstableOrbMessage(), "?",
+    AKKHA_UNSTABLE_ORB("Akkha Unstable Orb", ToaMistakeTrackerConfig::akkhaUnstableOrbMessage, "?",
             "akkha-unstable-orb.png"),
 
     // Crondis
-    CRONDIS_PUZZLE_LOW_WATER("Path of Crondis Watering", (config) -> config.crondisWaterMessage(),
+    CRONDIS_PUZZLE_LOW_WATER("Path of Crondis Watering", ToaMistakeTrackerConfig::crondisWaterMessage,
             "This jug feels a little light...", "crondis-water.png"),
-    ZEBAK_ACID_TILE("Zebak Acid Tile", (config) -> config.zebakAcidMessage(), "I'm drowning in acid!",
+    ZEBAK_ACID_TILE("Zebak Acid Tile", ToaMistakeTrackerConfig::zebakAcidMessage, "I'm drowning in acid!",
             "zebak-acid.png"),
-    ZEBAK_BLOOD_CLOUD("Zebak Blood Cloud", (config) -> config.zebakBloodMessage(), "I'm on a blood cloud!",
+    ZEBAK_BLOOD_CLOUD("Zebak Blood Cloud", ToaMistakeTrackerConfig::zebakBloodMessage, "I'm on a blood cloud!",
             "zebak-blood-cloud.png"),
-    ZEBAK_EARTHQUAKE("Zebak Scream", (config) -> config.zebakScreamMessage(), "Nihil!", "zebak-scream.png"),
-    ZEBAK_WAVE("Zebak Wave", (config) -> config.zebakWaveMessage(), "I'm surfing!", "zebak-wave.png"),
+    ZEBAK_EARTHQUAKE("Zebak Scream", ToaMistakeTrackerConfig::zebakScreamMessage, "Nihil!", "zebak-scream.png"),
+    ZEBAK_WAVE("Zebak Wave", ToaMistakeTrackerConfig::zebakWaveMessage, "I'm surfing!", "zebak-wave.png"),
 
     // Scabaras
-    KEPHRI_BOMB("Kephri Bomb", (config) -> config.kephriBombMessage(), "I'm exploding!", "kephri-bomb.png"),
+    KEPHRI_BOMB("Kephri Bomb", ToaMistakeTrackerConfig::kephriBombMessage, "I'm exploding!", "kephri-bomb.png"),
     KEPHRI_SWARM_HEAL("Kephri Swarm Heal", (config) -> "The swarms are going in!", "The swarms are going in!",
             "kephri-swarm.png"),
     KEPHRI_EGG_EXPLODE("Kephri Egg Explode", (config) -> "I've been hatched!", "I've been hatched!", ""),
 
     // Apmeken
     APMEKEN_PUZZLE_SIGHT("Apmeken Sight", (config) -> "", "", "apmeken-sight.png"),
-    APMEKEN_PUZZLE_VENT("Apmeken Vent", (config) -> config.apmekenVentMessage(), "I'm fuming!", ""),
-    APMEKEN_PUZZLE_PILLAR("Apmeken Pillar", (config) -> config.apmekenPillarMessage(), "The sky is falling!", ""),
-    APMEKEN_PUZZLE_CORRUPTION("Apmeken Corruption", (config) -> config.apmekenCorruptionMessage(),
+    APMEKEN_PUZZLE_VENT("Apmeken Vent", ToaMistakeTrackerConfig::apmekenVentMessage, "I'm fuming!", ""),
+    APMEKEN_PUZZLE_PILLAR("Apmeken Pillar", ToaMistakeTrackerConfig::apmekenPillarMessage, "The sky is falling!", ""),
+    APMEKEN_PUZZLE_CORRUPTION("Apmeken Corruption", ToaMistakeTrackerConfig::apmekenCorruptionMessage,
             "I've been corrupted!", ""),
-    APMEKEN_PUZZLE_VENOM("Apmeken Venom Tile", (config) -> config.apmekenVenomMessage(), "It's venomous!",
+    APMEKEN_PUZZLE_VENOM("Apmeken Venom Tile", ToaMistakeTrackerConfig::apmekenVenomMessage, "It's venomous!",
             "apmeken-venom.png"),
-    APMEKEN_PUZZLE_VOLATILE("Apmeken Volatile", (config) -> config.apmekenVolatileMessage(), "I'm exploding!",
+    APMEKEN_PUZZLE_VOLATILE("Apmeken Volatile", ToaMistakeTrackerConfig::apmekenVolatileMessage, "I'm exploding!",
             "apmeken-volatile.png"),
-    BABA_SLAM("Ba-Ba Slam", (config) -> config.babaSlamMessage(), "Come on and slam!|And welcome to the jam!",
+    BABA_SLAM("Ba-Ba Slam", ToaMistakeTrackerConfig::babaSlamMessage, "Come on and slam!|And welcome to the jam!",
             "baba-slam.png"),
-    BABA_PROJECTILE_BOULDER("Ba-Ba Projectile Boulder", (config) -> config.babaProjectileBoulderMessage(),
+    BABA_PROJECTILE_BOULDER("Ba-Ba Projectile Boulder", ToaMistakeTrackerConfig::babaProjectileBoulderMessage,
             "I got rocked!", "baba-projectile-boulder.png"),
-    BABA_ROLLING_BOULDER("Ba-Ba Rolling Boulder", (config) -> config.babaRollingBoulderMessage(),
+    BABA_ROLLING_BOULDER("Ba-Ba Rolling Boulder", ToaMistakeTrackerConfig::babaRollingBoulderMessage,
             "They see me rollin'...", "baba-rolling-boulder.png"),
-    BABA_FALLING_BOULDER("Ba-Ba Falling Boulder", (config) -> config.babaFallingBoulderMessage(), "It's raining!",
+    BABA_FALLING_BOULDER("Ba-Ba Falling Boulder", ToaMistakeTrackerConfig::babaFallingBoulderMessage, "It's raining!",
             "baba-falling-boulder.png"),
-    BABA_BANANA("Ba-Ba Banana", (config) -> config.babaBananaMessage(), "Who put that there?", "baba-banana.png"),
-    BABA_GAP("Ba-Ba Gap", (config) -> config.babaGapMessage(), "I'm going down!", "baba-gap.png"),
+    BABA_BANANA("Ba-Ba Banana", ToaMistakeTrackerConfig::babaBananaMessage, "Who put that there?", "baba-banana.png"),
+    BABA_GAP("Ba-Ba Gap", ToaMistakeTrackerConfig::babaGapMessage, "I'm going down!", "baba-gap.png"),
 
     // Wardens
-    WARDENS_P1_PYRAMID("Wardens P1 Pyramid", (config) -> config.wardensPyramidMessage(), "I'm disco-ing!",
+    WARDENS_P1_PYRAMID("Wardens P1 Pyramid", ToaMistakeTrackerConfig::wardensPyramidMessage, "I'm disco-ing!",
             "wardens-pyramid.png"),
     WARDENS_P2_OBELISK("Wardens P2 Obelisk", (config) -> "", "", "wardens-obelisk.png"),
-    WARDENS_P2_DDR("Wardens P2 DDR", (config) -> config.wardensDDRMessage(), "I'm dancing!", ""),
-    WARDENS_P2_WINDMILL("Wardens P2 Windmill", (config) -> config.wardensWindmillMessage(), "I'm winded!", ""),
-    WARDENS_P2_BOMBS("Wardens P2 Bombs", (config) -> config.wardensBombsMessage(), "I'm getting bombed!", ""),
-    WARDENS_P2_BIND("Wardens P2 Bind", (config) -> config.wardensBindMessage(), "I'm in jail!", "wardens-bind.png"),
-    WARDENS_P2_SPECIAL_PRAYER("Wardens P2 Special Prayer", (config) -> config.wardensPrayerMessage(),
+    WARDENS_P2_DDR("Wardens P2 DDR", ToaMistakeTrackerConfig::wardensDDRMessage, "I'm dancing!", ""),
+    WARDENS_P2_WINDMILL("Wardens P2 Windmill", ToaMistakeTrackerConfig::wardensWindmillMessage, "I'm winded!", ""),
+    WARDENS_P2_BOMBS("Wardens P2 Bombs", ToaMistakeTrackerConfig::wardensBombsMessage, "I'm getting bombed!", ""),
+    WARDENS_P2_BIND("Wardens P2 Bind", ToaMistakeTrackerConfig::wardensBindMessage, "I'm in jail!", "wardens-bind.png"),
+    WARDENS_P2_SPECIAL_PRAYER("Wardens P2 Special Prayer", ToaMistakeTrackerConfig::wardensPrayerMessage,
             "What even was that attack?", "wardens-special-prayer.png"),
-    WARDENS_P3_EARTHQUAKE("Wardens P3 Slam", (config) -> config.wardensSlamMessage(), "I'm tripping!",
+    WARDENS_P3_EARTHQUAKE("Wardens P3 Slam", ToaMistakeTrackerConfig::wardensSlamMessage, "I'm tripping!",
             "wardens-earthquake.png"),
     WARDENS_P3_AKKHA("Wardens P3 Akkha", (config) -> "", "", "wardens-akkha.png"),
     WARDENS_P3_ZEBAK("Wardens P3 Zebak", (config) -> "", "", "wardens-zebak.png"),
-    WARDENS_P3_KEPHRI("Wardens P3 Kephri", (config) -> config.kephriBombMessage(), KEPHRI_BOMB.getDefaultMessage(),
+    WARDENS_P3_KEPHRI("Wardens P3 Kephri", ToaMistakeTrackerConfig::kephriBombMessage, KEPHRI_BOMB.getDefaultMessage(),
             "wardens-kephri.png"),
-    WARDENS_P3_BABA("Wardens P3 Ba-Ba", (config) -> config.babaFallingBoulderMessage(),
+    WARDENS_P3_BABA("Wardens P3 Ba-Ba", ToaMistakeTrackerConfig::babaFallingBoulderMessage,
             BABA_FALLING_BOULDER.getDefaultMessage(), "wardens-baba.png"),
     WARDENS_P3_LIGHTNING("Wardens P3 Lightning", (config) -> "", "", "wardens-lightning.png"), // Too noisy
     ;
@@ -130,6 +130,10 @@ public enum ToaMistake {
 
     public String getChatMessage(ToaMistakeTrackerConfig config) {
         return chatMessageFunc.apply(config);
+    }
+
+    public static String defaultDeathMessage() {
+        return "I'm planking!";
     }
 
     public static boolean isRoomDeath(ToaMistake mistake) {
