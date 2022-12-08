@@ -12,7 +12,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             keyName = "showMistakesInChat",
             name = "Show Mistakes In Chat",
             description = "When a player makes a mistake in ToA, whether or not to log the mistake message to your " +
-                    "public chat.",
+                    "public chat. Max message length of " + ToaMistake.MAX_MESSAGE_LENGTH + " to prevent spamming chat.",
             position = 0
     )
     default boolean showMistakesInChat() {
