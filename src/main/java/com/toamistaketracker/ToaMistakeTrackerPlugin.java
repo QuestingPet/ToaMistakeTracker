@@ -162,6 +162,11 @@ public class ToaMistakeTrackerPlugin extends Plugin {
                 : panel.getCurrentTotalMistakeCountForPlayer(raider.getName());
         String msg = ToaMistake.getChatMessageForMistakeCount(config, mistake, mistakeCount);
 
+        // Truncate message length to prevent overly-spammy messages taking up too much screen space
+        if (msg.length() > ToaMistake.MAX_MESSAGE_LENGTH) {
+            msg = msg.substring(0, ToaMistake.MAX_MESSAGE_LENGTH);
+        }
+
         if (msg.isEmpty()) return;
 
         // Add to overhead text if config is enabled

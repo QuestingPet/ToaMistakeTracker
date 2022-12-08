@@ -184,8 +184,7 @@ public enum ToaMistake {
             return getAlternatingChatMessage(mistakeMessage, mistake.getDefaultMessage(), mistakeCount);
         }
 
-        // Truncate message length to prevent overly-spammy messages taking up too much screen space
-        return truncateMessage(mistakeMessage);
+        return mistakeMessage;
     }
 
     private static String getStackingChatMessage(String message, int mistakeCount) {
@@ -203,15 +202,6 @@ public enum ToaMistake {
         if (messageChoices.length < 1) {
             return defaultMessage;
         }
-        String messageChoice = messageChoices[mistakeCount % messageChoices.length];
-        // Truncate message length to prevent overly-spammy messages taking up too much screen space
-        return truncateMessage(messageChoice);
-    }
-
-    private static String truncateMessage(String message) {
-        if (message.length() > MAX_MESSAGE_LENGTH) {
-            return message.substring(0, MAX_MESSAGE_LENGTH);
-        }
-        return message;
+        return messageChoices[mistakeCount % messageChoices.length];
     }
 }
