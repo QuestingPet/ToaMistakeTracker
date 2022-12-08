@@ -104,7 +104,11 @@ public enum ToaMistake {
 
     @Getter
     @NonNull
-    private final String mistakeName, defaultMessage;
+    private final String mistakeName;
+
+    @Getter
+    @NonNull
+    private final String defaultMessage;
 
     @NonNull
     private final Function<ToaMistakeTrackerConfig, String> chatMessageFunc;
