@@ -57,7 +57,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 0
     )
     default String deathMessage() {
-        return "I'm planking!";
+        return ToaMistake.DEATH.getDefaultMessage();
     }
 
     @ConfigSection(
@@ -76,7 +76,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 0
     )
     default String hetPuzzleBeamMessage() {
-        return "Ah! It burns!";
+        return ToaMistake.HET_PUZZLE_LIGHT.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -87,7 +87,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 1
     )
     default String hetPuzzleOrbMessage() {
-        return "Embrace Darkness!";
+        return ToaMistake.HET_PUZZLE_DARK_ORB.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -98,7 +98,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 2
     )
     default String akkhaQuadrantMessage() {
-        return "I'm too slow!";
+        return ToaMistake.AKKHA_SPECIAL_QUADRANT_BOMB.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -109,7 +109,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 3
     )
     default String akkhaElementalOrbMessage() {
-        return "I'm griefing!";
+        return ToaMistake.AKKHA_SPECIAL_ELEMENTAL_ORBS.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -120,7 +120,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 4
     )
     default String akkhaUnstableOrbMessage() {
-        return "?";
+        return ToaMistake.AKKHA_UNSTABLE_ORB.getDefaultMessage();
     }
 
     @ConfigSection(
@@ -139,7 +139,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 0
     )
     default String crondisWaterMessage() {
-        return "This jug feels a little light...";
+        return ToaMistake.CRONDIS_PUZZLE_LOW_WATER.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -150,7 +150,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 1
     )
     default String zebakAcidMessage() {
-        return "I'm drowning in acid!";
+        return ToaMistake.ZEBAK_ACID_TILE.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -161,7 +161,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 2
     )
     default String zebakBloodMessage() {
-        return "I'm on a blood cloud!";
+        return ToaMistake.ZEBAK_BLOOD_CLOUD.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -172,7 +172,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 3
     )
     default String zebakScreamMessage() {
-        return "Nihil!";
+        return ToaMistake.ZEBAK_EARTHQUAKE.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -183,7 +183,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 4
     )
     default String zebakWaveMessage() {
-        return "I'm surfing!";
+        return ToaMistake.ZEBAK_WAVE.getDefaultMessage();
     }
 
     @ConfigSection(
@@ -202,7 +202,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 0
     )
     default String kephriBombMessage() {
-        return "I'm exploding!";
+        return ToaMistake.KEPHRI_BOMB.getDefaultMessage();
     }
 
     @ConfigSection(
@@ -221,7 +221,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 0
     )
     default String apmekenVentMessage() {
-        return "I'm fuming!";
+        return ToaMistake.APMEKEN_PUZZLE_VENT.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -232,7 +232,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 1
     )
     default String apmekenPillarMessage() {
-        return "The sky is falling!";
+        return ToaMistake.APMEKEN_PUZZLE_PILLAR.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -243,7 +243,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 2
     )
     default String apmekenCorruptionMessage() {
-        return "I've been corrupted!";
+        return ToaMistake.APMEKEN_PUZZLE_CORRUPTION.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -254,7 +254,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 3
     )
     default String apmekenVenomMessage() {
-        return "It's venomous!";
+        return ToaMistake.APMEKEN_PUZZLE_VENOM.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -265,7 +265,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 4
     )
     default String apmekenVolatileMessage() {
-        return "I'm exploding!";
+        return ToaMistake.APMEKEN_PUZZLE_VOLATILE.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -276,7 +276,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 5
     )
     default String babaSlamMessage() {
-        return "Come on and slam!|And welcome to the jam!";
+        return ToaMistake.BABA_SLAM.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -287,7 +287,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 6
     )
     default String babaProjectileBoulderMessage() {
-        return "I got rocked!";
+        return ToaMistake.BABA_PROJECTILE_BOULDER.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -298,7 +298,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 7
     )
     default String babaRollingBoulderMessage() {
-        return "They see me rollin'...";
+        return ToaMistake.BABA_ROLLING_BOULDER.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -309,7 +309,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 8
     )
     default String babaFallingBoulderMessage() {
-        return "It's raining!";
+        return ToaMistake.BABA_FALLING_BOULDER.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -320,7 +320,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 9
     )
     default String babaBananaMessage() {
-        return "Who put that there?";
+        return ToaMistake.BABA_BANANA.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -331,7 +331,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 10
     )
     default String babaGapMessage() {
-        return "I'm going down!";
+        return ToaMistake.BABA_GAP.getDefaultMessage();
     }
 
     @ConfigSection(
@@ -350,7 +350,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 0
     )
     default String wardensPyramidMessage() {
-        return "I'm disco-ing!";
+        return ToaMistake.WARDENS_P1_PYRAMID.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -361,7 +361,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 1
     )
     default String wardensDDRMessage() {
-        return "I'm dancing!";
+        return ToaMistake.WARDENS_P2_DDR.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -372,7 +372,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 2
     )
     default String wardensWindmillMessage() {
-        return "I'm winded!";
+        return ToaMistake.WARDENS_P2_WINDMILL.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -383,7 +383,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 3
     )
     default String wardensBombsMessage() {
-        return "I'm getting bombed!";
+        return ToaMistake.WARDENS_P3_KEPHRI.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -394,7 +394,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 4
     )
     default String wardensBindMessage() {
-        return "I'm in jail!";
+        return ToaMistake.WARDENS_P2_BIND.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -405,7 +405,7 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 5
     )
     default String wardensPrayerMessage() {
-        return "What even was that attack?";
+        return ToaMistake.WARDENS_P2_SPECIAL_PRAYER.getDefaultMessage();
     }
 
     @ConfigItem(
@@ -416,6 +416,6 @@ public interface ToaMistakeTrackerConfig extends Config {
             position = 6
     )
     default String wardensSlamMessage() {
-        return "I'm tripping!";
+        return ToaMistake.WARDENS_P3_EARTHQUAKE.getDefaultMessage();
     }
 }
