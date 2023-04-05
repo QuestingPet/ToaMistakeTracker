@@ -73,6 +73,14 @@ Current mistakes being tracked:
 
 ## Changes
 
+#### 1.4
+
+* Various bug fixes to Akkha's "Quadrant Special":
+  * Fix incorrectly detecting a mistake when skipping memory special
+  * Fix incorrectly detecting a mistake during hourglass special if standing near the center
+  * Fix incorrectly detecting a mistake when the player just made a mistake the previous tick.
+    * The game does not punish you two ticks in a row for this attack -- there is a 1-tick cooldown
+
 #### 1.3
 
 * Added configurable mistake messages to settings
