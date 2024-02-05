@@ -147,9 +147,8 @@ public class ToaMistakeTrackerPanel extends PluginPanel {
         leftTitleContainer.add(currentViewTitle, BorderLayout.WEST);
 
         // Create the switch view button
-        SwingUtil.removeButtonDecorations(switchMistakesViewBtn);
         switchMistakesViewBtn.setText(getSwitchMistakesViewButtonText());
-        switchMistakesViewBtn.setBackground(Color.WHITE);
+        switchMistakesViewBtn.setBackground(Color.DARK_GRAY);
         switchMistakesViewBtn.setBorder(new EmptyBorder(10, 10, 10, 10));
         switchMistakesViewBtn.setBorderPainted(true);
         switchMistakesViewBtn.setPreferredSize(new Dimension(100, 10));
@@ -158,13 +157,11 @@ public class ToaMistakeTrackerPanel extends PluginPanel {
         switchMistakesViewBtn.addActionListener(e -> switchMistakesView());
         switchMistakesViewBtn.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
-                switchMistakesViewBtn.setForeground(Color.LIGHT_GRAY);
-                switchMistakesViewBtn.setBackground(Color.LIGHT_GRAY);
+                switchMistakesViewBtn.setBackground(Color.GRAY);
             }
 
             public void mouseExited(MouseEvent e) {
-                switchMistakesViewBtn.setForeground(Color.WHITE);
-                switchMistakesViewBtn.setBackground(Color.WHITE);
+                switchMistakesViewBtn.setBackground(Color.DARK_GRAY);
             }
         });
 
