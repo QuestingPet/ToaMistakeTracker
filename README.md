@@ -73,6 +73,10 @@ Current mistakes being tracked:
 
 ## Changes
 
+#### 1.5
+
+* Update Side Panel for RuneLite's new Look and Feel (FlatLaf)
+
 #### 1.4
 
 * Various bug fixes to Akkha's "Quadrant Special":
