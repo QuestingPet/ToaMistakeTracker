@@ -63,11 +63,11 @@ Current mistakes being tracked:
 
 ## Screenshots
 
-![panel-example](src/main/resources/com/toamistaketracker/panel-example.png)
+![panel-example](screenshots/panel-example.png)
 
-![death-example](src/main/resources/com/toamistaketracker/death-example.png)
+![death-example](screenshots/death-example.png)
 
-![crondis-example](src/main/resources/com/toamistaketracker/crondis-example.png)
+![crondis-example](screenshots/crondis-example.png)
 
 ---
 
